@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Search, BookOpen, GraduationCap, ChevronRight, MapPin, Star, Sparkles } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Search, BookOpen, GraduationCap, ChevronRight, MapPin, Star } from "lucide-react";
 import { MOCK_UNIVERSITIES, FEATURED_ARTICLES, University, Article } from "../data";
 
 interface HomepageProps {
@@ -82,7 +83,7 @@ export default function Homepage({
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 font-sans flex-grow">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 font-sans grow">
       
       {/* Split Layout Screen */}
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-8 mb-16 border-b border-slate-200 pb-16">
@@ -104,7 +105,7 @@ export default function Homepage({
           {/* Search Box Container */}
           <div className="relative w-full" ref={suggestionRef}>
             <form onSubmit={handleSearchSubmit} className="flex">
-              <div className="relative flex-grow">
+              <div className="relative grow">
                 <input
                   type="text"
                   placeholder="Search universities, locations, subjects..."
@@ -118,17 +119,26 @@ export default function Homepage({
                 />
                 <Search className="absolute left-4 top-3.5 h-4.5 w-4.5 text-slate-400" />
               </div>
-              <button
+              <motion.button
                 type="submit"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 className="bg-slate-900 text-white text-xs font-semibold uppercase tracking-wider px-6 hover:bg-slate-800 transition-colors border-y border-r border-slate-900"
               >
                 Search
-              </button>
+              </motion.button>
             </form>
 
             {/* Debounced Suggestion Dropdown */}
-            {showSuggestions && (searchQuery.trim().length > 0) && (
-              <div className="absolute left-0 right-0 z-20 mt-1.5 border border-slate-950 bg-white shadow-xl max-h-96 overflow-y-auto">
+            <AnimatePresence>
+              {showSuggestions && searchQuery.trim().length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -12, scale: 0.99 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -12, scale: 0.99 }}
+                  transition={{ duration: 0.18, ease: "easeOut" }}
+                  className="absolute left-0 right-0 z-20 mt-1.5 border border-slate-950 bg-white shadow-xl max-h-96 overflow-y-auto"
+                >
                 
                 {/* Universities Section */}
                 <div className="p-3 border-b border-slate-100">
@@ -203,16 +213,18 @@ export default function Homepage({
                     <ChevronRight className="h-3 w-3 ml-0.5" />
                   </button>
                 </div>
-              </div>
+              </motion.div>
             )}
+          </AnimatePresence>
           </div>
 
           {/* Quick-links / Popular Searches */}
           <div className="mt-4 flex flex-wrap gap-2 items-center">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Trending:</span>
             {["Uzbekistan", "Medicine", "National Univ Singapore", "English medium"].map((tag) => (
-              <button
+              <motion.button
                 key={tag}
+                whileHover={{ y: -1, scale: 1.02 }}
                 onClick={() => {
                   setSearchQuery(tag);
                   onSearchSubmit(tag);
@@ -221,7 +233,7 @@ export default function Homepage({
                 className="text-[11px] border border-slate-200 px-2 py-0.5 text-slate-600 hover:border-slate-900 hover:text-slate-900 bg-slate-50 transition-all font-mono"
               >
                 {tag}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
@@ -254,13 +266,20 @@ export default function Homepage({
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`border-b-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors -mb-[1px] ${
+                  className={`relative border-b-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors -mb-px ${
                     activeTab === tab.id
                       ? "border-amber-700 text-slate-900"
                       : "border-transparent text-slate-400 hover:text-slate-700"
                   }`}
                 >
                   {tab.label}
+                  {activeTab === tab.id && (
+                    <motion.span
+                      layoutId="active-tab-indicator"
+                      className="absolute inset-x-0 -bottom-px h-0.5 bg-amber-700"
+                      transition={{ type: "spring", stiffness: 320, damping: 30 }}
+                    />
+                  )}
                 </button>
               ))}
             </div>
@@ -276,9 +295,11 @@ export default function Homepage({
                     : uni.overall;
 
                 return (
-                  <div
+                  <motion.div
                     key={uni.id}
                     onClick={() => onUniversitySelect(uni.id)}
+                    whileHover={{ y: -2, boxShadow: "0 14px 35px rgba(15,23,42,0.08)" }}
+                    transition={{ type: "spring", stiffness: 260, damping: 24 }}
                     className="flex items-center justify-between p-3 border border-slate-100 hover:border-slate-300 bg-slate-50 hover:bg-white cursor-pointer transition-all duration-150 group"
                   >
                     <div className="flex items-center space-x-3 truncate">
@@ -305,7 +326,7 @@ export default function Homepage({
                       </div>
                       <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all" />
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
@@ -339,9 +360,14 @@ export default function Homepage({
       {/* 3-Column Editorial Grid Modules */}
       <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-200 border-y border-slate-200">
         {FEATURED_ARTICLES.map((article, idx) => (
-          <div
+          <motion.div
             key={article.id}
             onClick={() => onArticleSelect(article)}
+            whileHover={{ y: -6 }}
+            whileTap={{ scale: 0.99 }}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: "easeOut", delay: idx * 0.05 }}
             className={`py-8 cursor-pointer group flex flex-col justify-between h-full ${
               idx === 0 ? "md:pr-8" : idx === 1 ? "md:px-8" : "md:pl-8"
             }`}
@@ -350,10 +376,12 @@ export default function Homepage({
               {/* Image Frame with Strict Aspect Ratio */}
               <div className="relative aspect-video w-full mb-6 border border-slate-200 overflow-hidden bg-slate-100">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <motion.img
                   src={article.image}
                   alt={article.title}
-                  className="h-full w-full object-cover object-center group-hover:scale-102 transition-transform duration-300"
+                  whileHover={{ scale: 1.06 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="h-full w-full object-cover object-center transition-transform"
                 />
               </div>
 
@@ -382,7 +410,7 @@ export default function Homepage({
               <span>Read Full Report</span>
               <ChevronRight className="h-4 w-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>
