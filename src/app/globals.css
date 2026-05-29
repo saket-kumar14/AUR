@@ -10,8 +10,13 @@
   --color-cyber-dark: #0d0d11;
   --color-cyber-gray: #18181f;
   --color-cyber-border: rgba(234, 179, 8, 0.15);
-}
 
+  --animate-marquee: marquee 25s linear infinite;
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+}
 :root {
   --background: #ffffff;
   --foreground: #0f172a;

@@ -9,6 +9,7 @@ import Homepage from "./components/Homepage";
 import RankingsEngine from "./components/RankingsEngine";
 import ComparisonDock from "./components/ComparisonDock";
 import UniversityProfile from "./components/UniversityProfile";
+import FloatingChatAssistant from "./components/FloatingChatAssistant";
 import { useSidebar } from "./components/navigation/SidebarContext";
 import { Article, MOCK_UNIVERSITIES } from "./data";
 import { BarChart3, Bookmark, Settings, Award, GraduationCap, CheckCircle, ShieldAlert } from "lucide-react";
@@ -336,6 +337,8 @@ export default function AppContent() {
 
       {/* Mobile Responsive Navigation Drawer & Bottom Bar */}
       <MobileMenu />
+
+      <FloatingChatAssistant />
 
       <ComparisonDock
         selectedIds={selectedUniIds}
