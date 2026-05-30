@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, SlidersHorizontal, Home, Trophy, Settings, Bookmark } from "lucide-react";
 
 export default function MobileMenu() {
+  const focusRing =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-cyber-yellow dark:focus-visible:ring-offset-cyber-black";
   const {
     isMobileOpen,
     setIsMobileOpen,
@@ -62,8 +64,10 @@ export default function MobileMenu() {
                   </p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setIsMobileOpen(false)}
-                  className="p-1 rounded-md text-slate-400 hover:text-slate-900 dark:hover:text-cyber-yellow transition-colors hover:bg-slate-100 dark:hover:bg-cyber-gray"
+                  aria-label="Close menu"
+                  className={`p-1 rounded-md text-slate-400 hover:text-slate-900 dark:hover:text-cyber-yellow transition-colors hover:bg-slate-100 dark:hover:bg-cyber-gray ${focusRing}`}
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -72,6 +76,7 @@ export default function MobileMenu() {
               {/* Mobile Tab Headers (Menu vs Filters) */}
               <div className="flex border-b border-slate-200 dark:border-cyber-border/30">
                 <button
+                  type="button"
                   onClick={() => setActiveTab("menu")}
                   className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-widest border-b-2 text-center transition-colors ${
                     activeTab === "menu"
@@ -82,6 +87,7 @@ export default function MobileMenu() {
                   Menu
                 </button>
                 <button
+                  type="button"
                   onClick={() => setActiveTab("filters")}
                   className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-widest border-b-2 text-center transition-colors ${
                     activeTab === "filters"
@@ -102,13 +108,14 @@ export default function MobileMenu() {
                       const isActive = activeView === item.view;
                       return (
                         <button
+                          type="button"
                           key={item.id}
                           onClick={() => handleLinkClick(item)}
                           className={`w-full flex items-center p-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
                             isActive
                               ? "bg-slate-150 border border-slate-200 text-slate-900 dark:bg-cyber-yellow dark:text-cyber-black dark:border-transparent dark:shadow-[0_0_10px_rgba(234,179,8,0.15)]"
                               : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-cyber-gray/30"
-                          }`}
+                          } ${focusRing}`}
                         >
                           <Icon className="h-4.5 w-4.5 mr-3.5 shrink-0" />
                           <span>{item.label}</span>
@@ -148,12 +155,13 @@ export default function MobileMenu() {
         <div className="h-full grid grid-cols-4 items-center max-w-lg mx-auto">
           {/* Item 1: Discovery Hub */}
           <button
+            type="button"
             onClick={() => handleViewChange("home")}
             className={`flex flex-col items-center justify-center h-full transition-colors ${
               activeView === "home"
                 ? "text-amber-700 dark:text-cyber-yellow"
                 : "hover:text-slate-800 dark:hover:text-white"
-            }`}
+            } ${focusRing}`}
           >
             <Home className="h-4.5 w-4.5 mb-1" />
             <span className="text-[8px] font-bold uppercase tracking-wider">Discovery</span>
@@ -161,12 +169,13 @@ export default function MobileMenu() {
 
           {/* Item 2: Rankings Engine */}
           <button
+            type="button"
             onClick={() => handleViewChange("rankings")}
             className={`flex flex-col items-center justify-center h-full transition-colors ${
               activeView === "rankings"
                 ? "text-amber-700 dark:text-cyber-yellow"
                 : "hover:text-slate-800 dark:hover:text-white"
-            }`}
+            } ${focusRing}`}
           >
             <Trophy className="h-4.5 w-4.5 mb-1" />
             <span className="text-[8px] font-bold uppercase tracking-wider">Rankings</span>
@@ -174,11 +183,12 @@ export default function MobileMenu() {
 
           {/* Item 3: Toggle Drawer Filters */}
           <button
+            type="button"
             onClick={() => {
               setActiveTab("filters");
               setIsMobileOpen(true);
             }}
-            className="flex flex-col items-center justify-center h-full hover:text-slate-800 dark:hover:text-white"
+            className={`flex flex-col items-center justify-center h-full hover:text-slate-800 dark:hover:text-white ${focusRing}`}
           >
             <SlidersHorizontal className="h-4.5 w-4.5 mb-1" />
             <span className="text-[8px] font-bold uppercase tracking-wider">Filters</span>
@@ -186,12 +196,13 @@ export default function MobileMenu() {
 
           {/* Item 4: Settings */}
           <button
+            type="button"
             onClick={() => handleViewChange("settings")}
             className={`flex flex-col items-center justify-center h-full transition-colors ${
               activeView === "settings"
                 ? "text-amber-700 dark:text-cyber-yellow"
                 : "hover:text-slate-800 dark:hover:text-white"
-            }`}
+            } ${focusRing}`}
           >
             <Settings className="h-4.5 w-4.5 mb-1" />
             <span className="text-[8px] font-bold uppercase tracking-wider">Settings</span>

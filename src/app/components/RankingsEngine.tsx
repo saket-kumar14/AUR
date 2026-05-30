@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useDeferredValue } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   useReactTable,
@@ -55,6 +55,8 @@ export default function RankingsEngine({
   onToggleCompare,
   onUniversitySelect,
 }: RankingsEngineProps) {
+  const focusRing =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-cyber-yellow dark:focus-visible:ring-offset-cyber-black";
   const router = useRouter();
   const searchParams = useSearchParams();
   const { filters } = useSidebar();
@@ -209,10 +211,11 @@ export default function RankingsEngine({
   }, [weights]);
 
   // 5. Apply filters
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const filteredData = useMemo(() => {
     return processedData.filter((uni) => {
       // 1. Search Query (combine props.searchQuery and filters.searchQuery)
-      const query = (filters.searchQuery || searchQuery || "").toLowerCase();
+      const query = (filters.searchQuery || deferredSearchQuery || "").toLowerCase();
       const matchesSearch =
         query === "" ||
         uni.name.toLowerCase().includes(query) ||
@@ -244,14 +247,19 @@ export default function RankingsEngine({
       // 7. Public / Private
       let matchesType = true;
       if (filters.isPublic !== null) {
-        const isPublic = !["akfa-univ", "tashkent-webster", "yonsei", "korea-univ"].includes(uni.id);
+        // Prefer data-driven flag if present; fall back to legacy ID-based rule for compatibility.
+        const legacyIsPublic = !["akfa-univ", "tashkent-webster", "yonsei", "korea-univ"].includes(uni.id);
+        const isPublic = typeof uni.isPublic === "boolean" ? uni.isPublic : legacyIsPublic;
         matchesType = isPublic === filters.isPublic;
       }
 
       // 8. Scholarship Only
       let matchesScholarship = true;
       if (filters.scholarshipOnly) {
-        const hasScholarship = ["tsinghua", "nus", "peking", "tokyo", "samarkand-med", "tashkent-med", "akfa-univ", "malaya"].includes(uni.id);
+        // Prefer data-driven flag if present; fall back to legacy ID-based rule for compatibility.
+        const legacyHasScholarship = ["tsinghua", "nus", "peking", "tokyo", "samarkand-med", "tashkent-med", "akfa-univ", "malaya"].includes(uni.id);
+        const hasScholarship =
+          typeof uni.hasScholarship === "boolean" ? uni.hasScholarship : legacyHasScholarship;
         matchesScholarship = hasScholarship;
       }
 
@@ -266,7 +274,7 @@ export default function RankingsEngine({
         matchesScholarship
       );
     });
-  }, [processedData, searchQuery, locations, selectedSubjects, selectedLanguages, filters]);
+  }, [processedData, deferredSearchQuery, locations, selectedSubjects, selectedLanguages, filters]);
 
   // 6. Extract unique values for filter dropdown options
   const uniqueLocations = useMemo(() => Array.from(new Set(MOCK_UNIVERSITIES.map((u) => u.location))).sort(), []);
@@ -385,7 +393,7 @@ export default function RankingsEngine({
   });
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 font-sans flex-grow">
+    <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8 py-8 font-sans flex-grow">
       
       {/* Editorial Title */}
       <div className="mb-8 border-b border-slate-900 dark:border-cyber-border pb-4 flex flex-col md:flex-row md:items-end md:justify-between">
@@ -555,23 +563,48 @@ export default function RankingsEngine({
 
       {/* 10. Table System Container with Sticky Header & Pinned Column rules */}
       <div className="relative border border-slate-200 dark:border-cyber-border overflow-x-auto select-none bg-white dark:bg-cyber-dark">
-        <table className="w-full table-auto border-collapse text-xs">
+        <table className="w-full table-fixed border-collapse text-xs">
           <thead className="sticky top-0 z-10 bg-slate-900 dark:bg-cyber-gray text-white dark:text-cyber-yellow font-sans uppercase tracking-wider font-semibold">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} className="border-b border-slate-200 dark:border-slate-800">
                 {headerGroup.headers.map((header, idx) => {
                   const isPinnedCol = idx < 2; // rank and name columns pinned
+                  const columnId = header.column.id;
+                  const isMobileHiddenCol =
+                    columnId === "citations" ||
+                    columnId === "research" ||
+                    columnId === "employability" ||
+                    columnId === "tuition";
+                  const widthClass =
+                    columnId === "calculatedRank"
+                      ? "w-14 min-w-[56px] max-w-[56px]"
+                      : columnId === "name"
+                        ? "w-[18rem] min-w-[18rem] sm:w-[22rem] sm:min-w-[22rem]"
+                        : columnId === "compare"
+                          ? "w-28 min-w-[112px]"
+                          : "w-24 min-w-[96px]";
+                  const alignClass =
+                    columnId === "calculatedScore" ||
+                    columnId === "citations" ||
+                    columnId === "research" ||
+                    columnId === "employability"
+                      ? "text-right"
+                      : "";
                   return (
                     <th
                       key={header.id}
                       className={`px-4 py-3 text-left font-bold select-none ${
                         isPinnedCol
-                          ? "sticky left-0 bg-slate-900 dark:bg-cyber-gray z-20 border-r border-slate-800 dark:border-slate-700"
+                          ? idx === 0
+                            ? `sticky left-0 bg-slate-900 dark:bg-cyber-gray z-20 border-r border-slate-800 dark:border-slate-700 ${widthClass}`
+                            : `sticky left-[56px] bg-slate-900 dark:bg-cyber-gray z-20 border-r border-slate-800 dark:border-slate-700 ${widthClass}`
                           : ""
+                      } ${widthClass} ${alignClass} ${
+                        isMobileHiddenCol ? "hidden sm:table-cell" : ""
                       } ${header.column.getCanSort() ? "cursor-pointer hover:text-amber-300 dark:hover:text-cyber-yellow-bright" : ""}`}
                       onClick={header.column.getToggleSortingHandler()}
                     >
-                      <div className="flex items-center space-x-1.5">
+                      <div className={`flex items-center space-x-1.5 ${alignClass ? "justify-end" : ""}`}>
                         <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
                         {header.column.getCanSort() && (
                           <span className="shrink-0">
@@ -599,14 +632,37 @@ export default function RankingsEngine({
               >
                 {row.getVisibleCells().map((cell, idx) => {
                   const isPinnedCol = idx < 2;
+                  const columnId = cell.column.id;
+                  const isMobileHiddenCol =
+                    columnId === "citations" ||
+                    columnId === "research" ||
+                    columnId === "employability" ||
+                    columnId === "tuition";
+                  const widthClass =
+                    columnId === "calculatedRank"
+                      ? "w-14 min-w-[56px] max-w-[56px]"
+                      : columnId === "name"
+                        ? "w-[18rem] min-w-[18rem] sm:w-[22rem] sm:min-w-[22rem]"
+                        : columnId === "compare"
+                          ? "w-28 min-w-[112px]"
+                          : "w-24 min-w-[96px]";
+                  const alignClass =
+                    columnId === "calculatedScore" ||
+                    columnId === "citations" ||
+                    columnId === "research" ||
+                    columnId === "employability"
+                      ? "text-right"
+                      : "";
                   return (
                     <td
                       key={cell.id}
                       className={`px-4 py-3 align-middle ${
                         isPinnedCol
-                          ? "sticky left-0 bg-white dark:bg-cyber-black hover:bg-slate-50 dark:hover:bg-cyber-gray/30 z-10 border-r border-slate-200 dark:border-slate-800 font-bold text-slate-900 dark:text-white"
+                          ? idx === 0
+                            ? `sticky left-0 bg-white dark:bg-cyber-black hover:bg-slate-50 dark:hover:bg-cyber-gray/30 z-10 border-r border-slate-200 dark:border-slate-800 font-bold text-slate-900 dark:text-white ${widthClass}`
+                            : `sticky left-[56px] bg-white dark:bg-cyber-black hover:bg-slate-50 dark:hover:bg-cyber-gray/30 z-10 border-r border-slate-200 dark:border-slate-800 font-bold text-slate-900 dark:text-white ${widthClass}`
                           : ""
-                      }`}
+                      } ${widthClass} ${alignClass} ${isMobileHiddenCol ? "hidden sm:table-cell" : ""}`}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
@@ -631,14 +687,14 @@ export default function RankingsEngine({
           <button
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="relative inline-flex items-center border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            className={`relative inline-flex items-center border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 ${focusRing}`}
           >
             Previous
           </button>
           <button
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="relative ml-3 inline-flex items-center border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            className={`relative ml-3 inline-flex items-center border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 ${focusRing}`}
           >
             Next
           </button>
@@ -655,14 +711,14 @@ export default function RankingsEngine({
               <button
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className="relative inline-flex items-center border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+                className={`relative inline-flex items-center border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50 ${focusRing}`}
               >
                 Previous
               </button>
               <button
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className="relative inline-flex items-center border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+                className={`relative inline-flex items-center border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50 ${focusRing}`}
               >
                 Next
               </button>

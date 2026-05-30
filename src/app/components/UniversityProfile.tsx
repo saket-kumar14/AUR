@@ -29,7 +29,7 @@ export default function UniversityProfile({ universityId, onBack, onViewChange }
 
   if (!uni) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 text-center font-sans">
+      <div className="mx-auto max-w-full px-4 py-16 text-center font-sans">
         <h2 className="text-2xl font-bold text-slate-900">University Record Not Found</h2>
         <button onClick={onBack} className="mt-4 text-amber-700 hover:underline">Return to Rankings</button>
       </div>
@@ -37,7 +37,7 @@ export default function UniversityProfile({ universityId, onBack, onViewChange }
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8 font-sans flex-grow">
+    <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8 py-8 font-sans flex-grow">
       {/* Top Navigation */}
       <div className="mb-6">
         <button
@@ -84,26 +84,26 @@ export default function UniversityProfile({ universityId, onBack, onViewChange }
                 {uni.name}
               </h1>
 
-              <div className="flex items-center space-x-6 text-sm text-slate-600 font-mono mt-4">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 space-x-0 text-sm text-slate-600 font-mono mt-4">
                 <div className="flex items-center">
-                  <Globe className="h-4 w-4 mr-1.5 text-slate-400" />
-                  {uni.languages.join(", ")}
+                  <Globe className="h-4 w-4 mr-1.5 text-slate-400 shrink-0" />
+                  <span>{uni.languages.join(", ")}</span>
                 </div>
                 <div className="flex items-center">
-                  <BookOpen className="h-4 w-4 mr-1.5 text-slate-400" />
-                  {uni.subjects.length} Major Faculties
+                  <BookOpen className="h-4 w-4 mr-1.5 text-slate-400 shrink-0" />
+                  <span>{uni.subjects.length} Major Faculties</span>
                 </div>
               </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
+            <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 items-stretch">
               <div className="flex items-baseline space-x-2">
                 <span className="text-3xl font-serif font-bold text-slate-900">#{uni.history[0]}</span>
                 <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Overall Asia Rank</span>
               </div>
               <button 
                 onClick={() => onViewChange("rankings")}
-                className="bg-slate-900 text-white px-6 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition-colors"
+                className="bg-slate-900 text-white px-6 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition-colors text-center"
               >
                 Compare Institution
               </button>

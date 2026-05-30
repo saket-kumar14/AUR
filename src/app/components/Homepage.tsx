@@ -82,7 +82,7 @@ export default function Homepage({
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 font-sans flex-grow">
+    <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8 py-8 font-sans flex-grow">
       
       {/* Split Layout Screen */}
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-8 mb-16 border-b border-slate-200 pb-16">
@@ -245,7 +245,7 @@ export default function Homepage({
             </div>
 
             {/* Quick Metrics Selector Tabs */}
-            <div className="flex border-b border-slate-100 mb-6">
+            <div className="flex border-b border-slate-100 mb-6 overflow-x-auto whitespace-nowrap scrollbar-none">
               {[
                 { id: "overall", label: "Overall Score" },
                 { id: "research", label: "Research Metric" },
@@ -254,7 +254,7 @@ export default function Homepage({
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`border-b-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors -mb-[1px] ${
+                  className={`border-b-2 px-3 sm:px-4 py-2 text-[10px] sm:text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 -mb-[1px] ${
                     activeTab === tab.id
                       ? "border-amber-700 text-slate-900"
                       : "border-transparent text-slate-400 hover:text-slate-700"

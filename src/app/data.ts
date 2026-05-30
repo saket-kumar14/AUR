@@ -16,6 +16,9 @@ export interface University {
   programs: string[];
   campusPhoto: string; // unsplash ID or generic descriptor
   hasMedicine: boolean;
+  // Optional flags used by filters. When missing, UI falls back to legacy ID-based rules.
+  isPublic?: boolean;
+  hasScholarship?: boolean;
 }
 
 export const MOCK_UNIVERSITIES: University[] = [
@@ -36,7 +39,9 @@ export const MOCK_UNIVERSITIES: University[] = [
     history: [1, 1, 1, 2, 2],
     programs: ["MD Medicine (English-medium)", "M.Sc. Advanced Computing", "B.Eng. Mechanical Engineering", "MBA Global Business"],
     campusPhoto: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
-    hasMedicine: true
+    hasMedicine: true,
+    isPublic: true,
+    hasScholarship: true
   },
   {
     id: "nus",
@@ -55,7 +60,9 @@ export const MOCK_UNIVERSITIES: University[] = [
     history: [2, 2, 2, 1, 1],
     programs: ["Bachelor of Medicine & Surgery (MBBS)", "B.Sc. Data Science", "M.Sc. Finance", "Ph.D. Biomedical Sciences"],
     campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
-    hasMedicine: true
+    hasMedicine: true,
+    isPublic: true,
+    hasScholarship: true
   },
   {
     id: "peking",
@@ -74,7 +81,9 @@ export const MOCK_UNIVERSITIES: University[] = [
     history: [3, 3, 3, 3, 3],
     programs: ["MD Clinical Medicine", "B.A. Chinese Literature", "Ph.D. Theoretical Physics"],
     campusPhoto: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=800&q=80",
-    hasMedicine: true
+    hasMedicine: true,
+    isPublic: true,
+    hasScholarship: true
   },
   {
     id: "tokyo",
@@ -93,7 +102,9 @@ export const MOCK_UNIVERSITIES: University[] = [
     history: [4, 4, 4, 4, 4],
     programs: ["MD Medicine & Surgery", "B.Eng. Robotics & AI", "M.Sc. Earth Sciences"],
     campusPhoto: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
-    hasMedicine: true
+    hasMedicine: true,
+    isPublic: true,
+    hasScholarship: true
   },
   {
     id: "hku",
@@ -226,7 +237,9 @@ export const MOCK_UNIVERSITIES: University[] = [
     history: [11, 14, 18, 22, 30],
     programs: ["General Medicine (MD - English-medium)", "Pediatric Medicine", "Preventive Medicine", "M.Sc. Cardiovascular Surgery"],
     campusPhoto: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80",
-    hasMedicine: true
+    hasMedicine: true,
+    isPublic: true,
+    hasScholarship: true
   },
   {
     id: "fergana-med",
@@ -264,7 +277,9 @@ export const MOCK_UNIVERSITIES: University[] = [
     history: [13, 15, 20, 26, 35],
     programs: ["General Medicine (MD)", "Dentistry", "Pharmacy", "Postgraduate Medical Specialties"],
     campusPhoto: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80",
-    hasMedicine: true
+    hasMedicine: true,
+    isPublic: true,
+    hasScholarship: true
   },
   {
     id: "tashkent-pediatric",
@@ -416,7 +431,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     history: [21, 22, 24, 25, 23],
     programs: ["MD Medical Sciences", "Undergraduate Global Studies", "MBA Business Administration"],
     campusPhoto: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
-    hasMedicine: true
+    hasMedicine: true,
+    isPublic: false
   },
   {
     id: "korea-univ",
@@ -435,7 +451,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     history: [22, 21, 23, 23, 22],
     programs: ["MD Medicine", "B.Sc. Cyber Security", "BBA Business Administration"],
     campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
-    hasMedicine: true
+    hasMedicine: true,
+    isPublic: false
   },
   {
     id: "cuhk-sz",
@@ -568,7 +585,9 @@ export const MOCK_UNIVERSITIES: University[] = [
     history: [29, 30, 31, 30, 29],
     programs: ["MBBS Doctor of Medicine", "B.Eng. Civil Engineering", "M.Sc. Business Analytics"],
     campusPhoto: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
-    hasMedicine: true
+    hasMedicine: true,
+    isPublic: true,
+    hasScholarship: true
   },
   {
     id: "chula",
@@ -644,7 +663,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     history: [33, 42, 55, 75, 95],
     programs: ["Bachelor of Business Administration (BBA)", "BA Media Studies", "MA TESOL (Applied Linguistics)"],
     campusPhoto: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=800&q=80",
-    hasMedicine: false
+    hasMedicine: false,
+    isPublic: false
   },
   {
     id: "fergana-polytech",
@@ -682,7 +702,9 @@ export const MOCK_UNIVERSITIES: University[] = [
     history: [35, 48, 62, 85, 100],
     programs: ["MD Doctor of Medicine (English)", "B.Sc. Computer Science", "BBA Finance"],
     campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
-    hasMedicine: true
+    hasMedicine: true,
+    isPublic: false,
+    hasScholarship: true
   },
   {
     id: "hokkaido",
@@ -913,7 +935,7 @@ export const MOCK_UNIVERSITIES: University[] = [
     hasMedicine: false
   },
   {
-    id: " Turin-polytech",
+    id: "Turin-polytech",
     name: "Turin Polytechnic University in Tashkent",
     location: "Uzbekistan",
     overall: 57.8,

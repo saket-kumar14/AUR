@@ -17,12 +17,22 @@ export default function ComparisonDock({
   onClearAll,
   onUniversitySelect,
 }: ComparisonDockProps) {
+  const focusRing =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-cyber-yellow dark:focus-visible:ring-offset-cyber-black";
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (selectedIds.length === 0) return null;
 
   // Fetch full details of selected universities
   const selectedUnis = MOCK_UNIVERSITIES.filter((uni) => selectedIds.includes(uni.id));
+  const comparisonGridColsClass =
+    selectedUnis.length <= 1
+      ? "md:grid-cols-2"
+      : selectedUnis.length === 2
+        ? "md:grid-cols-3"
+        : selectedUnis.length === 3
+          ? "md:grid-cols-4"
+          : "md:grid-cols-5";
 
   // Visual Horizontal Fill Meter Component
   const MetricMeter = ({ value, label }: { value: number; label: string }) => {
@@ -45,13 +55,13 @@ export default function ComparisonDock({
 
   return (
     <>
-      {/* 1. Global Sticky Floating Dock (Bottom-6) */}
-      <div className="fixed bottom-6 left-1/2 z-40 w-full max-w-2xl -translate-x-1/2 px-4 font-sans select-none">
-        <div className="border border-slate-950 bg-white p-4 shadow-xl flex items-center justify-between">
-          <div className="flex items-center space-x-4 truncate">
+      {/* 1. Global Sticky Floating Dock (Bottom-6 on desktop, bottom-20 on mobile) */}
+      <div className="fixed bottom-20 md:bottom-6 left-1/2 z-40 w-full max-w-2xl -translate-x-1/2 px-4 font-sans select-none">
+        <div className="border border-slate-950 bg-white p-3 sm:p-4 shadow-xl flex items-center justify-between">
+          <div className="flex items-center space-x-2 sm:space-x-4 truncate">
             {/* Action Icon */}
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center border border-slate-905 bg-slate-50 text-slate-800">
-              <Shuffle className="h-4.5 w-4.5" />
+            <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center border border-slate-905 bg-slate-50 text-slate-800">
+              <Shuffle className="h-4 sm:h-4.5 w-4 sm:w-4.5" />
             </div>
 
             {/* Micro Badge & Selected Counter */}
@@ -59,7 +69,7 @@ export default function ComparisonDock({
               <span className="inline-block text-[9px] uppercase font-bold tracking-widest text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-xs">
                 Comparison Suite
               </span>
-              <div className="text-xs font-bold text-slate-900 mt-0.5 truncate">
+              <div className="text-[10px] sm:text-xs font-bold text-slate-900 mt-0.5 truncate">
                 Comparing {selectedUnis.length} of 4 Universities
               </div>
             </div>
@@ -73,8 +83,10 @@ export default function ComparisonDock({
                 >
                   <span className="truncate max-w-[80px]">{uni.name.split(" ")[0]}</span>
                   <button
+                    type="button"
                     onClick={() => onRemove(uni.id)}
-                    className="ml-1.5 hover:text-red-600 text-slate-400"
+                    aria-label={`Remove ${uni.name} from comparison`}
+                    className={`ml-1.5 hover:text-red-600 text-slate-400 ${focusRing}`}
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -84,16 +96,18 @@ export default function ComparisonDock({
           </div>
 
           {/* Action Trigger Buttons */}
-          <div className="flex items-center space-x-3 shrink-0 ml-4">
+          <div className="flex items-center space-x-2 sm:space-x-3 shrink-0 ml-2 sm:ml-4">
             <button
+              type="button"
               onClick={onClearAll}
-              className="text-[10px] uppercase font-bold tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
+              className={`text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-slate-500 hover:text-slate-900 transition-colors ${focusRing}`}
             >
               Clear
             </button>
             <button
+              type="button"
               onClick={() => setIsExpanded(true)}
-              className="inline-flex items-center justify-center border border-slate-900 bg-slate-900 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-slate-800 transition-colors"
+              className={`inline-flex items-center justify-center border border-slate-900 bg-slate-900 px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-white hover:bg-slate-800 transition-colors ${focusRing}`}
             >
               Compare
               <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
@@ -125,8 +139,10 @@ export default function ComparisonDock({
                   </h3>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setIsExpanded(false)}
-                  className="p-1 hover:bg-slate-100 rounded text-slate-500 hover:text-slate-900"
+                  aria-label="Close comparison"
+                  className={`p-1 hover:bg-slate-100 rounded text-slate-500 hover:text-slate-900 ${focusRing}`}
                 >
                   <X className="h-6 w-6" />
                 </button>
@@ -135,7 +151,7 @@ export default function ComparisonDock({
 
             {/* Matrix Scrollable Grid */}
             <div className="flex-1 overflow-auto p-6 bg-slate-50">
-              <div className={`grid gap-6 grid-cols-1 md:grid-cols-${selectedUnis.length + 1}`}>
+              <div className={`grid gap-6 grid-cols-1 ${comparisonGridColsClass}`}>
                 
                 {/* Metrics label Column (Optional/Responsive layout) */}
                 <div className="hidden md:flex flex-col justify-between border-r border-slate-200 pr-6 pt-16 space-y-8 select-none">
@@ -178,8 +194,10 @@ export default function ComparisonDock({
                             {uni.name}
                           </h4>
                           <button
+                            type="button"
                             onClick={() => onRemove(uni.id)}
-                            className="text-slate-400 hover:text-red-600 ml-2"
+                            aria-label={`Remove ${uni.name} from comparison`}
+                            className={`text-slate-400 hover:text-red-600 ml-2 ${focusRing}`}
                           >
                             <Trash className="h-3.5 w-3.5" />
                           </button>
@@ -227,11 +245,12 @@ export default function ComparisonDock({
 
                     <div className="mt-8">
                       <button
+                        type="button"
                         onClick={() => {
                           onUniversitySelect(uni.id);
                           setIsExpanded(false);
                         }}
-                        className="w-full text-center border border-slate-900 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50 transition-colors"
+                        className={`w-full text-center border border-slate-900 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50 transition-colors ${focusRing}`}
                       >
                         Deep-Dive Profile
                       </button>
@@ -244,14 +263,16 @@ export default function ComparisonDock({
             {/* Matrix Footer controls */}
             <div className="p-6 border-t border-slate-200 bg-white flex items-center justify-between">
               <button
+                type="button"
                 onClick={onClearAll}
-                className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
+                className={`text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors ${focusRing}`}
               >
                 Clear All Matches
               </button>
               <button
+                type="button"
                 onClick={() => setIsExpanded(false)}
-                className="bg-slate-900 text-white text-xs font-bold uppercase tracking-wider px-6 py-2.5 hover:bg-slate-800 transition-colors border border-slate-900"
+                className={`bg-slate-900 text-white text-xs font-bold uppercase tracking-wider px-6 py-2.5 hover:bg-slate-800 transition-colors border border-slate-900 ${focusRing}`}
               >
                 Return to Analysis
               </button>
