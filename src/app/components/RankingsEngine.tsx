@@ -312,33 +312,33 @@ export default function RankingsEngine({
         header: "Score",
         accessorKey: "calculatedScore",
         cell: ({ getValue }) => (
-          <span className="font-mono font-bold text-slate-900">{(getValue() as number).toFixed(1)}</span>
+          <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{(getValue() as number).toFixed(1)}</span>
         ),
       },
       {
         id: "citations",
         header: "Citations",
         accessorKey: "citations",
-        cell: ({ getValue }) => <span className="font-mono text-slate-600">{(getValue() as number).toFixed(0)}</span>,
+        cell: ({ getValue }) => <span className="font-mono text-slate-700 dark:text-slate-400">{(getValue() as number).toFixed(0)}</span>,
       },
       {
         id: "research",
         header: "Research",
         accessorKey: "research",
-        cell: ({ getValue }) => <span className="font-mono text-slate-600">{(getValue() as number).toFixed(0)}</span>,
+        cell: ({ getValue }) => <span className="font-mono text-slate-700 dark:text-slate-400">{(getValue() as number).toFixed(0)}</span>,
       },
       {
         id: "employability",
         header: "Employability",
         accessorKey: "employability",
-        cell: ({ getValue }) => <span className="font-mono text-slate-600">{(getValue() as number).toFixed(0)}</span>,
+        cell: ({ getValue }) => <span className="font-mono text-slate-700 dark:text-slate-400">{(getValue() as number).toFixed(0)}</span>,
       },
       {
         id: "tuition",
         header: "Tuition / Yr",
         accessorKey: "tuition",
         cell: ({ row }) => (
-          <span className="font-mono text-xs text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5">
+          <span className="font-mono text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-cyber-gray border border-slate-200 dark:border-slate-800 px-1.5 py-0.5">
             {row.original.tuition}
           </span>
         ),
@@ -354,7 +354,7 @@ export default function RankingsEngine({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              className="flex items-center space-x-1.5 text-xs font-semibold uppercase tracking-wider text-slate-900 border border-slate-900 px-2.5 py-1 hover:bg-slate-50 transition-colors"
+              className="flex items-center space-x-1.5 text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-100 border border-slate-900 dark:border-slate-500 px-2.5 py-1 hover:bg-slate-50 dark:hover:bg-cyber-gray/70 transition-colors"
             >
               {isSelected ? (
                 <>
