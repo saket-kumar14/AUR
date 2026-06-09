@@ -5,7 +5,6 @@ import { useSidebar } from "./navigation/SidebarContext";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
-  Globe,
 } from "lucide-react";
 
 const exploreLinks = [
@@ -60,8 +59,12 @@ export default function Footer() {
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-4">
             <div className="space-y-5">
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-amber-500 shadow-glow-yellow-sm">
-                <Globe className="h-5 w-5" />
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 shadow-glow-yellow-sm overflow-hidden">
+                <img
+                  src="/logo.png"
+                  alt="Asia University Rankings logo"
+                  className="h-8 w-8 object-contain"
+                />
               </div>
               <div>
                 <p className="text-lg font-semibold tracking-tight text-white">Asia University Rankings</p>
@@ -78,7 +81,7 @@ export default function Footer() {
                         target="_blank"
                         rel="noreferrer"
                         aria-label={social.label}
-                        className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-700 bg-slate-900 text-slate-300 transition duration-200 hover:border-amber-500 hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-slate-300 transition duration-200 hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                       >
                         <img
                           src={social.imgSrc}
