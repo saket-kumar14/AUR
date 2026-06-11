@@ -2,11 +2,8 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-<<<<<<< HEAD
 import { Search, Bell, Sun, Moon, Menu, X, ChevronDown, User, Shield, LogOut } from "lucide-react";
-=======
-import { Search, Bell, Sun, Moon, Menu, X, ChevronDown, User, Shield, LogOut, Bot } from "lucide-react";
->>>>>>> navdeep/main
+
 import { useSidebar } from "../navigation/SidebarContext";
 import { TOP_NAV_LINKS } from "../navigation/config";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,9 +18,8 @@ export default function Navbar() {
     handleViewChange,
     filters,
     setFilters,
-    isChatOpen,
-    setIsChatOpen,
   } = useSidebar();
+
 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifMenu, setShowNotifMenu] = useState(false);
@@ -64,7 +60,6 @@ export default function Navbar() {
             onClick={() => handleViewChange("home")}
             className="flex cursor-pointer items-center shrink-0 bg-white/90 dark:bg-white/10 backdrop-blur-sm rounded-md px-2 py-1"
           >
-<<<<<<< HEAD
             <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-md bg-slate-900 dark:bg-transparent group-hover:scale-105 transition-transform duration-200">
               <Image
                 src="/logo.png"
@@ -87,18 +82,7 @@ export default function Navbar() {
                 Futuristic Analytics Engine
               </p>
             </div>
-=======
-            <Image
-              src="/aur-logo-cropped.png"
-              alt="Asia University Rankings"
-              width={458}
-              height={135}
-              className="h-[22px] sm:h-[26px] w-auto object-contain mix-blend-multiply dark:mix-blend-normal"
-              priority
-              quality={100}
-              unoptimized
-            />
->>>>>>> navdeep/main
+
           </div>
 
           {/* Navigation Links - Desktop */}
@@ -146,15 +130,6 @@ export default function Navbar() {
 
           {/* Right Section Icons */}
           <div className="flex items-center space-x-2 sm:space-x-3">
-
-            {/* Chat Toggle Button */}
-            <button
-              onClick={() => setIsChatOpen(!isChatOpen)}
-              className="cursor-pointer p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-cyber-yellow transition-colors hover:bg-slate-100 dark:hover:bg-cyber-gray rounded-full"
-              title="Open AI Assistant"
-            >
-              <Bot className="h-4 w-4" />
-            </button>
 
             {/* Theme Toggle Button */}
             <button

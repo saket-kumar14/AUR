@@ -194,8 +194,7 @@ export default function AnalyticsDashboard() {
               </span>
             </div>
           </div>
-          <div className="h-[260px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={260}>
               <BarChart data={a.countryData} margin={{ left: 0, right: 10, top: 5, bottom: 5 }} barCategoryGap="25%">
                 <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
                 <XAxis dataKey="country" tick={{ fontSize: 11, fill: textColor, fontWeight: 600 }} axisLine={{ stroke: axisColor }} tickLine={false} />
@@ -213,7 +212,7 @@ export default function AnalyticsDashboard() {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
-          </div>
+
         </div>
 
         {/* Radar */}
@@ -222,8 +221,7 @@ export default function AnalyticsDashboard() {
             Average Metric Profile
           </span>
           <span className="text-xs text-slate-500 dark:text-slate-400 block mb-4">Five-axis institutional quality index</span>
-          <div className="h-[240px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={240}>
               <RadarChart data={a.radarData} cx="50%" cy="50%" outerRadius="72%">
                 <PolarGrid stroke={gridColor} />
                 <PolarAngleAxis dataKey="metric" tick={{ fontSize: 10, fill: textColor }} />
@@ -232,7 +230,7 @@ export default function AnalyticsDashboard() {
                 <Tooltip content={<CustomTooltip />} />
               </RadarChart>
             </ResponsiveContainer>
-          </div>
+
         </div>
       </div>
 
@@ -256,8 +254,7 @@ export default function AnalyticsDashboard() {
             </span>
           </div>
         </div>
-        <div className="h-[220px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={a.trendData} margin={{ left: 0, right: 10, top: 5, bottom: 5 }}>
               <defs>
                 <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
@@ -277,7 +274,7 @@ export default function AnalyticsDashboard() {
               <Area type="monotone" dataKey="research" stroke={COLORS.blue} fill="url(#blueGrad)" strokeWidth={2.5} name="Research" dot={{ fill: COLORS.blue, r: 4, strokeWidth: 2, stroke: isDark ? "#1e293b" : "#fff" }} activeDot={{ r: 6 }} />
             </AreaChart>
           </ResponsiveContainer>
-        </div>
+
       </div>
 
       {/* ── Country Summary Table ── */}

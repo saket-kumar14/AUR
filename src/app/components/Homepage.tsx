@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search, BookOpen, GraduationCap, ChevronRight, MapPin, Star } from "lucide-react";
 import Link from "next/link";
-import { MOCK_UNIVERSITIES, University, Article } from "../data";
+import { MOCK_UNIVERSITIES, FEATURED_ARTICLES, University, Article } from "../data";
+
 
 interface HomepageProps {
   onSearchSubmit: (query: string) => void;
@@ -22,6 +23,10 @@ export default function Homepage({
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeTab, setActiveTab] = useState<"overall" | "research" | "employability">("overall");
+  
+  const articles = FEATURED_ARTICLES;
+  const loadingArticles = false;
+
   
   const suggestionRef = useRef<HTMLDivElement>(null);
 

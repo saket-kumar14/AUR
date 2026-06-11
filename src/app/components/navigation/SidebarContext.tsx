@@ -37,15 +37,10 @@ interface SidebarContextType {
   handleViewChange: (view: string) => void;
   selectedUniId: string | null;
   setSelectedUniId: (id: string | null) => void;
-<<<<<<< HEAD
   selectedUniIds: string[];
   handleToggleCompare: (uniId: string) => void;
   handleRemoveCompare: (uniId: string) => void;
   handleClearCompare: () => void;
-=======
-  isChatOpen: boolean;
-  setIsChatOpen: (val: boolean) => void;
->>>>>>> navdeep/main
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
@@ -63,11 +58,7 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("light"); // Default to clean light theme
   const [filters, setFilters] = useState<FilterState>(initialFilters);
-<<<<<<< HEAD
   const [selectedUniIds, setSelectedUniIds] = useState<string[]>([]);
-=======
-  const [isChatOpen, setIsChatOpen] = useState(false);
->>>>>>> navdeep/main
 
   // Read localStorage for isCollapsed and theme (safe for SSR)
   useEffect(() => {
@@ -214,15 +205,10 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
         handleViewChange,
         selectedUniId,
         setSelectedUniId,
-<<<<<<< HEAD
         selectedUniIds,
         handleToggleCompare,
         handleRemoveCompare,
         handleClearCompare,
-=======
-        isChatOpen,
-        setIsChatOpen,
->>>>>>> navdeep/main
       }}
     >
       {children}
