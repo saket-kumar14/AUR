@@ -1008,7 +1008,7 @@ export interface Article {
   subtitle: string;
   source: string;
   date: string;
-  readTime: string;
+  readTime?: string;
   contentSummary: string;
   image: string;
   content?: string;

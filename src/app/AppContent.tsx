@@ -10,8 +10,9 @@ import Homepage from "./components/Homepage";
 import RankingsEngine from "./components/RankingsEngine";
 import ComparisonDock from "./components/ComparisonDock";
 import UniversityProfile from "./components/UniversityProfile";
-import UniversitiesList from "./components/UniversitiesList";
+import Footer from "./components/Footer";
 import FloatingChatAssistant from "./components/FloatingChatAssistant";
+import AnalyticsDashboard from "./components/AnalyticsDashboard";
 import { useSidebar } from "./components/navigation/SidebarContext";
 import { Article, MOCK_UNIVERSITIES } from "./data";
 import { Bookmark, ShieldAlert } from "lucide-react";
@@ -32,7 +33,7 @@ export default function AppContent() {
     theme,
   } = useSidebar();
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get("search") ?? "");
   const [savedUniIds, setSavedUniIds] = useState<string[]>([]);
 
   // Local settings toggles state
@@ -44,16 +45,8 @@ export default function AppContent() {
   const view = activeView;
   const id = selectedUniId;
 
-  const viewKey = useMemo(() => {
-    if (view === "profile" && id) return `profile-${id}`;
-    return view;
-  }, [view, id]);
-
-  // Sync initial search query if present in URL
-  useEffect(() => {
-    const q = searchParams.get("search");
-    if (q) setSearchQuery(q);
-  }, [searchParams]);
+  // A key to force AnimatePresence re-mount on view change
+  const viewKey = view + (id ?? "");
 
   const handleToggleSave = (uniId: string) => {
     setSavedUniIds((prev) =>
@@ -84,7 +77,7 @@ export default function AppContent() {
       <Navbar />
 
       {/* Main Core Layout Layout */}
-      <div className="flex-grow flex w-full max-w-full px-0 sm:px-4 lg:px-8">
+      <div className="flex-grow flex w-full max-w-7xl mx-auto px-0 sm:px-4 lg:px-8">
         
         {/* Collapsible Left Sidebar */}
         <Sidebar />
@@ -109,15 +102,6 @@ export default function AppContent() {
             />
           )}
 
-          {view === "universities" && (
-            <UniversitiesList
-              onUniversitySelect={handleUniversitySelect}
-              onViewChange={handleViewChange}
-              savedUniIds={savedUniIds}
-              onToggleSave={handleToggleSave}
-            />
-          )}
-
           {view === "rankings" && (
             <RankingsEngine
               searchQuery={searchQuery}
@@ -138,64 +122,12 @@ export default function AppContent() {
             />
           )}
 
-          {view === "analytics" && (
-            <div className="p-6 border border-slate-200 dark:border-cyber-border rounded-xl bg-slate-50/50 dark:bg-cyber-dark/40 shadow-sm space-y-6 animate-fadeIn">
-              <div>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700 dark:text-cyber-yellow">
-                  Academic Intelligence
-                </span>
-                <h2 className="font-serif text-2xl font-bold text-slate-900 dark:text-white mt-0.5">
-                  Institutional Analytics Hub
-                </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Live summary of audited university ranking metrics across the current dataset.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {[
-                  { title: "Index Institutions", val: MOCK_UNIVERSITIES.length, desc: "Audited records" },
-                  {
-                    title: "Average Score",
-                    val: `${(
-                      MOCK_UNIVERSITIES.reduce((sum, uni) => sum + uni.overall, 0) /
-                      MOCK_UNIVERSITIES.length
-                    ).toFixed(1)}%`,
-                    desc: "Overall ranking mean",
-                  },
-                  {
-                    title: "Medical Programs",
-                    val: MOCK_UNIVERSITIES.filter((uni) => uni.hasMedicine).length,
-                    desc: "Medicine-ready institutions",
-                  },
-                  {
-                    title: "Countries",
-                    val: new Set(MOCK_UNIVERSITIES.map((uni) => uni.location)).size,
-                    desc: "Regional coverage",
-                  },
-                ].map((stat) => (
-                  <div
-                    key={stat.title}
-                    className="p-4 border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-cyber-gray rounded-lg shadow-xs"
-                  >
-                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider block">
-                      {stat.title}
-                    </span>
-                    <span className="text-xl font-bold text-slate-900 dark:text-white block mt-1">
-                      {stat.val}
-                    </span>
-                    <span className="text-[9px] text-slate-400 dark:text-slate-550 block mt-0.5">
-                      {stat.desc}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Analytics Dashboard */}
+          {view === "analytics" && <AnalyticsDashboard />}
 
           {/* 2. Saved Items Mock Panel */}
           {view === "saved" && (
-            <div className="p-6 border border-slate-200 dark:border-cyber-border rounded-xl bg-slate-50/50 dark:bg-cyber-dark/40 shadow-sm space-y-6 animate-fadeIn">
+            <div className="w-full mx-auto w-full p-6 border border-slate-200 dark:border-cyber-border rounded-xl bg-slate-50/50 dark:bg-cyber-dark/40 shadow-sm space-y-6 animate-fadeIn">
               <div>
                 <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700 dark:text-cyber-yellow">
                   Personal Database
@@ -254,7 +186,7 @@ export default function AppContent() {
 
           {/* 3. Settings Mock Panel */}
           {view === "settings" && (
-            <div className="p-6 border border-slate-200 dark:border-cyber-border rounded-xl bg-slate-50/50 dark:bg-cyber-dark/40 shadow-sm space-y-6 animate-fadeIn">
+            <div className="w-full mx-auto w-full p-6 border border-slate-200 dark:border-cyber-border rounded-xl bg-slate-50/50 dark:bg-cyber-dark/40 shadow-sm space-y-6 animate-fadeIn">
               <div>
                 <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700 dark:text-cyber-yellow">
                   System Diagnostics
