@@ -2,11 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-<<<<<<< HEAD
-import { Search, Bell, Sun, Moon, Menu, X, ChevronDown, User, Shield, LogOut } from "lucide-react";
-=======
 import { Search, Bell, Sun, Moon, Menu, X, ChevronDown, User, Shield, LogOut, Bot } from "lucide-react";
->>>>>>> navdeep/main
 import { useSidebar } from "../navigation/SidebarContext";
 import { TOP_NAV_LINKS } from "../navigation/config";
 import { motion, AnimatePresence } from "framer-motion";
@@ -64,30 +60,6 @@ export default function Navbar() {
             onClick={() => handleViewChange("home")}
             className="flex cursor-pointer items-center shrink-0 bg-white/90 dark:bg-white/10 backdrop-blur-sm rounded-md px-2 py-1"
           >
-<<<<<<< HEAD
-            <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-md bg-slate-900 dark:bg-transparent group-hover:scale-105 transition-transform duration-200">
-              <Image
-                src="/logo.png"
-                alt="Asia University Rankings logo"
-                width={64}
-                height={64}
-                quality={100}
-                unoptimized
-                className="object-contain"
-              />
-            </div>
-            <div className="hidden sm:block">
-              <h1 className="font-serif text-md font-bold leading-tight tracking-tight dark:font-sans dark:tracking-wider">
-                ASIA UNIVERSITY{" "}
-                <span className="text-amber-700 dark:text-cyber-yellow font-sans text-xs font-semibold tracking-widest uppercase ml-0.5">
-                  RANKINGS
-                </span>
-              </h1>
-              <p className="text-[9px] uppercase tracking-widest text-slate-400 dark:text-slate-500 font-medium">
-                Futuristic Analytics Engine
-              </p>
-            </div>
-=======
             <Image
               src="/aur-logo-cropped.png"
               alt="Asia University Rankings"
@@ -98,7 +70,6 @@ export default function Navbar() {
               quality={100}
               unoptimized
             />
->>>>>>> navdeep/main
           </div>
 
           {/* Navigation Links - Desktop */}

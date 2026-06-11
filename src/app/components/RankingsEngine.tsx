@@ -321,16 +321,12 @@ export default function RankingsEngine({
           <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{(getValue() as number).toFixed(1)}</span>
         ),
       },
-<<<<<<< HEAD
       {
         id: "citations",
         header: "Citations",
         accessorKey: "citations",
         cell: ({ getValue }) => <span className="font-mono text-slate-700 dark:text-slate-400">{(getValue() as number).toFixed(0)}</span>,
       },
-=======
-
->>>>>>> navdeep/main
       {
         id: "research",
         header: "Research",
@@ -360,27 +356,6 @@ export default function RankingsEngine({
           const isCompared = selectedUniIds.includes(row.original.id);
           const isSaved = savedUniIds.includes(row.original.id);
           return (
-<<<<<<< HEAD
-            <motion.button
-              onClick={() => onToggleCompare(row.original.id)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              className="flex items-center space-x-1.5 text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-100 border border-slate-900 dark:border-slate-500 px-2.5 py-1 hover:bg-slate-50 dark:hover:bg-cyber-gray/70 transition-colors"
-            >
-              {isSelected ? (
-                <>
-                  <CheckSquare className="h-3.5 w-3.5 text-amber-700" />
-                  <span className="text-[10px]">Added</span>
-                </>
-              ) : (
-                <>
-                  <Square className="h-3.5 w-3.5" />
-                  <span className="text-[10px]">Compare</span>
-                </>
-              )}
-            </motion.button>
-=======
             <div className="flex items-center space-x-2">
               <motion.button
                 onClick={() => onToggleCompare(row.original.id)}
@@ -426,7 +401,6 @@ export default function RankingsEngine({
                 )}
               </motion.button>
             </div>
->>>>>>> navdeep/main
           );
         },
       },

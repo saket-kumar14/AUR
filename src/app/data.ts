@@ -3511,24 +3511,20 @@ export const MOCK_UNIVERSITIES: University[] = [
   }
 ];
 
-<<<<<<< HEAD
 export interface Article {
   id: string;
   title: string;
   subtitle: string;
   source: string;
   date: string;
-  readTime: string;
   contentSummary: string;
   image: string;
+  readTime?: string;
   content?: string;
   category?: string;
   tags?: string[];
 }
 
-=======
-export interface Article { id: string; title: string; subtitle: string; contentSummary: string; image: string; source: string; date: string; }
->>>>>>> navdeep/main
 export const FEATURED_ARTICLES: Article[] = [
   {
     id: "art_1",
