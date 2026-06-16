@@ -373,3 +373,115 @@ html.dark .hover\:border-slate-300:hover { border-color: var(--aur-border-strong
 .animate-fadeIn {
   animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* ════════════════════════════════════════════════════════════
+   PERFORMANCE & SMOOTHNESS OPTIMIZATIONS
+   ════════════════════════════════════════════════════════════ */
+
+/* GPU-composited layers for anything that animates */
+.aur-card,
+.aur-btn-primary,
+.aur-btn-ghost {
+  will-change: transform;
+  transform: translateZ(0);   /* promote to own GPU layer */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Prevent layout thrash from hover transforms */
+.aur-card:hover {
+  transform: translateY(-2px) translateZ(0);
+}
+.aur-btn-primary:hover {
+  transform: translateY(-1px) translateZ(0);
+}
+.aur-btn-primary:active {
+  transform: translateY(0) translateZ(0);
+}
+
+/* Smooth, hardware-accelerated page-level scrolling */
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;   /* remove blue flash on mobile tap */
+}
+
+/* Touch-optimized interactive elements */
+button, a, [role="button"] {
+  touch-action: manipulation;   /* prevents 300ms tap delay on mobile */
+  cursor: pointer;
+}
+
+/* Prevent text selection jank during rapid interactions */
+.aur-card,
+nav,
+header {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Optimize images site-wide */
+img {
+  image-rendering: auto;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ── Responsive Typography Scale ───────────────────────────── */
+
+/* Mobile first: slightly tighter */
+@media (max-width: 640px) {
+  html { font-size: 15px; }
+
+  /* Tighter headings on small screens */
+  h1 { font-size: clamp(1.6rem, 6vw, 2.5rem) !important; line-height: 1.15; }
+  h2 { font-size: clamp(1.25rem, 4.5vw, 1.8rem) !important; }
+
+  /* Full-width cards on mobile */
+  .aur-card { border-radius: 12px; }
+
+  /* Touch targets: minimum 44px for accessibility */
+  button, a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* Tablet */
+@media (min-width: 641px) and (max-width: 1024px) {
+  html { font-size: 15.5px; }
+}
+
+/* Desktop */
+@media (min-width: 1025px) {
+  html { font-size: 16px; }
+}
+
+/* ── Reduced Motion — respect user accessibility preference ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── View Transition API (Chrome 111+) — smooth page switching ── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.25s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Focus ring — keyboard navigation stays clean ── */
+:focus-visible {
+  outline: 2px solid var(--aur-text);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
