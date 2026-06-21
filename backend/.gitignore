@@ -1,4 +1,13 @@
+# Python virtual environment
+venv/
+
+# Python cache
 __pycache__/
 *.pyc
-venv/
 .pytest_cache/
+
+# VS Code settings
+.vscode/
+
+# Logs
+*.log
