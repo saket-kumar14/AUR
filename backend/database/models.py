@@ -16,8 +16,8 @@ Tables
 import uuid
 
 from sqlalchemy import (Boolean, Column, Integer, Numeric, String, Float, Text, 
-                        Date, DateTime, ForeignKey, UniqueConstraint, text)
-from sqlalchemy.dialects.postgresql import UUID
+                        Date, DateTime, ForeignKey, UniqueConstraint, text, JSON)
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -47,6 +47,8 @@ class User(Base):
     role = Column(String(50), nullable=False, default="user")  # "user" or "admin"
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    preferences   = Column(JSONB, nullable=True, default=dict)
 
     #relationships
     saved_universities = relationship("SavedUniversity", back_populates="user", 

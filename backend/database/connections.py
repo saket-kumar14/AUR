@@ -42,10 +42,6 @@ redis_client = aioredis.from_url(REDIS_URL, decode_responses=True)
 
 
 # Lifecycle helpers
-async def init_db() -> None:
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
 async def close_db() -> None:
     await engine.dispose()
 
