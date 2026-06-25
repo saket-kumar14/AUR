@@ -1,11 +1,25 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+
+from database.connections import close_db, close_redis, init_db
 from routers import universities, rankings, countries, search
 from routers import auth
 from routers.auth import router as auth_router
 from routers.users import router as users_router
 
-app = FastAPI(title="AUR - Asia University Ranking API", version="1.0.0")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup
+    await init_db()
+    yield
+    # shutdown
+    await close_db()
+    await close_redis()
+
+app = FastAPI(title="AUR - Asia University Ranking API", version="1.0.0", lifespan=lifespan)
 
 # Allow frontend (Next.js) to call this API
 app.add_middleware(
