@@ -1,6 +1,7 @@
 import os
 import uuid
 from datetime import datetime, timedelta
+from uuid import UUID
 
 import redis.asyncio as aioredis
 from jose import JWTError, jwt
@@ -21,7 +22,7 @@ def create_access_token(data: dict) -> str:
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
-async def create_refresh_token(user_id: int) -> str:
+async def create_refresh_token(user_id: uuid) -> str:
     token = str(uuid.uuid4())
     ttl_seconds = REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600
     await redis_client.setex(f"refresh:{token}", ttl_seconds, str(user_id))
@@ -49,7 +50,7 @@ async def validate_refresh_token(token: str) -> int:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired refresh token",
         )
-    return int(user_id)
+    return UUID(user_id)
 
 
 async def revoke_refresh_token(token: str) -> None:
