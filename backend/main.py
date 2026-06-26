@@ -8,6 +8,7 @@ from routers import auth
 from routers.auth import router as auth_router
 from routers.users import router as users_router
 from routers import analytics
+from routers import compare
 from routers.admin import router as admin_router
 
 @asynccontextmanager
@@ -31,6 +32,7 @@ app.include_router(universities.router)
 app.include_router(rankings.router)
 app.include_router(countries.router)
 app.include_router(analytics.router)
+app.include_router(compare.router)
 app.include_router(search.router)
 app.include_router(auth.router)
 app.include_router(admin_router)
