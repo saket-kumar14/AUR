@@ -1,8 +1,3 @@
-"""
-Auth middleware — FastAPI dependency that extracts & validates the current user.
-Authors: Janani & Steny
-"""
-
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,13 +14,6 @@ async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db),
 ) -> User:
-    """
-    Dependency: parses Bearer token → returns the authenticated User row.
-    Usage:
-        @router.get("/me")
-        async def me(user: User = Depends(get_current_user)):
-            ...
-    """
     token = credentials.credentials
     payload = decode_access_token(token)  # raises 401 if invalid
 
@@ -48,7 +36,6 @@ async def get_current_user(
 
 
 async def require_admin(user: User = Depends(get_current_user)) -> User:
-    """Dependency: same as get_current_user but also enforces admin role."""
     if user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
