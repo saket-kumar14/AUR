@@ -3,6 +3,8 @@ Users router — bookmark management (save, list, delete).
 Requires authentication on all endpoints.
 """
 
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,22 +17,22 @@ from auth.middleware import get_current_user
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-# ── Schemas ───────────────────────────────────────────────────────────────────
+#  Schemas 
 
 class BookmarkCreate(BaseModel):
-    university_id: int
+    university_id: UUID
 
 
 class BookmarkResponse(BaseModel):
-    id: int
-    university_id: int
+    id: UUID
+    university_id: UUID
     created_at: str
 
     class Config:
         from_attributes = True
 
 
-# ── Endpoints ─────────────────────────────────────────────────────────────────
+#  Endpoints 
 
 @router.post("/bookmarks", status_code=status.HTTP_201_CREATED)
 async def add_bookmark(
@@ -98,7 +100,7 @@ async def get_bookmarks(
 
 @router.delete("/bookmarks/{university_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_bookmark(
-    university_id: int,
+    university_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):

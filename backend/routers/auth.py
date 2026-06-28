@@ -1,7 +1,4 @@
-"""
-Auth router — register, login, refresh, logout.
-Authors: Janani & Steny
-"""
+# Auth router — register, login, refresh, logout.
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
@@ -21,7 +18,7 @@ from auth.jwt import (
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-# ── Schemas ───────────────────────────────────────────────────────────────────
+#  Schemas 
 
 class RegisterRequest(BaseModel):
     first_name: str
@@ -49,7 +46,7 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+#  Helpers
 
 def hash_password(plain: str) -> str:
     return bcrypt.hashpw(plain.encode(), bcrypt.gensalt()).decode()
@@ -59,7 +56,7 @@ def verify_password(plain: str, hashed: str) -> bool:
     return bcrypt.checkpw(plain.encode(), hashed.encode())
 
 
-# ── Endpoints ─────────────────────────────────────────────────────────────────
+# Endpoints 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
