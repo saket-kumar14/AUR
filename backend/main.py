@@ -44,6 +44,14 @@ app.include_router(users_router)
 def root():
     return {"message": "AUR API is running!"}
 
-@app.get("/health")
+from fastapi.responses import JSONResponse
+
+@app.get("/health", tags=["Health"])
 async def health():
-    return {"status": "ok"}
+    return JSONResponse(
+        status_code=200,
+        content={
+            "status": "healthy",
+            "service": "AUR Backend"
+        }
+    )
