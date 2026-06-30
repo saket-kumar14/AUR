@@ -107,23 +107,20 @@ export default function Navbar() {
       <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
         <div className="flex h-14 items-center justify-between gap-4">
           
-          {/* Logo / Brand */}
-          <div
-            onClick={() => handleViewChange("home")}
-            className="flex cursor-pointer items-center space-x-3 shrink-0 group"
-          >
-            <div className="flex h-8 w-8 items-center justify-center bg-[var(--aur-text)] text-[var(--background)] font-serif text-sm font-bold rounded-lg group-hover:opacity-80 transition-opacity duration-200">
-              A
-            </div>
-            <div className="hidden sm:block">
-              <h1 className="text-sm font-bold leading-tight tracking-tight text-[var(--aur-text)]">
-                ASIA UNIVERSITY{" "}
-                <span className="text-[var(--aur-text-muted)] text-xs font-semibold tracking-widest uppercase ml-0.5">
-                  RANKINGS
-                </span>
-              </h1>
-            </div>
-          </div>
+          {/* Logo / Editorial Brand */}
+<div
+  onClick={() => handleViewChange("home")}
+  className="flex h-16 items-center cursor-pointer shrink-0"
+>
+  <Image
+    src="/logo.png"
+    alt="Asia University Rankings"
+    width={458}
+    height={135}
+    priority
+    className="max-h-10 w-auto object-contain"
+  />
+</div>
 
           {/* Navigation Links - Desktop */}
           <nav className="hidden md:flex space-x-1 h-full items-center">
