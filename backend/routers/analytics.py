@@ -1,5 +1,12 @@
 from fastapi import APIRouter
 from collections import Counter
+from schemas import (
+    SummaryResponse,
+    CountryCount,
+    TopUniversity,
+    SubregionCount,
+    CountryAverageScore
+)
 
 router = APIRouter(prefix="/api/insights", tags=["Insights"])
 
@@ -8,7 +15,7 @@ def get_data():
     return UNIVERSITIES
 
 
-@router.get("/summary")
+@router.get("/summary", response_model=SummaryResponse)
 def get_summary():
     data = get_data()
 
@@ -16,7 +23,7 @@ def get_summary():
         "total_universities": len(data)
     }
 
-@router.get("/by-country")
+@router.get("/by-country", response_model=list[CountryCount])
 def by_country():
     data = get_data()
 
@@ -40,7 +47,7 @@ def by_country():
         reverse=True
     )
 
-@router.get("/countries/top")
+@router.get("/countries/top", response_model=list[CountryCount])
 def top_countries(limit: int = 10):
     data = get_data()
 
@@ -60,7 +67,7 @@ def top_countries(limit: int = 10):
         for country, count in country_count.most_common(limit)
     ]
 
-@router.get("/top-universities")
+@router.get("/top-universities", response_model=list[TopUniversity])
 def top_universities(limit: int = 10):
     data = get_data()
 
@@ -80,23 +87,33 @@ def top_universities(limit: int = 10):
         for uni in sorted_data[:limit]
     ]
 
-@router.get("/by-subregion")
+@router.get("/by-subregion", response_model=list[SubregionCount])
 def by_subregion():
     data = get_data()
 
     result = {}
 
     for uni in data:
-        region = uni.get("subregion")
+        subregion = uni.get("subregion")
 
-        if region not in result:
-            result[region] = 0
+        if not subregion:
+            continue
 
-        result[region] += 1
+        result[subregion] = result.get(subregion, 0) + 1
 
-    return result
+    return sorted(
+        [
+            {
+                "subregion": subregion,
+                "count": count
+            }
+            for subregion, count in result.items()
+        ],
+        key=lambda x: x["count"],
+        reverse=True
+    )
 
-@router.get("/country-average-score")
+@router.get("/country-average-score", response_model=list[CountryAverageScore])
 def country_average_score():
     data = get_data()
 

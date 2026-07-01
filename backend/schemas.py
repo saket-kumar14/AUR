@@ -81,3 +81,28 @@ class SearchResponse(BaseModel):
     query: str
     total: int
     data: List[University]
+
+class SummaryResponse(BaseModel):
+    total_universities: int
+
+
+class CountryCount(BaseModel):
+    country: str
+    count: int
+
+
+class TopUniversity(BaseModel):
+    rank: Optional[int] = None
+    name: str
+    country: str
+    overall: Optional[float] = None
+
+
+class SubregionCount(BaseModel):
+    subregion: str
+    count: int
+
+
+class CountryAverageScore(BaseModel):
+    country: str
+    average_score: float    
