@@ -1,4 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from database.connections import get_redis
+import redis.asyncio as aioredis
+import json
 
 router = APIRouter(prefix="/api/countries", tags=["Countries"])
 
@@ -7,23 +10,51 @@ def get_data():
     return UNIVERSITIES
 
 @router.get("/")
-def get_countries():
+async def get_countries(
+    redis: aioredis.Redis = Depends(get_redis),
+):
+    cache_key = "countries:list"
+
+    cached_data = await redis.get(cache_key)
+
+    if cached_data:
+        return json.loads(cached_data)
+
     data = get_data()
     country_map = {}
+
     for u in data:
         c = u["location"]
         if c not in country_map:
-            country_map[c] = {"country": c, "university_count": 0, "subregion": u["subregion"]}
+            country_map[c] = {
+                "country": c,
+                "university_count": 0,
+                "subregion": u["subregion"]
+            }
         country_map[c]["university_count"] += 1
 
-    return sorted(country_map.values(), key=lambda x: x["university_count"], reverse=True)
+    result = sorted(
+        country_map.values(),
+        key=lambda x: x["university_count"],
+        reverse=True
+    )
+    await redis.setex(
+        cache_key,
+        300,
+        json.dumps(result)
+    )
+
+
+    return result
 
 @router.get("/{country_name}")
 def get_universities_by_country(country_name: str):
     data = get_data()
     results = [u for u in data if u["location"].lower() == country_name.lower()]
+
     if not results:
         raise HTTPException(status_code=404, detail="Country not found")
+
     return {
         "country": country_name,
         "total": len(results),
