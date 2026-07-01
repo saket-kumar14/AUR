@@ -9,7 +9,7 @@ def get_data():
     from data_loader import UNIVERSITIES
     return UNIVERSITIES
 
-@router.get("/")
+@router.get("/", response_model=List[CountrySummary])
 async def get_countries(
     redis: aioredis.Redis = Depends(get_redis),
 ):
@@ -47,7 +47,7 @@ async def get_countries(
 
     return result
 
-@router.get("/{country_name}")
+@router.get("/{country_name}", response_model=CountryUniversitiesResponse)
 def get_universities_by_country(country_name: str):
     data = get_data()
     results = [u for u in data if u["location"].lower() == country_name.lower()]
