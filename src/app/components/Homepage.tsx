@@ -1102,14 +1102,14 @@ export default function Homepage({
         </div>
         <div className="mt-8 pt-6 border-t border-[var(--ref-border)] flex flex-col sm:flex-row justify-between gap-4 items-center">
           <span className="text-[10px] text-[var(--ref-muted)]">© 2026 Asia University Rankings. All rights reserved.</span>
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
             <Mail className="h-4 w-4 text-[var(--ref-muted)]" />
             <input
               type="email"
               placeholder="Newsletter email"
-              className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-900 w-48 focus:outline-none focus:ring-2 focus:ring-amber-400"
+              className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-900 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
-            <button type="button" className="ref-btn-primary text-[10px] px-3 py-1.5">Subscribe</button>
+            <button type="button" className="ref-btn-primary text-[10px] px-3 py-2 justify-center">Subscribe</button>
           </div>
         </div>
       </footer>

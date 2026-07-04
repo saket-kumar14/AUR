@@ -1,5 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from collections import Counter
+from database.connections import get_redis
+import redis.asyncio as aioredis
+import json
 
 router = APIRouter(prefix="/api/insights", tags=["Insights"])
 
@@ -7,14 +10,30 @@ def get_data():
     from data_loader import UNIVERSITIES
     return UNIVERSITIES
 
-
 @router.get("/summary")
-def get_summary():
+async def get_summary(
+    redis: aioredis.Redis = Depends(get_redis),
+):
+    cache_key = "analytics:summary"
+
+    cached_data = await redis.get(cache_key)
+
+    if cached_data:
+        return json.loads(cached_data)
+
     data = get_data()
 
-    return {
+    result = {
         "total_universities": len(data)
     }
+
+    await redis.setex(
+        cache_key,
+        300,
+        json.dumps(result)
+    )
+
+    return result
 
 @router.get("/by-country")
 def by_country():
