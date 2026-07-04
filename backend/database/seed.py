@@ -145,7 +145,6 @@ async def seed(session: AsyncSession) -> None:
                     university_id = uni.id,
                     year          = 2025,
                     rank          = rank_2025,
-                    # No per-indicator scores available for 2025
                 )
                 session.add(score_2025)
                 inserted_scores += 1
