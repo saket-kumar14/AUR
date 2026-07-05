@@ -125,7 +125,7 @@ export function mapBackendUniversity(uni: BackendUniversity, index: number): Uni
     location,
     overall,
     citations,
-    employability: employerReputation,
+    employability: score(uni.employability, overall),
     intlStudents,
     teaching,
     research,

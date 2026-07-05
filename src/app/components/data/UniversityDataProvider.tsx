@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { University } from "../../data";
+import { MOCK_UNIVERSITIES } from "../../data";
 import { fetchUniversities } from "../../lib/universities";
 
 interface UniversityDataContextValue {
@@ -22,6 +23,7 @@ export function UniversityDataProvider({ children }: { children: React.ReactNode
       })
       .catch((err) => {
         console.error("Unable to load university data", err);
+        if (isMounted) setUniversities(MOCK_UNIVERSITIES);
       });
 
     return () => {
