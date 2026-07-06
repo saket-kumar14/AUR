@@ -29,7 +29,8 @@ import {
   X,
   FilterX,
 } from "lucide-react";
-import { MOCK_UNIVERSITIES, University } from "../data";
+import { University } from "../data";
+import { useUniversityData } from "./data/UniversityDataProvider";
 import { useSidebar } from "./navigation/SidebarContext";
 
 interface RankingsEngineProps {
@@ -56,6 +57,7 @@ export default function RankingsEngine({
   onToggleCompare,
   onUniversitySelect,
 }: RankingsEngineProps) {
+  const { universities } = useUniversityData();
   const focusRing =
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--aur-text)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]";
   const router = useRouter();
@@ -185,7 +187,7 @@ export default function RankingsEngine({
       weights.teaching;
 
     // Apply  formula weights to recalculate scores dynamically
-    const recalculated = MOCK_UNIVERSITIES.map((uni) => {
+    const recalculated = universities.map((uni) => {
       let calculatedScore = uni.overall;
       if (totalWeight > 0) {
         calculatedScore =
@@ -209,7 +211,7 @@ export default function RankingsEngine({
       ...uni,
       calculatedRank: index + 1,
     }));
-  }, [weights]);
+  }, [weights, universities]);
 
   // 5. Apply filters
   const deferredSearchQuery = useDeferredValue(searchQuery);
@@ -278,9 +280,9 @@ export default function RankingsEngine({
   }, [processedData, deferredSearchQuery, locations, selectedSubjects, selectedLanguages, filters]);
 
   // 6. Extract unique values for filter dropdown options
-  const uniqueLocations = useMemo(() => Array.from(new Set(MOCK_UNIVERSITIES.map((u) => u.location))).sort(), []);
-  const uniqueSubjects = useMemo(() => Array.from(new Set(MOCK_UNIVERSITIES.flatMap((u) => u.subjects))).sort(), []);
-  const uniqueLanguages = useMemo(() => Array.from(new Set(MOCK_UNIVERSITIES.flatMap((u) => u.languages))).sort(), []);
+  const uniqueLocations = useMemo(() => Array.from(new Set(universities.map((u) => u.location))).sort(), [universities]);
+  const uniqueSubjects = useMemo(() => Array.from(new Set(universities.flatMap((u) => u.subjects))).sort(), [universities]);
+  const uniqueLanguages = useMemo(() => Array.from(new Set(universities.flatMap((u) => u.languages))).sort(), [universities]);
 
   const rankingInsights = useMemo(() => {
     const data = filteredData;

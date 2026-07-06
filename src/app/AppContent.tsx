@@ -19,12 +19,14 @@ import UserDashboard from "./components/UserDashboard";
 import UniversitiesList from "./components/UniversitiesList";
 import Methodology from "./components/Methodology";
 import { useSidebar } from "./components/navigation/SidebarContext";
-import { Article, MOCK_UNIVERSITIES } from "./data";
+import { useUniversityData } from "./components/data/UniversityDataProvider";
+import { Article } from "./data";
 import { Bookmark, ShieldAlert } from "lucide-react";
 
 export default function AppContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { universities } = useUniversityData();
 
   const {
     activeView,
@@ -73,7 +75,7 @@ export default function AppContent() {
   };
 
   // Get selected universities for Saved view
-  const savedUniversities = MOCK_UNIVERSITIES.filter((u) => savedUniIds.includes(u.id));
+  const savedUniversities = universities.filter((u) => savedUniIds.includes(u.id));
 
   // Show sidebar for non-home views
   const showSidebar = view !== "home" && view !== "login" && view !== "admin";

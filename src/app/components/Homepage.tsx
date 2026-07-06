@@ -21,7 +21,8 @@ import {
   Activity,
   Mail,
 } from "lucide-react";
-import { MOCK_UNIVERSITIES, FEATURED_ARTICLES, University, Article } from "../data";
+import { FEATURED_ARTICLES, University, Article } from "../data";
+import { useUniversityData } from "./data/UniversityDataProvider";
 import { AsiaMapNetwork, MapUniversityCards } from "./home/AsiaMapHero";
 import "./home/ref-home.css";
 
@@ -402,9 +403,9 @@ function RadarChart({ universities }: { universities: University[] }) {
   );
 }
 
-function getCountryStats() {
+function getCountryStats(universities: University[]) {
   const map = new Map<string, University[]>();
-  MOCK_UNIVERSITIES.forEach((u) => {
+  universities.forEach((u) => {
     if (!map.has(u.location)) map.set(u.location, []);
     map.get(u.location)!.push(u);
   });
@@ -445,6 +446,7 @@ export default function Homepage({
   onArticleSelect,
   onViewChange,
 }: HomepageProps) {
+  const { universities } = useUniversityData();
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState<{ universities: University[]; articles: Article[] }>({
     universities: [],
@@ -462,7 +464,7 @@ export default function Homepage({
       setSuggestions({ universities: [], articles: [] });
       return;
     }
-    const filteredUnis = MOCK_UNIVERSITIES.filter(
+    const filteredUnis = universities.filter(
       (uni) =>
         uni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         uni.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -474,7 +476,7 @@ export default function Homepage({
         art.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
     ).slice(0, 3);
     setSuggestions({ universities: filteredUnis, articles: filteredArticles });
-  }, [searchQuery]);
+  }, [searchQuery, universities]);
 
   const flatSuggestions = useMemo((): SuggestionPick[] => {
     const items: SuggestionPick[] = [];
@@ -541,13 +543,13 @@ export default function Homepage({
   };
 
   const topTen = useMemo(
-    () => [...MOCK_UNIVERSITIES].sort((a, b) => b.overall - a.overall).slice(0, 10),
-    []
+    () => [...universities].sort((a, b) => b.overall - a.overall).slice(0, 10),
+    [universities]
   );
 
-  const countryStats = useMemo(() => getCountryStats(), []);
+  const countryStats = useMemo(() => getCountryStats(universities), [universities]);
   const compareUnis = topTen.slice(0, 4);
-  const uniqueCountries = useMemo(() => new Set(MOCK_UNIVERSITIES.map((u) => u.location)).size, []);
+  const uniqueCountries = useMemo(() => new Set(universities.map((u) => u.location)).size, [universities]);
   const mapUniversities = topTen.slice(0, 3);
 
   const scrollToMethodology = () => {
