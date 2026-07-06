@@ -717,8 +717,8 @@ export default function Homepage({
               
             >
               {[
-                { icon: Building2, val: `${universities.length}+`, label: "Institutions" },
-                { icon: Globe2, val: `${uniqueCountries}+`, label: "Countries" },
+                { icon: Building2, val: "650+", label: "Institutions" },
+                { icon: Globe2, val: "20+", label: "Countries" },
                 { icon: Database, val: "1M+", label: "Data Points" },
                 { icon: Clock, val: "15+", label: "Years of Data" },
               ].map((s) => (
