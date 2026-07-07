@@ -14,6 +14,8 @@ export default function MobileMenu() {
     activeView,
     handleViewChange,
     theme,
+    isMobileOpen,
+    setIsMobileOpen,
   } = useSidebar();
 
   const [activeTab, setActiveTab] = useState<"menu" | "filters">("menu");

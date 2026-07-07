@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import Image from "next/image";
-import { Search, Bell, Sun, Moon, Menu, X, ChevronDown, User, Shield, LogOut, Maximize2, Minimize2, SlidersHorizontal } from "lucide-react";
+import { Search, Bell, Sun, Moon, Menu, X, ChevronDown, User, Shield, LogOut, Maximize2, Minimize2, SlidersHorizontal, Zap } from "lucide-react";
 import { useSidebar } from "../navigation/SidebarContext";
 import { useToast } from "../feedback/ToastContext";
 import { TOP_NAV_LINKS } from "../navigation/config";
@@ -130,21 +131,30 @@ export default function Navbar() {
               const isRankings = link.view === "rankings";
               return (
                 <div key={link.label} className="relative group flex items-center">
-                  <button
-                    onClick={() => handleViewChange(link.view)}
-                    className={`relative px-4 py-2 text-[11px] font-bold uppercase tracking-wider transition-colors duration-200 rounded-md ${
-                      isActive
-                        ? "text-[var(--aur-text)]"
-                        : "text-[var(--aur-text-muted)] hover:text-[var(--aur-text)]"
-                    }`}
-                  >
-                    {link.label}
-                    {isActive && (
-                      <div
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--aur-text)]"
-                      />
-                    )}
-                  </button>
+                  {link.view === "news" ? (
+                    <Link
+                      href="/news"
+                      className="relative px-4 py-2 text-[11px] font-bold uppercase tracking-wider transition-colors duration-200 rounded-md text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] flex items-center"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => handleViewChange(link.view)}
+                      className={`relative px-4 py-2 text-[11px] font-bold uppercase tracking-wider transition-colors duration-200 rounded-md ${
+                        isActive
+                          ? "text-[var(--aur-text)]"
+                          : "text-[var(--aur-text-muted)] hover:text-[var(--aur-text)]"
+                      }`}
+                    >
+                      {link.label}
+                      {isActive && (
+                        <div
+                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--aur-text)]"
+                        />
+                      )}
+                    </button>
+                  )}
                   {/* Filter shortcut beside Rankings Engine */}
                   {isRankings && (
                     <div className="relative ml-0.5" ref={navFilterRef}>

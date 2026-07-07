@@ -38,12 +38,6 @@ export const SIDEBAR_ITEMS: NavItem[] = [
     badge: "Live",
   },
   {
-    id: "countries",
-    label: "Countries",
-    view: "countries", // redirect to rankings view and apply filter
-    icon: Globe,
-  },
-  {
     id: "analytics",
     label: "Analytics",
     view: "analytics", // a new analytics view we can mock or showcase
@@ -75,4 +69,5 @@ export const TOP_NAV_LINKS = [
   { label: "Rankings Engine", view: "rankings" },
   { label: "Methodology", view: "methodology" },
   { label: "Comparison Matrix", view: "saved" },
+  { label: "News", view: "news" },
 ];

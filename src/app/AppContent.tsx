@@ -23,6 +23,7 @@ import { useSidebar } from "./components/navigation/SidebarContext";
 import { useUniversityData } from "./components/data/UniversityDataProvider";
 import { Article, MOCK_UNIVERSITIES } from "./data";
 import { Bookmark, ShieldAlert } from "lucide-react";
+import Sidebar from "./components/sidebar/Sidebar";
 
 export default function AppContent() {
   const router = useRouter();
@@ -151,8 +152,6 @@ export default function AppContent() {
               onViewChange={handleViewChange}
               savedUniIds={savedUniIds}
               onToggleSave={handleToggleSave}
-              selectedUniIds={selectedUniIds}
-              onToggleCompare={handleToggleCompare}
             />
           )}
 

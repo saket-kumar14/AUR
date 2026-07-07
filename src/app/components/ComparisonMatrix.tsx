@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { MOCK_UNIVERSITIES, University } from "../data";
-import { X, Search } from "lucide-react";
+import { X, LayoutGrid } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ENRICHMENT DATA
@@ -35,10 +35,6 @@ const ENRICHMENT: Record<string, {
 
 const DEFAULT_ENRICH = { tuition: 0, livingCost: 0, salary: 0, rank: 999, acceptance: 0, scholarship: 0, accreditation: [] };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CRITERIA STATE
-// ─────────────────────────────────────────────────────────────────────────────
-
 interface Criteria {
   tuitionStr: string;
   livingStr: string;
@@ -64,16 +60,34 @@ function parseNum(val: string): number | null {
   return isNaN(num) ? null : num;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────────────────────
+const ProfessionalInput = ({ 
+  label, value, onChange, placeholder, prefix, suffix 
+}: { 
+  label: string; value: string; onChange: (v: string) => void; placeholder: string; prefix?: string; suffix?: string;
+}) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-xs font-semibold text-slate-700">
+      {label}
+    </label>
+    <div className="relative flex items-center">
+      {prefix && <span className="absolute left-3 text-slate-400 text-sm font-medium">{prefix}</span>}
+      <input 
+        type="text" 
+        value={value} 
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={`w-full bg-white border border-slate-300 rounded-md shadow-sm py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-colors ${prefix ? 'pl-8' : 'pl-3'} ${suffix ? 'pr-8' : 'pr-3'}`}
+      />
+      {suffix && <span className="absolute right-3 text-slate-400 text-sm font-medium">{suffix}</span>}
+    </div>
+  </div>
+);
 
 export default function ComparisonMatrix() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [criteria, setCriteria] = useState<Criteria>(DEFAULT_CRITERIA);
   const [hasSearched, setHasSearched] = useState(false);
 
-  // Parse strings to numbers for filtering
   const maxTuition = parseNum(criteria.tuitionStr);
   const maxLiving = parseNum(criteria.livingStr);
   const minSalary = parseNum(criteria.salaryStr);
@@ -82,56 +96,29 @@ export default function ComparisonMatrix() {
   const minScholarship = parseNum(criteria.scholarshipStr);
   const reqAccred = criteria.accreditationSearch.trim().toLowerCase();
 
-  const handleClear = () => {
-    setCriteria(DEFAULT_CRITERIA);
-    setHasSearched(false);
-  };
-
   const searchResults = useMemo(() => {
     if (!hasSearched) return [];
     
     const results = MOCK_UNIVERSITIES.map(u => {
       const e = ENRICHMENT[u.id] ?? DEFAULT_ENRICH;
       let score = 100;
-      let matches = 0;
-      let totalFilters = 0;
 
-      if (maxTuition !== null) {
-        totalFilters++;
-        if (e.tuition <= maxTuition) matches++; else score -= 20;
-      }
-      if (maxLiving !== null) {
-        totalFilters++;
-        if (e.livingCost <= maxLiving) matches++; else score -= 15;
-      }
-      if (minSalary !== null) {
-        totalFilters++;
-        if (e.salary >= minSalary) matches++; else score -= 25;
-      }
-      if (maxRank !== null) {
-        totalFilters++;
-        if (e.rank <= maxRank) matches++; else score -= 15;
-      }
-      if (maxAcceptance !== null) {
-        totalFilters++;
-        if (e.acceptance <= maxAcceptance) matches++; else score -= 10;
-      }
-      if (minScholarship !== null) {
-        totalFilters++;
-        if (e.scholarship >= minScholarship) matches++; else score -= 10;
-      }
+      if (maxTuition !== null) { if (e.tuition > maxTuition) score -= 20; }
+      if (maxLiving !== null) { if (e.livingCost > maxLiving) score -= 15; }
+      if (minSalary !== null) { if (e.salary < minSalary) score -= 25; }
+      if (maxRank !== null) { if (e.rank > maxRank) score -= 15; }
+      if (maxAcceptance !== null) { if (e.acceptance > maxAcceptance) score -= 10; }
+      if (minScholarship !== null) { if (e.scholarship < minScholarship) score -= 10; }
       if (reqAccred) {
-        totalFilters++;
-        if (e.accreditation.some(a => a.toLowerCase().includes(reqAccred))) matches++; else score -= 15;
+        if (!e.accreditation.some(a => a.toLowerCase().includes(reqAccred))) score -= 15;
       }
 
-      return { u, score: Math.max(0, score), matches, totalFilters };
+      return { u, score: Math.max(0, score) };
     });
 
     return results
       .filter(r => (maxTuition === null && minSalary === null && maxRank === null && maxLiving === null && maxAcceptance === null && minScholarship === null && !reqAccred) || r.score > 0)
       .sort((a, b) => b.score - a.score);
-
   }, [hasSearched, criteria, maxTuition, maxLiving, minSalary, maxRank, maxAcceptance, minScholarship, reqAccred]);
 
   const displayedUnis = useMemo(() => {
@@ -145,346 +132,191 @@ export default function ComparisonMatrix() {
   const fmtCurrency = (n: number) => n === 0 ? "—" : `$${n.toLocaleString()}`;
 
   return (
-    <div className="w-full min-h-screen bg-white text-black">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-10 py-10">
+    <div className="min-h-screen w-full pb-20 font-sans bg-white text-slate-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* ── HEADER ── */}
-        <header className="mb-12 border-b border-black pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <div className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 mb-1.5">Prestige Institutional Portal</div>
-            <h1 className="font-serif text-3xl md:text-4xl font-bold text-black tracking-tight leading-none">
-              Analysis Matrix
-            </h1>
+        {/* Header */}
+        <header className="mb-8 border-b border-slate-200 pb-6">
+          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-2 uppercase tracking-wider">
+            <LayoutGrid className="w-4 h-4" />
+            Comparison Matrix
           </div>
-          <p className="text-xs text-neutral-500 max-w-md leading-relaxed md:text-right">
-            Evaluate prospective institutions side-by-side across critical ROI metrics and accreditation standings inside a structured comparison grid.
+          <h1 className="text-3xl font-bold tracking-tight mb-2 text-slate-900">
+            Evaluate Institutions
+          </h1>
+          <p className="text-slate-600 text-sm max-w-2xl">
+            Configure filtering parameters below to shortlist institutions. Then, use the data table to perform a side-by-side analysis of relevant metrics and accreditations.
           </p>
         </header>
 
-        {/* ── AUTHORITATIVE FILTER CONSOLE ── */}
-        <section className="border border-black bg-white mb-14 transition-all duration-300">
-          <div className="border-b border-black px-6 py-4 flex items-center justify-between bg-white">
-            <h2 className="font-serif text-xs font-bold uppercase tracking-widest text-black flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-black rounded-full" />
-              Institutional Filter Console
+        {/* Configuration Panel */}
+        <div className="bg-white border border-slate-200 rounded-lg shadow-sm mb-10 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-200 bg-white flex justify-between items-center">
+            <h2 className="text-sm font-semibold text-slate-800">
+              Filtering Criteria
             </h2>
             <button 
-              onClick={handleClear} 
-              className="text-[9px] uppercase tracking-widest font-bold text-neutral-450 hover:text-black transition-colors rounded-md px-2 py-1"
+              onClick={() => { setCriteria(DEFAULT_CRITERIA); setHasSearched(false); }}
+              className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors"
             >
-              Clear Parameters
+              Clear parameters
             </button>
           </div>
 
-          {/* 1px grid border layout */}
-          <div className="bg-neutral-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[1px]">
+          <div className="p-6 bg-white">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <ProfessionalInput label="Maximum Tuition" value={criteria.tuitionStr} onChange={v => setCriteria(p => ({...p, tuitionStr: v}))} placeholder="e.g. 20000" prefix="$" />
+              <ProfessionalInput label="Maximum Living Cost" value={criteria.livingStr} onChange={v => setCriteria(p => ({...p, livingStr: v}))} placeholder="e.g. 15000" prefix="$" />
+              <ProfessionalInput label="Minimum Graduate Salary" value={criteria.salaryStr} onChange={v => setCriteria(p => ({...p, salaryStr: v}))} placeholder="e.g. 60000" prefix="$" />
+              <ProfessionalInput label="Maximum World Rank" value={criteria.rankStr} onChange={v => setCriteria(p => ({...p, rankStr: v}))} placeholder="e.g. 50" prefix="#" />
+              
+              <ProfessionalInput label="Maximum Acceptance Rate" value={criteria.acceptanceStr} onChange={v => setCriteria(p => ({...p, acceptanceStr: v}))} placeholder="e.g. 15" suffix="%" />
+              <ProfessionalInput label="Minimum Scholarship" value={criteria.scholarshipStr} onChange={v => setCriteria(p => ({...p, scholarshipStr: v}))} placeholder="e.g. 5000" prefix="$" />
+              <div className="sm:col-span-2 lg:col-span-2">
+                <ProfessionalInput label="Required Accreditations" value={criteria.accreditationSearch} onChange={v => setCriteria(p => ({...p, accreditationSearch: v}))} placeholder="e.g. AACSB, EQUIS" />
+              </div>
+            </div>
             
-            {/* Tuition */}
-            <div className="bg-white p-5 flex flex-col gap-1.5 relative group">
-              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-yellow-400 scale-y-0 group-focus-within:scale-y-100 transition-transform origin-center duration-150" />
-              <label className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 group-focus-within:text-black transition-colors">
-                Max Annual Tuition
-              </label>
-              <div className="flex items-center">
-                <span className="text-sm font-bold text-neutral-400 group-focus-within:text-black mr-1.5 font-serif">$</span>
-                <input 
-                  type="text" 
-                  value={criteria.tuitionStr} 
-                  onChange={e => setCriteria(prev => ({...prev, tuitionStr: e.target.value}))}
-                  placeholder="Any Budget"
-                  className="w-full bg-transparent outline-none border-none text-sm font-serif font-medium text-black placeholder-neutral-300"
-                />
-              </div>
-            </div>
-
-            {/* Living Cost */}
-            <div className="bg-white p-5 flex flex-col gap-1.5 relative group">
-              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-yellow-400 scale-y-0 group-focus-within:scale-y-100 transition-transform origin-center duration-150" />
-              <label className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 group-focus-within:text-black transition-colors">
-                Max Living Cost
-              </label>
-              <div className="flex items-center">
-                <span className="text-sm font-bold text-neutral-400 group-focus-within:text-black mr-1.5 font-serif">$</span>
-                <input 
-                  type="text" 
-                  value={criteria.livingStr} 
-                  onChange={e => setCriteria(prev => ({...prev, livingStr: e.target.value}))}
-                  placeholder="Any Cost"
-                  className="w-full bg-transparent outline-none border-none text-sm font-serif font-medium text-black placeholder-neutral-300"
-                />
-              </div>
-            </div>
-
-            {/* Salary */}
-            <div className="bg-white p-5 flex flex-col gap-1.5 relative group">
-              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-yellow-400 scale-y-0 group-focus-within:scale-y-100 transition-transform origin-center duration-150" />
-              <label className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 group-focus-within:text-black transition-colors">
-                Min Graduate Salary
-              </label>
-              <div className="flex items-center">
-                <span className="text-sm font-bold text-neutral-400 group-focus-within:text-black mr-1.5 font-serif">$</span>
-                <input 
-                  type="text" 
-                  value={criteria.salaryStr} 
-                  onChange={e => setCriteria(prev => ({...prev, salaryStr: e.target.value}))}
-                  placeholder="No Minimum"
-                  className="w-full bg-transparent outline-none border-none text-sm font-serif font-medium text-black placeholder-neutral-300"
-                />
-              </div>
-            </div>
-
-            {/* Rank */}
-            <div className="bg-white p-5 flex flex-col gap-1.5 relative group">
-              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-yellow-400 scale-y-0 group-focus-within:scale-y-100 transition-transform origin-center duration-150" />
-              <label className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 group-focus-within:text-black transition-colors">
-                Max World Rank
-              </label>
-              <div className="flex items-center">
-                <span className="text-sm font-bold text-neutral-400 group-focus-within:text-black mr-1.5 font-serif">#</span>
-                <input 
-                  type="text" 
-                  value={criteria.rankStr} 
-                  onChange={e => setCriteria(prev => ({...prev, rankStr: e.target.value}))}
-                  placeholder="Unrestricted"
-                  className="w-full bg-transparent outline-none border-none text-sm font-serif font-medium text-black placeholder-neutral-300"
-                />
-              </div>
-            </div>
-
-            {/* Acceptance Rate */}
-            <div className="bg-white p-5 flex flex-col gap-1.5 relative group">
-              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-yellow-400 scale-y-0 group-focus-within:scale-y-100 transition-transform origin-center duration-150" />
-              <label className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 group-focus-within:text-black transition-colors">
-                Max Acceptance Rate
-              </label>
-              <div className="flex items-center">
-                <input 
-                  type="text" 
-                  value={criteria.acceptanceStr} 
-                  onChange={e => setCriteria(prev => ({...prev, acceptanceStr: e.target.value}))}
-                  placeholder="No Limit"
-                  className="w-full bg-transparent outline-none border-none text-sm font-serif font-medium text-black placeholder-neutral-300"
-                />
-                <span className="text-sm font-bold text-neutral-400 group-focus-within:text-black ml-1.5 font-serif">%</span>
-              </div>
-            </div>
-
-            {/* Scholarships */}
-            <div className="bg-white p-5 flex flex-col gap-1.5 relative group">
-              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-yellow-400 scale-y-0 group-focus-within:scale-y-100 transition-transform origin-center duration-150" />
-              <label className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 group-focus-within:text-black transition-colors">
-                Min Scholarship Fund
-              </label>
-              <div className="flex items-center">
-                <span className="text-sm font-bold text-neutral-400 group-focus-within:text-black mr-1.5 font-serif">$</span>
-                <input 
-                  type="text" 
-                  value={criteria.scholarshipStr} 
-                  onChange={e => setCriteria(prev => ({...prev, scholarshipStr: e.target.value}))}
-                  placeholder="No Minimum"
-                  className="w-full bg-transparent outline-none border-none text-sm font-serif font-medium text-black placeholder-neutral-300"
-                />
-              </div>
-            </div>
-
-            {/* Accreditation */}
-            <div className="bg-white p-5 flex flex-col gap-1.5 relative group lg:col-span-2">
-              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-yellow-400 scale-y-0 group-focus-within:scale-y-100 transition-transform origin-center duration-150" />
-              <label className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 group-focus-within:text-black transition-colors">
-                Accreditation Bodies
-              </label>
-              <input 
-                type="text" 
-                value={criteria.accreditationSearch} 
-                onChange={e => setCriteria(prev => ({...prev, accreditationSearch: e.target.value}))}
-                placeholder="e.g. AACSB, ABET, EQUIS"
-                className="w-full bg-transparent outline-none border-none text-sm font-serif font-medium text-black placeholder-neutral-300"
-              />
-            </div>
-
-          </div>
-
-          {/* Actions Bar */}
-          <div className="bg-white px-6 py-4 border-t border-black flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-[10px] text-neutral-500 uppercase tracking-widest font-mono">
-              {hasSearched ? `Matches Identified: ${searchResults.length}` : "Configure filters to shortlist institutions"}
-            </div>
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={handleClear}
-                className="px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-neutral-600 hover:text-black border border-neutral-200 hover:border-black transition-colors duration-150 rounded-md"
-              >
-                Reset Parameters
-              </button>
+            <div className="mt-8 flex items-center justify-end border-t border-slate-100 pt-6">
               <button 
                 onClick={() => setHasSearched(true)}
-                className="bg-black text-white px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest hover:bg-[#facc15] hover:text-black border border-black transition-colors duration-150 rounded-md"
+                className="px-5 py-2 bg-slate-900 hover:bg-black text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors"
               >
-                Apply Parameters
+                Apply Filters
               </button>
             </div>
           </div>
 
-          {/* SEARCH RESULTS */}
+          {/* Results List */}
           {hasSearched && (
-            <div className="border-t border-black bg-white">
-              <div className="px-6 py-3 bg-neutral-50 border-b border-black/10">
-                <span className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Query Results ({searchResults.length} Matches)</span>
+            <div className="border-t border-slate-200 bg-white">
+              <div className="px-6 py-3 border-b border-slate-200 bg-white">
+                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Matches ({searchResults.length})
+                </h3>
               </div>
-              {searchResults.length > 0 ? (
-                <ul className="divide-y divide-neutral-100 max-h-[300px] overflow-y-auto">
-                  {searchResults.map((res, i) => {
-                    const isSelected = selectedIds.includes(res.u.id);
-                    return (
-                      <li key={res.u.id} className="px-6 py-4 flex items-center justify-between hover:bg-neutral-50/50 transition-colors group">
-                        <div className="flex items-center gap-4">
-                          <span className="font-serif text-xs text-neutral-400 font-medium w-4">{i + 1}.</span>
-                          <div>
-                            <div className="font-serif font-bold text-sm text-black group-hover:text-yellow-600 transition-colors">
+              
+              <div className="max-h-72 overflow-y-auto">
+                {searchResults.length > 0 ? (
+                  <table className="w-full text-sm text-left">
+                    <tbody className="divide-y divide-slate-200">
+                      {searchResults.map((res) => {
+                        const isSelected = selectedIds.includes(res.u.id);
+                        return (
+                          <tr key={res.u.id} className="hover:bg-slate-50 transition-colors">
+                            <td className="px-6 py-4 font-medium text-slate-900">
                               {res.u.name}
-                            </div>
-                            <div className="text-[10px] text-neutral-450 font-semibold uppercase tracking-wider mt-0.5">
-                              {res.u.location} &middot; {res.score}% Compatibility
-                            </div>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => toggleSelect(res.u.id)}
-                          className={`px-4 py-2 text-[9px] font-bold uppercase tracking-widest transition-colors border rounded-md ${
-                            isSelected 
-                              ? "bg-neutral-100 border-neutral-300 text-neutral-500 hover:bg-red-100 hover:text-red-700 hover:border-red-400" 
-                              : "bg-black border-black text-white hover:bg-yellow-400 hover:text-black hover:border-yellow-400"
-                          }`}
-                        >
-                          {isSelected ? "Remove" : "Add to Matrix"}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : (
-                <div className="py-16 text-center text-neutral-400 font-serif text-sm bg-neutral-50/20">
-                  No institutions matched the specified filter criteria.
-                </div>
-              )}
+                            </td>
+                            <td className="px-6 py-4 text-slate-500">
+                              {res.u.location}
+                            </td>
+                            <td className="px-6 py-4 text-slate-500 w-32">
+                              {res.score}% Match
+                            </td>
+                            <td className="px-6 py-4 text-right w-40">
+                              <button
+                                onClick={() => toggleSelect(res.u.id)}
+                                className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                                  isSelected 
+                                    ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100" 
+                                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                                }`}
+                              >
+                                {isSelected ? "Remove" : "Add to Matrix"}
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="px-6 py-12 text-center">
+                    <p className="text-slate-500 text-sm">No institutions matched the provided parameters.</p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
-        </section>
+        </div>
 
-        {/* ── COMPARISON MATRIX (FINANCIAL REPORT STYLE) ── */}
-        <section>
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="font-serif text-xl font-bold text-black tracking-tight">Comparative Analysis Ledger</h2>
-            <span className="text-[9px] font-bold uppercase tracking-widest text-black px-3 py-1 border border-black bg-neutral-50">
-              {displayedUnis.length} / 6 Shortlisted
+        {/* Data Table */}
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-slate-900">
+            Data Matrix
+          </h2>
+          {displayedUnis.length > 0 && (
+            <span className="text-sm font-medium text-slate-500">
+              {displayedUnis.length} {displayedUnis.length === 1 ? 'institution' : 'institutions'} selected
             </span>
-          </div>
+          )}
+        </div>
 
-          {displayedUnis.length === 0 ? (
-            <div className="border border-black border-dashed p-16 text-center bg-white">
-              <p className="font-serif text-neutral-400 text-base">The comparison ledger is currently empty. Use the Filter Console above to shortlist institutions.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto border border-black bg-white shadow-sm">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  {/* ── University headers: listed HORIZONTALLY as columns ── */}
-                  <tr className="border-b-2 border-black">
-                    <th scope="col" className="px-5 py-4 w-52 border-r-2 border-black bg-neutral-50 align-bottom">
-                      <span className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 block">Institution / Metric</span>
+        {displayedUnis.length === 0 ? (
+          <div className="bg-white border border-slate-200 rounded-lg p-12 text-center shadow-sm">
+            <p className="text-slate-500 text-sm">Select institutions from the filter results to populate the comparison matrix.</p>
+          </div>
+        ) : (
+          <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left border-collapse">
+                <thead className="bg-white text-slate-700">
+                  <tr>
+                    <th scope="col" className="px-6 py-4 font-semibold border-b border-r border-slate-200 w-48 sticky left-0 bg-white z-10">
+                      Metric
                     </th>
                     {displayedUnis.map(u => (
-                      <th scope="col" key={u.id} className="px-5 py-4 min-w-[210px] border-r border-black/30 last:border-r-0 align-bottom bg-white">
-                        <div className="flex justify-between items-end gap-2 pb-2 border-b-2 border-black">
-                          <div>
-                            <div className="font-serif font-bold text-sm text-black leading-tight">{u.name}</div>
-                            <div className="text-[9px] uppercase tracking-wider text-neutral-400 font-semibold mt-0.5">{u.location}</div>
-                          </div>
-                          <button 
-                            onClick={() => toggleSelect(u.id)} 
-                            className="shrink-0 text-neutral-400 hover:text-black transition-colors hover:bg-neutral-100 p-1.5 rounded-md border border-transparent hover:border-neutral-200"
-                            title="Remove from matrix"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
+                      <th scope="col" key={u.id} className="px-6 py-4 font-semibold border-b border-r border-slate-200 min-w-[240px] last:border-r-0 relative group">
+                        <div className="pr-6">
+                          <div className="text-slate-900 truncate" title={u.name}>{u.name}</div>
+                          <div className="text-xs font-normal text-slate-500 mt-0.5">{u.location}</div>
                         </div>
+                        <button 
+                          onClick={() => toggleSelect(u.id)} 
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-600 p-1 rounded transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                          aria-label="Remove institution"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
                       </th>
                     ))}
                   </tr>
                 </thead>
-                {/* ── Metrics listed VERTICALLY as rows ── */}
-                <tbody className="text-sm bg-white">
-
-                  {([
-                    {
-                      label: "Annual Tuition",
-                      render: (u: University) => fmtCurrency((ENRICHMENT[u.id] ?? DEFAULT_ENRICH).tuition),
-                    },
-                    {
-                      label: "Living Expenses",
-                      render: (u: University) => fmtCurrency((ENRICHMENT[u.id] ?? DEFAULT_ENRICH).livingCost),
-                    },
-                    {
-                      label: "Avg. Graduate Salary",
-                      render: (u: University) => fmtCurrency((ENRICHMENT[u.id] ?? DEFAULT_ENRICH).salary),
-                    },
-                    {
-                      label: "World Ranking",
-                      render: (u: University) => {
+                <tbody className="divide-y divide-slate-200">
+                  {[
+                    { label: "Annual Tuition", render: (u: University) => fmtCurrency((ENRICHMENT[u.id] ?? DEFAULT_ENRICH).tuition) },
+                    { label: "Living Expenses", render: (u: University) => fmtCurrency((ENRICHMENT[u.id] ?? DEFAULT_ENRICH).livingCost) },
+                    { label: "Avg. Graduate Salary", render: (u: University) => fmtCurrency((ENRICHMENT[u.id] ?? DEFAULT_ENRICH).salary) },
+                    { label: "World Ranking", render: (u: University) => {
                         const r = (ENRICHMENT[u.id] ?? DEFAULT_ENRICH).rank;
                         return r < 999 ? `#${r}` : "Unranked";
-                      },
-                    },
-                    {
-                      label: "Acceptance Rate",
-                      render: (u: University) => {
+                    }},
+                    { label: "Acceptance Rate", render: (u: University) => {
                         const v = (ENRICHMENT[u.id] ?? DEFAULT_ENRICH).acceptance;
                         return v > 0 ? `${v.toFixed(1)}%` : "—";
-                      },
-                    },
-                    {
-                      label: "Scholarship Support",
-                      render: (u: University) => fmtCurrency((ENRICHMENT[u.id] ?? DEFAULT_ENRICH).scholarship),
-                    },
-                    {
-                      label: "Accreditation",
-                      render: (u: University) => {
+                    }},
+                    { label: "Scholarship Max", render: (u: University) => fmtCurrency((ENRICHMENT[u.id] ?? DEFAULT_ENRICH).scholarship) },
+                    { label: "Accreditation", render: (u: University) => {
                         const a = (ENRICHMENT[u.id] ?? DEFAULT_ENRICH).accreditation;
                         return a.length > 0 ? a.join(", ") : "—";
-                      },
-                      isText: true,
-                    },
-                  ] as { label: string; render: (u: University) => string; isText?: boolean }[]).map(({ label, render, isText }) => (
-                    <tr key={label} className="border-t border-black/10 hover:bg-amber-50/30 transition-colors">
-                      {/* Metric label — left-pinned vertical axis */}
-                      <th
-                        scope="row"
-                        className="px-5 py-3.5 border-r-2 border-black bg-neutral-50 text-[9px] font-black uppercase tracking-widest text-neutral-500 whitespace-nowrap text-left"
-                      >
+                    }}
+                  ].map(({ label, render }, idx) => (
+                    <tr key={label} className="hover:bg-slate-50 transition-colors">
+                      <th scope="row" className="px-6 py-4 font-medium text-slate-700 border-r border-slate-200 sticky left-0 bg-white">
                         {label}
                       </th>
-                      {/* University data cells — horizontal columns */}
                       {displayedUnis.map(u => (
-                        <td
-                          key={u.id}
-                          className={`px-5 py-3.5 border-r border-black/20 last:border-r-0 ${
-                            isText
-                              ? "text-[11px] font-bold text-neutral-700 leading-relaxed"
-                              : "font-serif text-black font-semibold text-sm"
-                          }`}
-                        >
+                        <td key={u.id} className="px-6 py-4 text-slate-600 border-r border-slate-200 last:border-r-0">
                           {render(u)}
                         </td>
                       ))}
                     </tr>
                   ))}
-
                 </tbody>
               </table>
             </div>
-          )}
-        </section>
-        
+          </div>
+        )}
       </div>
     </div>
   );
