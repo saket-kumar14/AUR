@@ -7,6 +7,7 @@ import {
   Bookmark, 
   Settings,
   BookOpen,
+  Calendar,
 } from "lucide-react";
 
 export interface NavItem {
@@ -56,6 +57,12 @@ export const SIDEBAR_ITEMS: NavItem[] = [
     icon: BookOpen,
   },
   {
+    id: "events",
+    label: "Events & Awards",
+    view: "events",
+    icon: Calendar,
+  },
+  {
     id: "settings",
     label: "Settings",
     view: "settings",
@@ -69,5 +76,6 @@ export const TOP_NAV_LINKS = [
   { label: "Rankings Engine", view: "rankings" },
   { label: "Methodology", view: "methodology" },
   { label: "Comparison Matrix", view: "saved" },
+  { label: "Events & Awards", view: "events" },
   { label: "News", view: "news" },
 ];

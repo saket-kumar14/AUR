@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useMemo, useEffect, useDeferredValue } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -358,9 +358,9 @@ export default function RankingsEngine({
         header: "University Name",
         accessorKey: "name",
         cell: ({ row }) => (
-          <div className="text-left font-sans font-bold text-slate-900 hover:text-amber-700 dark:text-slate-100 dark:hover:text-cyber-yellow transition-colors cursor-pointer" onClick={() => onUniversitySelect(row.original.id)}>
+          <div className="text-left font-sans font-bold text-[var(--aur-text)] hover:underline transition-all active:scale-95 cursor-pointer inline-block" onClick={() => onUniversitySelect(row.original.id)}>
             <div className="truncate max-w-[11rem] sm:max-w-[17rem] lg:max-w-[21rem]">{row.original.name}</div>
-            <div className="flex items-center text-[10px] text-slate-400 font-mono font-medium uppercase mt-0.5">
+            <div className="flex items-center text-[10px] text-[var(--aur-text-muted)] font-mono font-medium uppercase mt-0.5">
               <Globe className="h-3 w-3 mr-1" />
               {row.original.location}
             </div>
@@ -382,7 +382,7 @@ export default function RankingsEngine({
         header: "Citations",
         accessorKey: "citations",
         cell: ({ getValue }) => (
-          <span className="font-mono text-slate-600 dark:text-slate-300 aur-tabular">{(getValue() as number).toFixed(0)}</span>
+          <span className="font-mono text-[var(--aur-text-secondary)] aur-tabular">{(getValue() as number).toFixed(0)}</span>
         ),
       },
       {
@@ -390,7 +390,7 @@ export default function RankingsEngine({
         header: "Research",
         accessorKey: "research",
         cell: ({ getValue }) => (
-          <span className="font-mono text-slate-600 dark:text-slate-300 aur-tabular">{(getValue() as number).toFixed(0)}</span>
+          <span className="font-mono text-[var(--aur-text-secondary)] aur-tabular">{(getValue() as number).toFixed(0)}</span>
         ),
       },
       {
@@ -398,7 +398,7 @@ export default function RankingsEngine({
         header: "Employability",
         accessorKey: "employability",
         cell: ({ getValue }) => (
-          <span className="font-mono text-slate-600 dark:text-slate-300 aur-tabular">{(getValue() as number).toFixed(0)}</span>
+          <span className="font-mono text-[var(--aur-text-secondary)] aur-tabular">{(getValue() as number).toFixed(0)}</span>
         ),
       },
       {
@@ -406,7 +406,7 @@ export default function RankingsEngine({
         header: "Tuition / Yr",
         accessorKey: "tuition",
         cell: ({ row }) => (
-          <span className="inline-flex min-w-[5.5rem] justify-end font-mono text-xs text-slate-500 dark:text-slate-300 bg-slate-50 dark:bg-cyber-gray border border-slate-200 dark:border-cyber-border px-1.5 py-0.5">
+          <span className="inline-flex min-w-[5.5rem] justify-end font-mono text-xs text-[var(--aur-text-muted)] bg-[var(--aur-surface-2)] border border-[var(--aur-border)] px-1.5 py-0.5">
             {row.original.tuition}
           </span>
         ),
@@ -643,8 +643,8 @@ export default function RankingsEngine({
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-4">
-        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-          Total: <span className="text-slate-750 dark:text-slate-100 font-mono">{filteredData.length}</span> matching institutions
+        <span className="text-[10px] text-[var(--aur-text-muted)] font-bold uppercase tracking-wider">
+          Total: <span className="text-[var(--aur-text)] font-mono">{filteredData.length}</span> matching institutions
         </span>
         <button
           onClick={handleResetFilters}
