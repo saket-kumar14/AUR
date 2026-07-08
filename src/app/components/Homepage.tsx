@@ -1069,9 +1069,9 @@ export default function Homepage({
             </p>
           </div>
           {[
-            { title: "Platform", links: [["Rankings Engine", "rankings"], ["Discovery Hub", "home"], ["Analytics", "rankings"]] },
-            { title: "Resources", links: [["Methodology", "home"], ["Reports", "home"], ["Insights", "home"]] },
-            { title: "Company", links: [["About Us", "settings"], ["Contact", "settings"], ["Privacy", "settings"]] },
+            { title: "Platform", links: [["Rankings Engine", "rankings"], ["Discovery Hub", "home"], ["Analytics", "analytics"]] },
+            { title: "Resources", links: [["Methodology", "methodology"], ["Reports", "home"], ["Insights", "home"]] },
+            { title: "Company", links: [["About Us", "home"], ["Contact", "settings"], ["Privacy", "settings"]] },
           ].map((col) => (
             <div key={col.title}>
               <h4 className="text-xs font-bold uppercase tracking-wider mb-3">{col.title}</h4>
