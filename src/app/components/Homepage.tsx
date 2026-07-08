@@ -736,22 +736,6 @@ export default function Homepage({
               ))}
             </div>
 
-            <div className="ref-stat-bar flex flex-wrap justify-center gap-6 w-full">
-              {[
-                { icon: Building2, val: "650+", label: "Institutions" },
-                { icon: Globe2, val: "20+", label: "Countries" },
-                { icon: Database, val: "1M+", label: "Data Points" },
-                { icon: Clock, val: "15+", label: "Years of Data" },
-              ].map((s) => (
-                <div key={s.label} className="ref-stat-item" >
-                  <s.icon className="h-5 w-5 text-amber-500 shrink-0" />
-                  <div>
-                    <div className="font-bold text-sm">{s.val}</div>
-                    <div className="text-[10px] text-[var(--ref-muted)] uppercase tracking-wider">{s.label}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
           </motion.div>
         </div>
       </section>
