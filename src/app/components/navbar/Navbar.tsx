@@ -132,15 +132,15 @@ export default function Navbar() {
           <div className="flex-1 hidden lg:block" />
 
           {/* ── Search bar ── */}
-          <form onSubmit={handleSearchSubmit} className="flex-1 max-w-2xl hidden md:block">
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--aur-text-muted)] pointer-events-none" />
+          <form onSubmit={handleSearchSubmit} className="hidden md:block ml-4 lg:ml-8 transition-all">
+            <div className="relative group">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--aur-text-muted)] group-focus-within:text-[var(--aur-text)] transition-colors pointer-events-none" />
               <input
                 type="text"
                 value={searchVal}
                 onChange={handleSearchChange}
-                placeholder="Search across index..."
-                className="w-full border border-[var(--aur-border)] bg-[var(--aur-surface-2)] px-4 py-2 pl-9 rounded-none text-[13px] text-[var(--aur-text)] placeholder:text-[var(--aur-text-muted)] focus:outline-none focus:border-[var(--aur-border-strong)] focus:bg-[var(--aur-surface)] transition-all duration-200"
+                placeholder="Search index..."
+                className="w-32 sm:w-48 md:w-56 lg:w-72 xl:w-80 focus:w-64 focus:md:w-80 focus:lg:w-[450px] focus:xl:w-[600px] border border-[var(--aur-border)] bg-[var(--aur-surface-2)] px-4 py-2 pl-9 rounded-none text-[13px] text-[var(--aur-text)] placeholder:text-[var(--aur-text-muted)] focus:outline-none focus:border-[var(--aur-border-strong)] focus:bg-[var(--aur-surface)] transition-all duration-500 ease-out"
               />
             </div>
           </form>
