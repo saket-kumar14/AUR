@@ -15,11 +15,10 @@
   /* â”€â”€ LIGHT MODE background â”€â”€ */
   background-color: #ffffff;
   background-image:
-    radial-gradient(circle, rgba(71, 85, 105, 0.18) 1px, transparent 1px),
     radial-gradient(ellipse 70% 55% at 50% 100%, rgba(236, 72, 153, 0.10) 0%, transparent 70%),
     radial-gradient(ellipse 50% 40% at 90% 0%, rgba(139, 92, 246, 0.08) 0%, transparent 65%),
     radial-gradient(ellipse 45% 35% at 0% 10%, rgba(59, 130, 246, 0.07) 0%, transparent 60%);
-  background-size: 28px 28px, 100% 100%, 100% 100%, 100% 100%;
+  background-size: 100% 100%, 100% 100%, 100% 100%;
   color: var(--ref-text);
   font-family: var(--font-sans), system-ui, sans-serif;
   transition: background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
@@ -49,14 +48,14 @@
 .ref-card {
   background: var(--ref-surface);
   border: 1px solid var(--ref-border);
-  border-radius: 16px;
+  border-radius: 0;
   box-shadow: var(--aur-shadow);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .ref-card-light {
   background: var(--ref-surface);
   border: 1px solid var(--ref-border);
-  border-radius: 16px;
+  border-radius: 0;
   color: var(--ref-text);
   box-shadow: var(--aur-shadow);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -182,7 +181,7 @@
   position: relative;
   flex: 1;
   min-height: 340px;
-  border-radius: 16px;
+  border-radius: 0;
   background: var(--aur-surface);
   border: 1px solid var(--aur-border);
   box-shadow: var(--aur-shadow);
@@ -233,7 +232,7 @@
   text-align: left;
   background: var(--aur-surface);
   border: 1px solid var(--aur-border-strong);
-  border-radius: 12px;
+  border-radius: 0;
   padding: 0.875rem 1rem;
   box-shadow: var(--aur-shadow-lg);
   cursor: pointer;
@@ -297,7 +296,7 @@
   flex-shrink: 0;
   background: var(--aur-surface);
   border: 1px solid var(--aur-border);
-  border-radius: 16px;
+  border-radius: 0;
   padding: 1.25rem;
   box-shadow: var(--aur-shadow);
   display: flex;
@@ -340,7 +339,7 @@
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  border-radius: 8px;
+  border-radius: 0;
   flex-shrink: 0;
   background: var(--aur-surface-2);
   color: var(--aur-text);
@@ -371,7 +370,7 @@
   color: var(--aur-text);
   background: transparent;
   border: 1px solid var(--aur-border-strong);
-  border-radius: 10px;
+  border-radius: 0;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .ref-live-sidebar__cta:hover {
@@ -402,7 +401,7 @@
   padding: 1rem;
   background: var(--aur-surface);
   border: 1px solid var(--aur-border);
-  border-radius: 12px;
+  border-radius: 0;
   box-shadow: var(--aur-shadow-sm);
   transition: transform 0.2s ease;
 }
@@ -413,7 +412,7 @@
 /* â”€â”€ Rankings Table â”€â”€ */
 .ref-table-wrap {
   overflow-x: auto;
-  border-radius: 16px;
+  border-radius: 0;
   box-shadow: var(--aur-shadow);
   border: 1px solid var(--aur-border);
 }
@@ -473,7 +472,7 @@
 
 .ref-country-card {
   position: relative;
-  border-radius: 16px;
+  border-radius: 0;
   overflow: hidden;
   min-height: 180px;
   cursor: pointer;
@@ -658,7 +657,7 @@
 .ref-analytics-card {
   background: var(--aur-surface);
   border: 1px solid var(--aur-border);
-  border-radius: 12px;
+  border-radius: 0;
   padding: 1.25rem;
   box-shadow: var(--aur-shadow-sm);
   transition: transform 0.2s ease, box-shadow 0.2s ease;

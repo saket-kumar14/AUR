@@ -17,19 +17,22 @@ export default function Navbar() {
     handleViewChange,
     filters,
     setFilters,
+    searchQuery,
+    setSearchQuery,
   } = useSidebar();
 
-  const [searchVal, setSearchVal] = useState(filters.searchQuery);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifMenu, setShowNotifMenu] = useState(false);
 
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
+  const [searchVal, setSearchVal] = useState(searchQuery);
+
   // Sync internal search state with context searchQuery
   useEffect(() => {
-    setSearchVal(filters.searchQuery);
-  }, [filters.searchQuery]);
+    setSearchVal(searchQuery);
+  }, [searchQuery]);
 
   // Click outside menus to close
   useEffect(() => {
@@ -47,12 +50,17 @@ export default function Navbar() {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setSearchQuery(searchVal);
     setFilters((prev) => ({ ...prev, searchQuery: searchVal }));
-    handleViewChange("rankings");
+    // If not on a view that supports search, route to rankings
+    if (activeView !== "universities" && activeView !== "rankings" && activeView !== "countries") {
+      handleViewChange("rankings");
+    }
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchVal(e.target.value);
+    setSearchQuery(e.target.value);
     setFilters((prev) => ({ ...prev, searchQuery: e.target.value }));
   };
 
@@ -95,7 +103,7 @@ export default function Navbar() {
                   <Link
                     key={link.label}
                     href="/news"
-                    className="relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors duration-200 rounded-md text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-hover)]"
+                    className="relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors duration-200 rounded-none text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-hover)]"
                   >
                     {link.label}
                   </Link>
@@ -106,7 +114,7 @@ export default function Navbar() {
                 <button
                   key={link.label}
                   onClick={() => handleViewChange(link.view)}
-                  className={`relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors duration-200 rounded-md ${
+                  className={`relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors duration-200 rounded-none ${
                     isActive
                       ? "text-[var(--aur-text)] bg-[var(--aur-surface-hover)]"
                       : "text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-hover)]"
@@ -122,15 +130,15 @@ export default function Navbar() {
           <div className="flex-1 hidden lg:block" />
 
           {/* ── Search bar ── */}
-          <form onSubmit={handleSearchSubmit} className="flex-1 max-w-lg hidden md:block">
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--aur-text-muted)] pointer-events-none" />
+          <form onSubmit={handleSearchSubmit} className="hidden md:block ml-4 lg:ml-8 transition-all">
+            <div className="relative group">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--aur-text-muted)] group-focus-within:text-[var(--aur-text)] transition-colors pointer-events-none" />
               <input
                 type="text"
                 value={searchVal}
                 onChange={handleSearchChange}
-                placeholder="Search across index..."
-                className="w-full border border-[var(--aur-border)] bg-[var(--aur-surface-2)] px-4 py-2 pl-9 rounded-xl text-[13px] text-[var(--aur-text)] placeholder:text-[var(--aur-text-muted)] focus:outline-none focus:border-[var(--aur-border-strong)] focus:bg-[var(--aur-surface)] transition-all duration-200"
+                placeholder="Search index..."
+                className="w-32 sm:w-48 md:w-56 lg:w-72 xl:w-80 focus:w-64 focus:md:w-80 focus:lg:w-[450px] focus:xl:w-[600px] border border-[var(--aur-border)] bg-[var(--aur-surface-2)] px-4 py-2 pl-9 rounded-none text-[13px] text-[var(--aur-text)] placeholder:text-[var(--aur-text-muted)] focus:outline-none focus:border-[var(--aur-border-strong)] focus:bg-[var(--aur-surface)] transition-all duration-500 ease-out"
               />
             </div>
           </form>
@@ -147,7 +155,7 @@ export default function Navbar() {
                 type="button"
                 onClick={() => setShowNotifMenu(!showNotifMenu)}
                 aria-label="Open notifications"
-                className="p-2 rounded-lg text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-hover)] transition-all duration-200 relative"
+                className="p-2 rounded-none text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-hover)] transition-all duration-200 relative"
               >
                 <Bell className="h-4 w-4" />
                 <span className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5">
@@ -156,7 +164,7 @@ export default function Navbar() {
               </button>
 
               {showNotifMenu && (
-                <div className="absolute right-0 top-full mt-2 w-80 rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] shadow-xl py-2 z-50 text-xs text-[var(--aur-text-secondary)]">
+                <div className="absolute right-0 top-full mt-2 w-80 rounded-none border border-[var(--aur-border)] bg-[var(--aur-surface)] shadow-xl py-2 z-50 text-xs text-[var(--aur-text-secondary)]">
                   <div className="px-4 py-2.5 border-b border-[var(--aur-border)] flex justify-between items-center">
                     <span className="font-bold text-[var(--aur-text)] uppercase tracking-wider text-[10px]">Notifications</span>
                     <span className="text-[10px] text-red-500 font-semibold">3 New</span>
@@ -191,14 +199,14 @@ export default function Navbar() {
                 aria-label="Open profile menu"
                 className="flex items-center gap-1.5 focus:outline-none group"
               >
-                <div className="h-8 w-8 rounded-xl bg-[var(--aur-text)] flex items-center justify-center text-[var(--background)] text-[11px] font-bold tracking-wide transition-transform duration-200 group-hover:scale-105">
+                <div className="h-8 w-8 rounded-none bg-[var(--aur-text)] flex items-center justify-center text-[var(--background)] text-[11px] font-bold tracking-wide transition-transform duration-200 group-hover:scale-105">
                   US
                 </div>
                 <ChevronDown className="h-3 w-3 text-[var(--aur-text-muted)] group-hover:text-[var(--aur-text)] transition-colors hidden sm:block" />
               </button>
 
               {showProfileMenu && (
-                <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] shadow-xl py-1.5 z-50">
+                <div className="absolute right-0 top-full mt-2 w-52 rounded-none border border-[var(--aur-border)] bg-[var(--aur-surface)] shadow-xl py-1.5 z-50">
                   <div className="px-4 py-3 border-b border-[var(--aur-border)]">
                     <span className="block font-bold text-[var(--aur-text)] text-sm">Dr. John Doe</span>
                     <span className="block text-[10px] text-[var(--aur-text-muted)] mt-0.5">j.doe@university.edu</span>
@@ -234,7 +242,7 @@ export default function Navbar() {
               type="button"
               onClick={() => setIsMobileOpen(!isMobileOpen)}
               aria-label={isMobileOpen ? "Close menu" : "Open menu"}
-              className="p-2 rounded-lg text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-hover)] transition-all duration-200 md:hidden ml-1"
+              className="p-2 rounded-none text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-hover)] transition-all duration-200 md:hidden ml-1"
             >
               {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
