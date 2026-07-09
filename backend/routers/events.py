@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from database.connections import get_db
-from database.models import Event, Application, JudgeScore, User
+from database.models import Event, Application, JudgeScore, User, University
 from auth.middleware import require_admin
 from schemas import (
     EventCreate, EventResponse,
@@ -64,7 +64,11 @@ async def submit_application(
 ):
     result = await db.execute(select(Event).where(Event.id == event_id))
     if not result.scalar_one_or_none():
-        raise HTTPException(status_code=404, detail="Event not found")
+      raise HTTPException(status_code=404, detail="Event not found")
+
+    result = await db.execute(select(University).where(University.id == university_id))
+    if not result.scalar_one_or_none():
+      raise HTTPException(status_code=404, detail="University not found")
 
     saved_paths = []
     for f in files:
