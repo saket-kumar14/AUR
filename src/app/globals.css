@@ -559,7 +559,8 @@ html.dark .aur-rankings-pagination {
   background: var(--aur-surface);
   box-shadow: var(--aur-shadow);
   border-radius: 16px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .aur-table {

@@ -20,6 +20,7 @@ import UserDashboard from "./components/UserDashboard";
 import UniversitiesList from "./components/UniversitiesList";
 import Methodology from "./components/Methodology";
 import EventsAndAwards from "./components/EventsAndAwards";
+import Membership from "./components/Membership";
 import { useSidebar } from "./components/navigation/SidebarContext";
 import { useUniversityData } from "./components/data/UniversityDataProvider";
 import { Article, MOCK_UNIVERSITIES } from "./data";
@@ -161,6 +162,9 @@ export default function AppContent() {
 
           {/* Methodology */}
           {view === "methodology" && <Methodology />}
+
+          {/* Membership */}
+          {view === "membership" && <Membership />}
 
           {/* Events & Awards */}
           {view === "events" && <EventsAndAwards />}
