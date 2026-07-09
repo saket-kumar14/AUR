@@ -43,9 +43,11 @@ export default function AppContent() {
     handleClearCompare,
     theme,
     isCollapsed,
+    searchQuery,
+    setSearchQuery,
   } = useSidebar();
 
-  const [searchQuery, setSearchQuery] = useState(() => searchParams.get("search") ?? "");
+
   const [savedUniIds, setSavedUniIds] = useState<string[]>([]);
 
   // Local settings toggles state
