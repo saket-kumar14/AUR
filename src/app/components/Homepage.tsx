@@ -28,8 +28,8 @@ import {
 import { FEATURED_ARTICLES, University, Article } from "../data";
 import { BLOG_CATEGORY_TABS, getPublishedStoredBlogs, storedBlogToArticle } from "../lib/blog-storage";
 import { useUniversityData } from "./data/UniversityDataProvider";
-import { AsiaMapNetwork, MapUniversityCards } from "./home/AsiaMapHero";
 import "./home/ref-home.css";
+import { API_BASE_URL } from "../lib/universities";
 
 /* ── Reusable scroll-reveal wrapper ── */
 const fadeUp = {
@@ -480,6 +480,12 @@ export default function Homepage({
     universities: [],
     articles: [],
   });
+
+    // Newsletter
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
   const [articleTab, setArticleTab] = useState<"featured" | "reports" | "insights">("featured");
@@ -609,6 +615,52 @@ export default function Homepage({
   const scrollToMethodology = () => {
     // Navigated via onViewChange("methodology") — scroll ref no longer needed
   };
+
+  const handleSubscribe = async (
+  event: React.FormEvent<HTMLFormElement>
+) => {
+  event.preventDefault();
+
+  const trimmedEmail = email.trim();
+
+  if (!trimmedEmail) {
+    setStatus("Please enter a valid email address.");
+    return;
+  }
+
+  setLoading(true);
+  setStatus("");
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/newsletter/subscribe`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: trimmedEmail }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Subscription failed.");
+    }
+
+    setStatus("Thank you for subscribing!");
+    setEmail("");
+  } catch (error) {
+    setStatus(
+      error instanceof Error
+        ? error.message
+        : "Unable to connect. Please try again later."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="ref-home flex-grow w-full relative">
@@ -1051,15 +1103,41 @@ export default function Homepage({
         </div>
         <div className="mt-8 pt-6 border-t border-[var(--ref-border)] flex flex-col sm:flex-row justify-between gap-4 items-center">
           <span className="text-[10px] text-[var(--ref-muted)]">© 2026 Asia University Rankings. All rights reserved.</span>
-          <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
-            <Mail className="h-4 w-4 text-[var(--ref-muted)]" />
-            <input
-              type="email"
-              placeholder="Newsletter email"
-              className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-900 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-amber-400"
-            />
-            <button type="button" className="ref-btn-primary text-[10px] px-3 py-2 justify-center">Subscribe</button>
-          </div>
+<form
+  onSubmit={handleSubscribe}
+  className="flex w-full flex-col items-stretch gap-2 sm:w-auto"
+>
+  <div className="flex w-full flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+    <Mail className="h-4 w-4 text-[var(--ref-muted)] hidden sm:block" />
+
+    <input
+      type="email"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      placeholder="Newsletter email"
+      required
+      className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-900 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-amber-400"
+    />
+
+    <button
+      type="submit"
+      disabled={loading}
+      className="ref-btn-primary text-[10px] px-3 py-2 justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {loading ? "Subscribing..." : "Subscribe"}
+    </button>
+  </div>
+
+  {status && (
+    <p
+      className={`text-[11px] ${
+        status.includes("Thank") ? "text-green-600" : "text-red-500"
+      }`}
+    >
+      {status}
+    </p>
+  )}
+</form>
         </div>
       </footer>
     </div>
