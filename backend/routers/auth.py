@@ -16,8 +16,7 @@ from auth.jwt import (
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 class RegisterRequest(BaseModel):
-    first_name: str
-    last_name: str
+    full_name: str
     email: EmailStr
     password: str
 
@@ -56,9 +55,20 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
             detail="Email already registered",
         )
 
+    full_name = body.full_name.strip()
+    if not full_name:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Full name cannot be empty",
+        )
+
+    parts = full_name.split(" ", 1)
+    first_name = parts[0]
+    last_name = parts[1].strip() if len(parts) > 1 else "-"
+
     user = User(
-        first_name=body.first_name,
-        last_name=body.last_name,
+        first_name=first_name,
+        last_name=last_name,
         email=body.email,
         password_hash=hash_password(body.password),
         role="user",
@@ -70,7 +80,6 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
     access_token = create_access_token({"sub": str(user.id), "role": user.role})
     refresh_token = await create_refresh_token(user.id)
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
-
 
 @router.post("/login", response_model=TokenResponse)
 async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
