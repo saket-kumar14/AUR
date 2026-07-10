@@ -10,18 +10,20 @@ Tables
   courses             — programs / degrees offered by a university
   admission_details   — admission process, deadlines, eligibility per university
   saved_universities  — user ↔ university bookmarks (many-to-many via FK)
+  newsletter_subscribers   — email subscriptions for newsletters and updates
+  news_items               — university-related news, announcements, and ranking updates
+  methodology_versions     — version history and release details of ranking methodology
  
 """
 
 import uuid
 
 from sqlalchemy import (Boolean, Column, Integer, Numeric, String, Float, Text, 
-                        Date, DateTime, ForeignKey, UniqueConstraint, text, JSON)
+                        Date, DateTime, ForeignKey, UniqueConstraint, text)
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-import uuid
 from datetime import date, datetime
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -294,8 +296,8 @@ class MethodologyVersion(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    version: Mapped[str] = mapped_column(String(20), nullable=False)  # e.g. "1.0"
-    title: Mapped[str] = mapped_column(String(255), nullable=False)   # e.g. "Initial QS-based methodology"
+    version: Mapped[str] = mapped_column(String(20), nullable=False) 
+    title: Mapped[str] = mapped_column(String(255), nullable=False)   
     description: Mapped[str] = mapped_column(Text, nullable=True)
     release_date: Mapped[date] = mapped_column(Date, nullable=False)
     is_current: Mapped[bool] = mapped_column(Boolean, default=False)
