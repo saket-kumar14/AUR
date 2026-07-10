@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import NewsFlashWidget from "./NewsFlashWidget";
+import Image from "next/image";
 import {
   Search,
   BookOpen,
@@ -21,12 +23,14 @@ import {
   LineChart,
   Activity,
   Mail,
+  Plus,
 } from "lucide-react";
 import { FEATURED_ARTICLES, University, Article } from "../data";
+import { BLOG_CATEGORY_TABS, getPublishedStoredBlogs, storedBlogToArticle } from "../lib/blog-storage";
 import { useUniversityData } from "./data/UniversityDataProvider";
 import { useSidebar } from "./navigation/SidebarContext";
-import { AsiaMapNetwork, MapUniversityCards } from "./home/AsiaMapHero";
 import "./home/ref-home.css";
+import { API_BASE_URL } from "../lib/universities";
 
 /* ── Reusable scroll-reveal wrapper ── */
 const fadeUp = {
@@ -82,6 +86,29 @@ const COUNTRY_FLAGS: Record<string, string> = {
   Cambodia: "🇰🇭",
   Mongolia: "🇲🇳",
 };
+
+const socialLinks = [
+  {
+    label: "Twitter",
+    imgSrc: "/twitter-logo.png",
+    href: "https://twitter.com",
+  },
+  {
+    label: "LinkedIn",
+    imgSrc: "/linkedin-logo.png",
+    href: "https://www.linkedin.com/company/asia-university-rankings/",
+  },
+  {
+    label: "Instagram",
+    imgSrc: "/instagram-logo.png",
+    href: "https://www.instagram.com/asiauniversityrankings/",
+  },
+  {
+    label: "YouTube",
+    imgSrc: "/youtube-logo.png",
+    href: "https://www.youtube.com/",
+  },
+];
 
 /** Light cards themed around each country's iconic monument */
 const COUNTRY_THEME: Record<
@@ -454,12 +481,44 @@ export default function Homepage({
     universities: [],
     articles: [],
   });
+
+    // Newsletter
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
   const [articleTab, setArticleTab] = useState<"featured" | "reports" | "insights">("featured");
+  const [createdArticles, setCreatedArticles] = useState<Article[]>([]);
 
   const suggestionRef = useRef<HTMLDivElement>(null);
   const methodologyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const loadCreatedArticles = () => {
+      setCreatedArticles(getPublishedStoredBlogs().map(storedBlogToArticle));
+    };
+
+    loadCreatedArticles();
+    window.addEventListener("storage", loadCreatedArticles);
+
+    return () => window.removeEventListener("storage", loadCreatedArticles);
+  }, []);
+
+  const articlesForSearch = useMemo(
+    () => [...createdArticles, ...FEATURED_ARTICLES],
+    [createdArticles]
+  );
+
+  const displayedArticles = useMemo(() => {
+    const localArticlesForTab = createdArticles.filter((article) => {
+      const category = article.category as keyof typeof BLOG_CATEGORY_TABS | undefined;
+      return category ? BLOG_CATEGORY_TABS[category] === articleTab : false;
+    });
+
+    return articleTab === "featured" ? [...localArticlesForTab, ...FEATURED_ARTICLES] : localArticlesForTab;
+  }, [articleTab, createdArticles]);
 
   useEffect(() => {
     if (searchQuery.trim().length === 0) {
@@ -472,13 +531,13 @@ export default function Homepage({
         uni.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
         uni.subjects.some((sub) => sub.toLowerCase().includes(searchQuery.toLowerCase()))
     ).slice(0, 5);
-    const filteredArticles = FEATURED_ARTICLES.filter(
+    const filteredArticles = articlesForSearch.filter(
       (art) =>
         art.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         art.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
     ).slice(0, 3);
     setSuggestions({ universities: filteredUnis, articles: filteredArticles });
-  }, [searchQuery, universities]);
+  }, [articlesForSearch, searchQuery, universities]);
 
   const flatSuggestions = useMemo((): SuggestionPick[] => {
     const items: SuggestionPick[] = [];
@@ -557,6 +616,52 @@ export default function Homepage({
   const scrollToMethodology = () => {
     // Navigated via onViewChange("methodology") — scroll ref no longer needed
   };
+
+  const handleSubscribe = async (
+  event: React.FormEvent<HTMLFormElement>
+) => {
+  event.preventDefault();
+
+  const trimmedEmail = email.trim();
+
+  if (!trimmedEmail) {
+    setStatus("Please enter a valid email address.");
+    return;
+  }
+
+  setLoading(true);
+  setStatus("");
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/newsletter/subscribe`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: trimmedEmail }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Subscription failed.");
+    }
+
+    setStatus("Thank you for subscribing!");
+    setEmail("");
+  } catch (error) {
+    setStatus(
+      error instanceof Error
+        ? error.message
+        : "Unable to connect. Please try again later."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="ref-home flex-grow w-full relative">
@@ -708,22 +813,6 @@ export default function Homepage({
               ))}
             </div>
 
-            <div className="ref-stat-bar flex flex-wrap justify-center gap-6 w-full">
-              {[
-                { icon: Building2, val: "650+", label: "Institutions" },
-                { icon: Globe2, val: "20+", label: "Countries" },
-                { icon: Database, val: "1M+", label: "Data Points" },
-                { icon: Clock, val: "15+", label: "Years of Data" },
-              ].map((s) => (
-                <div key={s.label} className="ref-stat-item" >
-                  <s.icon className="h-5 w-5 text-amber-500 shrink-0" />
-                  <div>
-                    <div className="font-bold text-sm">{s.val}</div>
-                    <div className="text-[10px] text-[var(--ref-muted)] uppercase tracking-wider">{s.label}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
           </motion.div>
         </div>
       </section>
@@ -844,38 +933,19 @@ export default function Homepage({
         <NewsFlashWidget />
       </RevealSection>
 
-      {/* ── Methodology ── */}
-      <RevealSection className="ref-section pt-0">
-        <div className="ref-card p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center" ref={methodologyRef} id="methodology">
-          <div className="flex justify-center">
-            <div className="ref-donut" />
-          </div>
-          <div>
-            <span className="ref-label">Ranking Methodology</span>
-            <h2 className="text-2xl font-bold mt-1 mb-4">How We Score Institutions</h2>
-            <p className="text-sm text-[var(--ref-muted)] mb-6 leading-relaxed">
-              Our composite index blends research output, teaching quality, graduate outcomes, and global outlook
-              — recalculated in real time from audited institutional data.
-            </p>
-            <ul className="space-y-3">
-              {METHODOLOGY.map((m) => (
-                <li key={m.label} className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full shrink-0" style={{ background: m.color }} />
-                    {m.label}
-                  </span>
-                  <span className="font-mono font-bold">{m.pct}%</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </RevealSection>
 
       {/* ── Discovery Hub ── */}
       <RevealSection className="ref-section pt-0">
-        <span className="ref-label">Discovery Hub</span>
-        <h2 className="text-2xl font-bold mt-1 mb-4">Insights &amp; Analysis</h2>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mb-4">
+          <div>
+            <span className="ref-label">Discovery Hub</span>
+            <h2 className="text-2xl font-bold mt-1">Insights &amp; Analysis</h2>
+          </div>
+          <Link href="/blogs/create" className="ref-btn-outline text-[11px] uppercase tracking-wider justify-center">
+            <Plus className="h-3.5 w-3.5" />
+            Create Blog
+          </Link>
+        </div>
         <div className="ref-article-tabs flex gap-6 border-b border-[var(--ref-border)] mb-6">
           {(
             [
@@ -895,7 +965,7 @@ export default function Homepage({
           ))}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"    >
-          {FEATURED_ARTICLES.map((article) => (
+          {displayedArticles.map((article) => (
             <button
               key={article.id}
               type="button"
@@ -924,54 +994,6 @@ export default function Homepage({
         </div>
       </RevealSection>
 
-      {/* ── Comparison + Analytics ── */}
-      <RevealSection className="ref-section pt-0">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="ref-card p-6">
-            <span className="ref-label">Comparison Tool</span>
-            <h2 className="text-xl font-bold mt-1 mb-2">University Comparison</h2>
-            <p className="text-xs text-[var(--ref-muted)] mb-4">Top 4 institutions across key performance axes</p>
-            <RadarChart universities={compareUnis} />
-            <div className="flex flex-wrap gap-2 mt-4 justify-center">
-              {compareUnis.map((u, i) => (
-                <span key={u.id} className="text-[10px] px-2 py-1 rounded-none border border-[var(--ref-border)]">
-                  <span className="inline-block w-2 h-2 rounded-full mr-1" style={{ background: ["#f97316", "#3b82f6", "#10b981", "#8b5cf6"][i] }} />
-                  {u.name.split(" ")[0]}
-                </span>
-              ))}
-            </div>
-            <button
-              type="button"
-              className="ref-btn-outline w-full mt-4 justify-center text-[11px]"
-              onClick={() => onViewChange("rankings")}
-            >
-              Open Full Comparison
-            </button>
-          </div>
-
-          <div>
-            <span className="ref-label">Real-Time Analytics</span>
-            <h2 className="text-xl font-bold mt-1 mb-4">Live Performance Dashboard</h2>
-            <div className="ref-analytics-grid">
-              {[
-                { title: "Live Rankings Updates", icon: LineChart, color: "#3b82f6", trend: "up" as const, stat: "+12 shifts" },
-                { title: "Research Output Growth", icon: Activity, color: "#22c55e", trend: "up" as const, stat: "+18.7%" },
-                { title: "Country Performance", icon: BarChart3, color: "#3b82f6", trend: "up" as const, stat: "Singapore 94.2" },
-                { title: "Institution Performance", icon: TrendingUp, color: "#f97316", trend: "up" as const, stat: "Tsinghua 98.2" },
-              ].map((card) => (
-                <div key={card.title} className="ref-analytics-card">
-                  <div className="flex items-center gap-2 mb-1">
-                    <card.icon className="h-4 w-4" style={{ color: card.color }} />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ref-muted)]">{card.title}</span>
-                  </div>
-                  <div className="font-mono font-bold text-lg" style={{ color: card.color }}>{card.stat}</div>
-                  <MiniLineChart color={card.color} trend={card.trend} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </RevealSection>
 
       {/* ── Pulse Ticker ── */}
       <div className="ref-pulse-ticker">
@@ -1025,17 +1047,42 @@ export default function Homepage({
       <footer className="ref-section pt-0 border-t border-[var(--ref-border)]">
         <div className="ref-footer-grid">
           <div>
-            <div className="font-bold text-lg mb-2">
-              ASIA <span className="text-amber-600">UNIVERSITY</span> RANKINGS
-            </div>
-            <p className="text-xs text-[var(--ref-muted)] leading-relaxed max-w-xs">
-              The definitive intelligence platform for higher education across Asia and Central Asia.
-            </p>
-          </div>
+  <div className="font-bold text-lg mb-2">
+    ASIA <span className="text-amber-600">UNIVERSITY</span> RANKINGS
+  </div>
+
+  <p className="text-xs text-[var(--ref-muted)] leading-relaxed max-w-xs">
+    The definitive intelligence platform for higher education across Asia and Central Asia.
+  </p>
+
+  {/* Social Media */}
+  <div className="mt-5 flex flex-wrap items-center gap-3">
+    {socialLinks.map((social) => (
+      <a
+        key={social.label}
+        href={social.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={social.label}
+        className="group"
+      >
+        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--ref-border)] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:scale-110 hover:border-amber-400 hover:shadow-md">
+          <Image
+            src={social.imgSrc}
+            alt={social.label}
+            width={20}
+            height={20}
+            className="object-contain"
+          />
+        </div>
+      </a>
+    ))}
+  </div>
+</div>
           {[
-            { title: "Platform", links: [["Rankings Engine", "rankings"], ["Discovery Hub", "home"], ["Analytics", "rankings"]] },
-            { title: "Resources", links: [["Methodology", "home"], ["Reports", "home"], ["Insights", "home"]] },
-            { title: "Company", links: [["About Us", "settings"], ["Contact", "settings"], ["Privacy", "settings"]] },
+            { title: "Platform", links: [["Rankings Engine", "rankings"], ["Discovery Hub", "home"], ["Analytics", "analytics"]] },
+            { title: "Resources", links: [["Methodology", "methodology"], ["Reports", "home"], ["Insights", "home"]] },
+            { title: "Company", links: [["About Us", "home"], ["Contact", "settings"], ["Privacy", "settings"]] },
           ].map((col) => (
             <div key={col.title}>
               <h4 className="text-xs font-bold uppercase tracking-wider mb-3">{col.title}</h4>
@@ -1057,15 +1104,41 @@ export default function Homepage({
         </div>
         <div className="mt-8 pt-6 border-t border-[var(--ref-border)] flex flex-col sm:flex-row justify-between gap-4 items-center">
           <span className="text-[10px] text-[var(--ref-muted)]">© 2026 Asia University Rankings. All rights reserved.</span>
-          <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
-            <Mail className="h-4 w-4 text-[var(--ref-muted)]" />
-            <input
-              type="email"
-              placeholder="Newsletter email"
-              className="bg-white border border-slate-200 rounded-none px-3 py-2 text-xs text-slate-900 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-amber-400"
-            />
-            <button type="button" className="ref-btn-primary text-[10px] px-3 py-2 justify-center">Subscribe</button>
-          </div>
+<form
+  onSubmit={handleSubscribe}
+  className="flex w-full flex-col items-stretch gap-2 sm:w-auto"
+>
+  <div className="flex w-full flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+    <Mail className="h-4 w-4 text-[var(--ref-muted)] hidden sm:block" />
+
+    <input
+      type="email"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      placeholder="Newsletter email"
+      required
+      className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-900 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-amber-400"
+    />
+
+    <button
+      type="submit"
+      disabled={loading}
+      className="ref-btn-primary text-[10px] px-3 py-2 justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {loading ? "Subscribing..." : "Subscribe"}
+    </button>
+  </div>
+
+  {status && (
+    <p
+      className={`text-[11px] ${
+        status.includes("Thank") ? "text-green-600" : "text-red-500"
+      }`}
+    >
+      {status}
+    </p>
+  )}
+</form>
         </div>
       </footer>
     </div>

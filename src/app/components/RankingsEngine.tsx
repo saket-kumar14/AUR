@@ -657,7 +657,7 @@ export default function RankingsEngine({
 
       {/* 10. Table System Container with Sticky Header & Pinned Column rules */}
       <div className="aur-table-wrap aur-rankings-table relative overflow-x-auto select-none rounded-sm">
-        <table className="aur-table table-fixed min-w-[760px] w-full">
+        <table className="aur-table table-fixed min-w-[1050px] w-full">
           <thead className="sticky top-0 z-10 aur-thead-shadow">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} className="border-b border-[var(--aur-border)]">

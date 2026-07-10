@@ -9,6 +9,9 @@ FastAPI validates/filters the outgoing data.
 
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import date, datetime
+from uuid import UUID
+from pydantic import BaseModel, ConfigDict
 
 
 class University(BaseModel):
@@ -106,3 +109,36 @@ class SubregionCount(BaseModel):
 class CountryAverageScore(BaseModel):
     country: str
     average_score: float    
+
+from pydantic import BaseModel, EmailStr
+from datetime import datetime
+import uuid
+
+
+class NewsletterSubscribeRequest(BaseModel):
+    email: EmailStr
+
+
+class NewsletterUnsubscribeRequest(BaseModel):
+    email: EmailStr
+
+
+class NewsletterSubscriberResponse(BaseModel):
+    id: uuid.UUID
+    email: EmailStr
+    subscribed_at: datetime
+    active: bool
+
+    class Config:
+        from_attributes = True  
+        
+class MethodologyVersionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    version: str
+    title: str
+    description: str | None = None
+    release_date: date
+    is_current: bool
+    created_at: datetime

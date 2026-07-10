@@ -9,6 +9,7 @@ import {
   BookOpen,
   Calendar,
   Award,
+  BadgeCheck,
 } from "lucide-react";
 
 export interface NavItem {
@@ -52,6 +53,12 @@ export const SIDEBAR_ITEMS: NavItem[] = [
     icon: Bookmark,
   },
   {
+    id: "membership",
+    label: "Membership",
+    view: "membership",
+    icon: BadgeCheck,
+  },
+  {
     id: "methodology",
     label: "Methodology",
     view: "methodology",
@@ -83,6 +90,7 @@ export const TOP_NAV_LINKS = [
   { label: "Rankings Engine", view: "rankings" },
   { label: "Methodology", view: "methodology" },
   { label: "Comparison Matrix", view: "saved" },
+  { label: "Membership", view: "membership" },
   { label: "Events & Awards", view: "events" },
   { label: "News", view: "news" },
 ];

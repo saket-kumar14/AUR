@@ -31,7 +31,7 @@ export default function NewsPage() {
       
       {/* Navbar / Header */}
       <header className="sticky top-0 z-50 bg-[var(--background)]/70 backdrop-blur-xl border-b border-[var(--aur-border)] shadow-sm">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link 
             href="/" 
             className="group flex items-center gap-2 text-sm font-semibold text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] transition-colors"
@@ -48,7 +48,7 @@ export default function NewsPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-6 pt-16 relative z-10">
+      <main className="max-w-7xl mx-auto px-6 pt-16 relative z-10">
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -67,15 +67,19 @@ export default function NewsPage() {
         </motion.div>
 
         {loading ? (
-          <div className="space-y-12 animate-pulse">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="pb-10">
-                <div className="h-6 w-32 bg-[var(--aur-surface-2)] rounded-full mb-4"></div>
-                <div className="h-10 w-3/4 bg-[var(--aur-surface-2)] rounded mb-4"></div>
-                <div className="space-y-3">
-                  <div className="h-4 w-full bg-[var(--aur-surface)] rounded"></div>
-                  <div className="h-4 w-full bg-[var(--aur-surface)] rounded"></div>
-                  <div className="h-4 w-2/3 bg-[var(--aur-surface)] rounded"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-pulse">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="bg-[var(--aur-surface)] rounded-3xl p-6 border border-[var(--aur-border)] h-[500px] flex flex-col">
+                <div className="w-full h-48 bg-[var(--aur-surface-2)] rounded-2xl mb-6"></div>
+                <div className="flex gap-4 mb-4">
+                  <div className="h-4 w-20 bg-[var(--aur-surface-2)] rounded"></div>
+                  <div className="h-4 w-20 bg-[var(--aur-surface-2)] rounded"></div>
+                </div>
+                <div className="h-6 w-full bg-[var(--aur-surface-2)] rounded mb-3"></div>
+                <div className="h-6 w-3/4 bg-[var(--aur-surface-2)] rounded mb-6"></div>
+                <div className="space-y-2 mt-auto">
+                  <div className="h-3 w-full bg-[var(--aur-surface-2)] rounded"></div>
+                  <div className="h-3 w-4/5 bg-[var(--aur-surface-2)] rounded"></div>
                 </div>
               </div>
             ))}
@@ -85,13 +89,13 @@ export default function NewsPage() {
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className="space-y-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
             {news.map((item, idx) => (
               <motion.article 
                 key={item.id} 
                 variants={itemVariants}
-                className={`group relative overflow-hidden bg-[var(--aur-surface)] rounded-3xl p-8 md:p-10 transition-all duration-500 hover:shadow-lg border ${
+                className={`group relative flex flex-col bg-[var(--aur-surface)] rounded-3xl p-6 transition-all duration-500 hover:shadow-xl border ${
                   item.featured 
                     ? "border-[var(--aur-border-strong)] shadow-sm" 
                     : "border-[var(--aur-border)] hover:border-[var(--aur-border-strong)]"
@@ -99,57 +103,83 @@ export default function NewsPage() {
               >
                 {/* Decorative Accent for featured */}
                 {item.featured && (
-                  <div className="absolute top-0 left-0 w-full h-1 bg-[var(--aur-text)]"></div>
+                  <div className="absolute top-0 left-0 w-full h-1 bg-[var(--aur-text)] rounded-t-3xl"></div>
                 )}
                 
-                <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 relative z-10">
-                  <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-4 mb-4">
-                      {item.category && (
-                        <span className={`text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-sm ${
-                          item.featured 
-                            ? "bg-[var(--aur-text)] text-[var(--background)]" 
-                            : "bg-[var(--aur-surface-2)] text-[var(--aur-text-secondary)]"
-                        }`}>
-                          {item.category}
-                        </span>
-                      )}
-                      <div className="flex items-center gap-1.5 text-xs text-[var(--aur-text-muted)] font-medium">
-                        <Clock className="h-3.5 w-3.5" />
-                        <time>{item.date}</time>
-                      </div>
-                    </div>
-                    
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-snug cursor-pointer transition-colors text-[#75160f] dark:text-[#ff4433] group-hover:text-[var(--aur-text)]">
-                      {item.title}
-                    </h2>
-                    
-                    <p className={`text-lg leading-relaxed mb-8 ${
-                      item.featured ? "text-[var(--aur-text)] font-medium" : "text-[var(--aur-text-secondary)]"
+                {/* Image Thumbnail (Top) */}
+                <div className="w-full h-48 rounded-2xl shrink-0 overflow-hidden relative shadow-sm border border-[var(--aur-border)] bg-[var(--aur-surface-2)] mb-6">
+                  {item.imageUrl ? (
+                    <img 
+                      src={item.imageUrl} 
+                      alt={item.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className={`w-full h-full flex items-center justify-center transition-transform duration-700 group-hover:scale-105 ${
+                      item.featured ? "bg-[var(--aur-surface-hover)]" : "bg-[var(--aur-surface-2)]"
                     }`}>
-                      {item.summary}
-                    </p>
-                    
-                    <AnimatePresence>
-                      {expandedId === item.id && item.content && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="overflow-hidden mb-6"
-                        >
-                          <div className="pt-4 border-t border-[var(--aur-border)] mt-2">
-                            <p className="text-lg leading-relaxed text-[var(--aur-text)] font-medium">
-                              {item.content}
-                            </p>
-                          </div>
-                        </motion.div>
+                      {item.featured ? (
+                        <Zap className="h-12 w-12 text-[var(--aur-text-muted)]" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full border-4 border-[var(--aur-surface)] shadow-sm bg-[var(--aur-border)]"></div>
                       )}
-                    </AnimatePresence>
-                    
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col flex-1 relative z-10">
+                  {/* Meta (Category & Date) */}
+                  <div className="flex items-center gap-4 mb-4">
+                    {item.category && (
+                      <span className={`text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-sm ${
+                        item.featured 
+                          ? "bg-[var(--aur-text)] text-[var(--background)]" 
+                          : "bg-[var(--aur-surface-2)] text-[var(--aur-text-secondary)]"
+                      }`}>
+                        {item.category}
+                      </span>
+                    )}
+                    <div className="flex items-center gap-1.5 text-xs text-[var(--aur-text-muted)] font-medium">
+                      <Clock className="h-3.5 w-3.5" />
+                      <time>{item.date}</time>
+                    </div>
+                  </div>
+                  
+                  {/* Title */}
+                  <h2 className="text-xl font-bold mb-3 leading-snug cursor-pointer transition-colors text-[var(--aur-text)] group-hover:opacity-80">
+                    {item.title}
+                  </h2>
+                  
+                  {/* Summary */}
+                  <p className={`text-sm leading-relaxed mb-6 flex-1 ${
+                    item.featured ? "text-[var(--aur-text)] font-medium" : "text-[var(--aur-text-secondary)]"
+                  }`}>
+                    {item.summary}
+                  </p>
+                  
+                  {/* Expanded Content */}
+                  <AnimatePresence>
+                    {expandedId === item.id && item.content && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden mb-6"
+                      >
+                        <div className="pt-4 border-t border-[var(--aur-border)] mt-2">
+                          <p className="text-sm leading-relaxed text-[var(--aur-text)] font-medium">
+                            {item.content}
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  
+                  {/* Action Button */}
+                  <div className="mt-auto pt-4 border-t border-transparent">
                     <button 
                       onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
-                      className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider pb-1 border-b-2 transition-all text-[var(--aur-text)] border-[var(--aur-text)] hover:gap-3"
+                      className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider pb-1 border-b-2 transition-all text-[var(--aur-text)] border-[var(--aur-text)] hover:gap-3"
                     >
                       {expandedId === item.id ? (
                         <>Close Analysis <X className="h-4 w-4" /></>
@@ -157,27 +187,6 @@ export default function NewsPage() {
                         <>Read Analysis <ArrowRight className="h-4 w-4" /></>
                       )}
                     </button>
-                  </div>
-
-                  {/* Image Thumbnail */}
-                  <div className="hidden md:flex w-48 h-48 rounded-2xl shrink-0 items-center justify-center overflow-hidden relative shadow-sm border border-[var(--aur-border)] bg-[var(--aur-surface-2)]">
-                    {item.imageUrl ? (
-                      <img 
-                        src={item.imageUrl} 
-                        alt={item.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className={`w-full h-full flex items-center justify-center transition-transform duration-700 group-hover:scale-105 ${
-                        item.featured ? "bg-gradient-to-br from-[var(--aur-border)] to-[var(--aur-border-strong)]" : "bg-[var(--aur-surface-2)]"
-                      }`}>
-                        {item.featured ? (
-                          <Zap className="h-16 w-16 text-[var(--aur-text-muted)]" />
-                        ) : (
-                          <div className="w-16 h-16 rounded-full border-4 border-[var(--aur-surface)] shadow-sm bg-[var(--aur-border)]"></div>
-                        )}
-                      </div>
-                    )}
                   </div>
                 </div>
               </motion.article>

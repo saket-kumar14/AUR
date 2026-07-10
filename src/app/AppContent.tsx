@@ -21,6 +21,7 @@ import UniversitiesList from "./components/UniversitiesList";
 import Methodology from "./components/Methodology";
 import EventsAndAwards from "./components/EventsAndAwards";
 import FacultyStudentAwards from "./components/FacultyStudentAwards";
+import Membership from "./components/Membership";
 import { useSidebar } from "./components/navigation/SidebarContext";
 import { useUniversityData } from "./components/data/UniversityDataProvider";
 import { Article, MOCK_UNIVERSITIES } from "./data";
@@ -88,7 +89,7 @@ export default function AppContent() {
 
   return (
     <div className={`${view === "home" ? "bg-gradient-to-b from-amber-50/50 via-white to-blue-50 dark:bg-none dark:bg-cyber-black" : "aur-page"} flex min-h-screen flex-col transition-colors duration-300 ${
-      theme === "dark" ? "text-slate-100 dark" : "text-slate-900"
+      theme === "text-slate-900"
     }`}>
       {/* Top Navigation Bar */}
       {view !== "login" && view !== "admin" && <Navbar />}
@@ -164,6 +165,9 @@ export default function AppContent() {
 
           {/* Methodology */}
           {view === "methodology" && <Methodology />}
+
+          {/* Membership */}
+          {view === "membership" && <Membership />}
 
           {/* Events & Awards */}
           {view === "events" && <EventsAndAwards />}
