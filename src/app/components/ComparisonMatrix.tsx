@@ -1,64 +1,26 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { University } from "../data";
-import { useUniversityData } from "./data/UniversityDataProvider";
-import { X, LayoutGrid } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X, LayoutGrid, Search } from "lucide-react";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ENRICHMENT DATA
-// ─────────────────────────────────────────────────────────────────────────────
-
-const ENRICHMENT: Record<string, {
-  tuition: number;
-  livingCost: number;
-  salary: number;
+export interface RealUniversityData {
+  id: string;
   rank: number;
-  acceptance: number;
-  scholarship: number;
-  accreditation: string[];
-}> = {
-  tsinghua:            { tuition: 4800,  livingCost: 6200,  salary: 72000, rank: 14,  acceptance: 3.4,  scholarship: 8000,  accreditation: ["AACSB","ABET","QS Top 20"] },
-  nus:                 { tuition: 22000, livingCost: 14000, salary: 89000, rank: 8,   acceptance: 5.0,  scholarship: 20000, accreditation: ["AACSB","EQUIS","QS Top 10"] },
-  peking:              { tuition: 5500,  livingCost: 6000,  salary: 68000, rank: 17,  acceptance: 3.6,  scholarship: 7500,  accreditation: ["AACSB","QS Top 20"] },
-  tokyo:               { tuition: 4000,  livingCost: 12000, salary: 76000, rank: 28,  acceptance: 9.8,  scholarship: 11000, accreditation: ["JABEE","ABET","QS Top 30"] },
-  hku:                 { tuition: 21000, livingCost: 18000, salary: 85000, rank: 26,  acceptance: 7.4,  scholarship: 25000, accreditation: ["AACSB","AMBA","QS Top 30"] },
-  ntu:                 { tuition: 18000, livingCost: 14000, salary: 82000, rank: 15,  acceptance: 7.1,  scholarship: 18000, accreditation: ["AACSB","ABET","QS Top 15"] },
-  snu:                 { tuition: 6000,  livingCost: 9000,  salary: 64000, rank: 41,  acceptance: 10.2, scholarship: 9000,  accreditation: ["AACSB","ABET","QS Top 40"] },
-  kyoto:               { tuition: 4200,  livingCost: 11500, salary: 71000, rank: 46,  acceptance: 11.5, scholarship: 10000, accreditation: ["JABEE","QS Top 50"] },
-  kaist:               { tuition: 7000,  livingCost: 9500,  salary: 69000, rank: 56,  acceptance: 12.0, scholarship: 12000, accreditation: ["ABET","AACSB"] },
-  cuhk:                { tuition: 18500, livingCost: 17500, salary: 79000, rank: 36,  acceptance: 14.5, scholarship: 22000, accreditation: ["AACSB","EQUIS","QS Top 40"] },
-  fudan:               { tuition: 5000,  livingCost: 7500,  salary: 67000, rank: 39,  acceptance: 4.2,  scholarship: 7000,  accreditation: ["AACSB","EQUIS","QS Top 40"] },
-  zhejiang:            { tuition: 5200,  livingCost: 6800,  salary: 63000, rank: 42,  acceptance: 3.8,  scholarship: 6500,  accreditation: ["AACSB","ABET"] },
-  ustc:                { tuition: 4500,  livingCost: 5500,  salary: 61000, rank: 85,  acceptance: 6.5,  scholarship: 6000,  accreditation: ["ABET","QS Top 100"] },
-  titech:              { tuition: 4500,  livingCost: 12500, salary: 73000, rank: 91,  acceptance: 13.0, scholarship: 9500,  accreditation: ["JABEE","ABET"] },
-};
-
-const DEFAULT_ENRICH = { tuition: 0, livingCost: 0, salary: 0, rank: 999, acceptance: 0, scholarship: 0, accreditation: [] };
-
-interface Criteria {
-  tuitionStr: string;
-  livingStr: string;
-  salaryStr: string;
-  rankStr: string;
-  acceptanceStr: string;
-  scholarshipStr: string;
-  accreditationSearch: string;
-}
-
-const DEFAULT_CRITERIA: Criteria = {
-  tuitionStr: "",
-  livingStr: "",
-  salaryStr: "",
-  rankStr: "",
-  acceptanceStr: "",
-  scholarshipStr: "",
-  accreditationSearch: "",
-};
-
-function parseNum(val: string): number | null {
-  const num = parseInt(val.replace(/[^0-9]/g, ""));
-  return isNaN(num) ? null : num;
+  name: string;
+  country: string;
+  city: string;
+  qsRank: string;
+  theRank: string;
+  type: string;
+  yearEstablished: number;
+  website: string;
+  academicReputation: string;
+  employerReputation: string;
+  facultyStudentRatio: string;
+  citationsPerFaculty: string;
+  internationalFaculty: string;
+  internationalStudents: string;
+  tuitionFee?: number;
 }
 
 const ProfessionalInput = ({ 
@@ -85,69 +47,69 @@ const ProfessionalInput = ({
 );
 
 export default function ComparisonMatrix() {
-  const { universities } = useUniversityData();
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [criteria, setCriteria] = useState<Criteria>(DEFAULT_CRITERIA);
+  const [selectedUnis, setSelectedUnis] = useState<RealUniversityData[]>([]);
+  const [searchResults, setSearchResults] = useState<RealUniversityData[]>([]);
+  
+  const [maxTuition, setMaxTuition] = useState("");
+  const [country, setCountry] = useState("");
+  const [type, setType] = useState("");
+  
   const [hasSearched, setHasSearched] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const maxTuition = parseNum(criteria.tuitionStr);
-  const maxLiving = parseNum(criteria.livingStr);
-  const minSalary = parseNum(criteria.salaryStr);
-  const maxRank = parseNum(criteria.rankStr);
-  const maxAcceptance = parseNum(criteria.acceptanceStr);
-  const minScholarship = parseNum(criteria.scholarshipStr);
-  const reqAccred = criteria.accreditationSearch.trim().toLowerCase();
-
-  const searchResults = useMemo(() => {
-    if (!hasSearched) return [];
+  const fetchUniversities = async () => {
+    setIsLoading(true);
+    setHasSearched(true);
     
-      const results = universities.map(u => {
-      const e = ENRICHMENT[u.id] ?? DEFAULT_ENRICH;
-      let score = 100;
-
-      if (maxTuition !== null) { if (e.tuition > maxTuition) score -= 20; }
-      if (maxLiving !== null) { if (e.livingCost > maxLiving) score -= 15; }
-      if (minSalary !== null) { if (e.salary < minSalary) score -= 25; }
-      if (maxRank !== null) { if (e.rank > maxRank) score -= 15; }
-      if (maxAcceptance !== null) { if (e.acceptance > maxAcceptance) score -= 10; }
-      if (minScholarship !== null) { if (e.scholarship < minScholarship) score -= 10; }
-      if (reqAccred) {
-        if (!e.accreditation.some(a => a.toLowerCase().includes(reqAccred))) score -= 15;
-      }
-
-      return { u, score: Math.max(0, score) };
-    });
-
-    return results
-      .filter(r => (maxTuition === null && minSalary === null && maxRank === null && maxLiving === null && maxAcceptance === null && minScholarship === null && !reqAccred) || r.score > 0)
-      .sort((a, b) => b.score - a.score);
-  }, [hasSearched, criteria, maxTuition, maxLiving, minSalary, maxRank, maxAcceptance, minScholarship, reqAccred, universities]);
-
-  const displayedUnis = useMemo(() => {
-    return selectedIds.map(id => universities.find(u => u.id === id)).filter(Boolean) as University[];
-  }, [selectedIds, universities]);
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    try {
+      const params = new URLSearchParams();
+      if (maxTuition) params.append('maxTuition', maxTuition);
+      if (country) params.append('country', country);
+      if (type) params.append('type', type);
+      
+      const res = await fetch(`/api/compare?${params.toString()}`);
+      const data: RealUniversityData[] = await res.json();
+      
+      setSearchResults(data);
+    } catch (error) {
+      console.error("Failed to fetch universities", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const fmtCurrency = (n: number) => n === 0 ? "—" : `$${n.toLocaleString()}`;
+  const toggleSelect = (uni: RealUniversityData) => {
+    if (selectedUnis.some(u => u.id === uni.id)) {
+      setSelectedUnis(prev => prev.filter(u => u.id !== uni.id));
+    } else {
+      if (selectedUnis.length >= 5) {
+        alert("You can only compare up to 5 universities at once.");
+        return;
+      }
+      setSelectedUnis(prev => [...prev, uni]);
+    }
+  };
+
+  const clearParameters = () => {
+    setMaxTuition("");
+    setCountry("");
+    setType("");
+    setHasSearched(false);
+    setSearchResults([]);
+  };
 
   return (
-    <div className="min-h-screen w-full pb-20 font-sans bg-white text-slate-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* Header */}
-        <header className="mb-8 border-b border-slate-200 pb-6">
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-2 uppercase tracking-wider">
-            <LayoutGrid className="w-4 h-4" />
-            Comparison Matrix
+    <div className="w-full bg-slate-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-10 text-center">
+          <div className="inline-flex items-center justify-center p-3 bg-white rounded-full shadow-sm mb-4">
+            <LayoutGrid className="w-6 h-6 text-slate-900" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight mb-2 text-slate-900">
-            Evaluate Institutions
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight sm:text-4xl">
+            Comparison Matrix
           </h1>
-          <p className="text-slate-600 text-sm max-w-2xl">
-            Configure filtering parameters below to shortlist institutions. Then, use the data table to perform a side-by-side analysis of relevant metrics and accreditations.
+          <p className="mt-3 max-w-2xl mx-auto text-sm sm:text-base text-slate-500">
+            Select up to 5 institutions to evaluate side-by-side against precise, real-world metrics including global ranks, research output, and international ratios.
           </p>
         </header>
 
@@ -158,7 +120,7 @@ export default function ComparisonMatrix() {
               Filtering Criteria
             </h2>
             <button 
-              onClick={() => { setCriteria(DEFAULT_CRITERIA); setHasSearched(false); }}
+              onClick={clearParameters}
               className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors"
             >
               Clear parameters
@@ -166,25 +128,40 @@ export default function ComparisonMatrix() {
           </div>
 
           <div className="p-6 bg-white">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <ProfessionalInput label="Maximum Tuition" value={criteria.tuitionStr} onChange={v => setCriteria(p => ({...p, tuitionStr: v}))} placeholder="e.g. 20000" prefix="$" />
-              <ProfessionalInput label="Maximum Living Cost" value={criteria.livingStr} onChange={v => setCriteria(p => ({...p, livingStr: v}))} placeholder="e.g. 15000" prefix="$" />
-              <ProfessionalInput label="Minimum Graduate Salary" value={criteria.salaryStr} onChange={v => setCriteria(p => ({...p, salaryStr: v}))} placeholder="e.g. 60000" prefix="$" />
-              <ProfessionalInput label="Maximum World Rank" value={criteria.rankStr} onChange={v => setCriteria(p => ({...p, rankStr: v}))} placeholder="e.g. 50" prefix="#" />
-              
-              <ProfessionalInput label="Maximum Acceptance Rate" value={criteria.acceptanceStr} onChange={v => setCriteria(p => ({...p, acceptanceStr: v}))} placeholder="e.g. 15" suffix="%" />
-              <ProfessionalInput label="Minimum Scholarship" value={criteria.scholarshipStr} onChange={v => setCriteria(p => ({...p, scholarshipStr: v}))} placeholder="e.g. 5000" prefix="$" />
-              <div className="sm:col-span-2 lg:col-span-2">
-                <ProfessionalInput label="Required Accreditations" value={criteria.accreditationSearch} onChange={v => setCriteria(p => ({...p, accreditationSearch: v}))} placeholder="e.g. AACSB, EQUIS" />
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <ProfessionalInput 
+                label="Maximum Tuition Fee" 
+                value={maxTuition} 
+                onChange={setMaxTuition} 
+                placeholder="e.g. 5000"
+                prefix="$"
+              />
+              <ProfessionalInput 
+                label="Country" 
+                value={country} 
+                onChange={setCountry} 
+                placeholder="e.g. China" 
+              />
+              <ProfessionalInput 
+                label="Institution Type" 
+                value={type} 
+                onChange={setType} 
+                placeholder="e.g. Public or Private" 
+              />
             </div>
             
             <div className="mt-8 flex items-center justify-end border-t border-slate-100 pt-6">
               <button 
-                onClick={() => setHasSearched(true)}
-                className="px-5 py-2 bg-slate-900 hover:bg-black text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors"
+                onClick={fetchUniversities}
+                disabled={isLoading}
+                className="inline-flex items-center justify-center px-5 py-2 bg-slate-900 hover:bg-black text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors disabled:opacity-50"
               >
-                Apply Filters
+                {isLoading ? "Searching..." : (
+                  <>
+                    <Search className="w-4 h-4 mr-2" />
+                    Apply Filters
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -203,21 +180,21 @@ export default function ComparisonMatrix() {
                   <table className="w-full text-sm text-left">
                     <tbody className="divide-y divide-slate-200">
                       {searchResults.map((res) => {
-                        const isSelected = selectedIds.includes(res.u.id);
+                        const isSelected = selectedUnis.some(u => u.id === res.id);
                         return (
-                          <tr key={res.u.id} className="hover:bg-slate-50 transition-colors">
+                          <tr key={res.id} className="hover:bg-slate-50 transition-colors">
                             <td className="px-6 py-4 font-medium text-slate-900">
-                              {res.u.name}
+                              {res.name}
                             </td>
                             <td className="px-6 py-4 text-slate-500">
-                              {res.u.location}
+                              {res.city}, {res.country}
                             </td>
                             <td className="px-6 py-4 text-slate-500 w-32">
-                              {res.score}% Match
+                              Rank: {res.qsRank}
                             </td>
                             <td className="px-6 py-4 text-right w-40">
                               <button
-                                onClick={() => toggleSelect(res.u.id)}
+                                onClick={() => toggleSelect(res)}
                                 className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                                   isSelected 
                                     ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100" 
@@ -247,76 +224,77 @@ export default function ComparisonMatrix() {
           <h2 className="text-lg font-bold text-slate-900">
             Data Matrix
           </h2>
-          {displayedUnis.length > 0 && (
+          {selectedUnis.length > 0 && (
             <span className="text-sm font-medium text-slate-500">
-              {displayedUnis.length} {displayedUnis.length === 1 ? 'institution' : 'institutions'} selected
+              {selectedUnis.length} / 5 selected
             </span>
           )}
         </div>
 
-        {displayedUnis.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-lg p-12 text-center shadow-sm">
-            <p className="text-slate-500 text-sm">Select institutions from the filter results to populate the comparison matrix.</p>
+        {selectedUnis.length === 0 ? (
+          <div className="bg-white border border-slate-200 border-dashed rounded-lg p-16 text-center shadow-sm">
+            <LayoutGrid className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-base font-semibold text-slate-900">No institutions selected</h3>
+            <p className="mt-2 text-sm text-slate-500">
+              Search and add institutions from the panel above to begin your comparison. You can compare up to 5 at once.
+            </p>
           </div>
         ) : (
-          <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left border-collapse">
-                <thead className="bg-white text-slate-700">
-                  <tr>
-                    <th scope="col" className="px-6 py-4 font-semibold border-b border-r border-slate-200 w-48 sticky left-0 bg-white z-10">
-                      Metric
-                    </th>
-                    {displayedUnis.map(u => (
-                      <th scope="col" key={u.id} className="px-6 py-4 font-semibold border-b border-r border-slate-200 min-w-[240px] last:border-r-0 relative group">
-                        <div className="pr-6">
-                          <div className="text-slate-900 truncate" title={u.name}>{u.name}</div>
-                          <div className="text-xs font-normal text-slate-500 mt-0.5">{u.location}</div>
-                        </div>
-                        <button 
-                          onClick={() => toggleSelect(u.id)} 
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-600 p-1 rounded transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-                          aria-label="Remove institution"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </th>
-                    ))}
+          <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead>
+                <tr>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap sticky left-0 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">University Name</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">QS Rank</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">THE Rank</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Type</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Year Established</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Tuition Fee</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Academic Reputation</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Employer Reputation</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Faculty-Student Ratio</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Citations / Faculty</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Intl Faculty Ratio</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Intl Student Ratio</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Website</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {selectedUnis.map(u => (
+                  <tr key={u.id} className="hover:bg-slate-50 transition-colors group">
+                    <td className="px-6 py-4 border-r border-slate-200 bg-white group-hover:bg-slate-50 sticky left-0 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                      <h3 className="font-bold text-slate-900 text-base min-w-[14rem]">{u.name}</h3>
+                      <p className="text-slate-500 text-xs mt-1">{u.city}, {u.country}</p>
+                    </td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.qsRank}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.theRank}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.type}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.yearEstablished}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.tuitionFee ? `$${u.tuitionFee}` : "N/A"}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.academicReputation}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.employerReputation}</td>
+                    <td className="px-6 py-4 border-r border-slate-200 whitespace-nowrap">{u.facultyStudentRatio}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.citationsPerFaculty}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.internationalFaculty}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.internationalStudents}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">
+                      <a href={u.website} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline whitespace-nowrap">
+                        Visit Site
+                      </a>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <button 
+                        onClick={() => toggleSelect(u)}
+                        className="text-slate-400 hover:text-red-500 transition-colors p-1 bg-white rounded-md border border-slate-200 shadow-sm hover:border-red-200 hover:bg-red-50"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {[
-                    { label: "Annual Tuition", render: (u: University) => fmtCurrency((ENRICHMENT[u.id] ?? DEFAULT_ENRICH).tuition) },
-                    { label: "Living Expenses", render: (u: University) => fmtCurrency((ENRICHMENT[u.id] ?? DEFAULT_ENRICH).livingCost) },
-                    { label: "Avg. Graduate Salary", render: (u: University) => fmtCurrency((ENRICHMENT[u.id] ?? DEFAULT_ENRICH).salary) },
-                    { label: "World Ranking", render: (u: University) => {
-                        const r = (ENRICHMENT[u.id] ?? DEFAULT_ENRICH).rank;
-                        return r < 999 ? `#${r}` : "Unranked";
-                    }},
-                    { label: "Acceptance Rate", render: (u: University) => {
-                        const v = (ENRICHMENT[u.id] ?? DEFAULT_ENRICH).acceptance;
-                        return v > 0 ? `${v.toFixed(1)}%` : "—";
-                    }},
-                    { label: "Scholarship Max", render: (u: University) => fmtCurrency((ENRICHMENT[u.id] ?? DEFAULT_ENRICH).scholarship) },
-                    { label: "Accreditation", render: (u: University) => {
-                        const a = (ENRICHMENT[u.id] ?? DEFAULT_ENRICH).accreditation;
-                        return a.length > 0 ? a.join(", ") : "—";
-                    }}
-                  ].map(({ label, render }, idx) => (
-                    <tr key={label} className="hover:bg-slate-50 transition-colors">
-                      <th scope="row" className="px-6 py-4 font-medium text-slate-700 border-r border-slate-200 sticky left-0 bg-white">
-                        {label}
-                      </th>
-                      {displayedUnis.map(u => (
-                        <td key={u.id} className="px-6 py-4 text-slate-600 border-r border-slate-200 last:border-r-0">
-                          {render(u)}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

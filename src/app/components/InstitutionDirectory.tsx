@@ -18,7 +18,7 @@ function UniversityCard({ uni, rank, onClick }: { uni: University; rank: number;
   return (
     <div
       onClick={onClick}
-      className="group bg-white border border-slate-100 hover:border-amber-300 rounded-xl overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-[0_8px_30px_rgba(251,191,36,0.12)] hover:-translate-y-1 flex flex-col h-full"
+      className="group bg-[var(--aur-surface)] border border-[var(--aur-border)] hover:border-[var(--aur-border-strong)] rounded-[20px] overflow-hidden cursor-pointer transition-all duration-300 shadow-[var(--aur-shadow)] hover:shadow-[var(--aur-shadow-lg)] hover:-translate-y-1 flex flex-col h-full"
     >
       {/* Top Image Section */}
       <div className="relative h-44 w-full bg-slate-100 overflow-hidden">
@@ -58,7 +58,7 @@ function UniversityCard({ uni, rank, onClick }: { uni: University; rank: number;
       {/* Info Section */}
       <div className="p-5 flex-1 flex flex-col justify-between">
         <div>
-          <h3 className="font-serif text-[16px] font-bold text-slate-900 group-hover:text-amber-600 transition-colors leading-snug line-clamp-2">
+          <h3 className="aur-section-title text-[18px] group-hover:text-[var(--aur-accent)] transition-colors leading-snug line-clamp-2">
             {uni.name}
           </h3>
           <div className="flex items-center gap-1.5 mt-2 text-[13px] text-slate-500">
@@ -73,8 +73,8 @@ function UniversityCard({ uni, rank, onClick }: { uni: University; rank: number;
             <div className="text-[12px] font-bold text-slate-700 font-mono mt-0.5">{uni.tuition}</div>
           </div>
           <div className="text-right">
-            <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Score</div>
-            <div className="text-[16px] font-extrabold text-amber-500 font-mono mt-0.5">{uni.overall.toFixed(1)}</div>
+            <div className="text-[10px] text-[var(--aur-text-muted)] uppercase font-bold tracking-wider">Score</div>
+            <div className="text-[16px] font-extrabold text-[var(--aur-accent)] font-mono mt-0.5">{uni.overall.toFixed(1)}</div>
           </div>
         </div>
       </div>

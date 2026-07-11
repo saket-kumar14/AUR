@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Search, Bell, Menu, X, ChevronDown, User, Shield, LogOut } from "lucide-react";
+import { BrandLogo } from "../BrandLogo";
 import { useSidebar } from "../navigation/SidebarContext";
 import { useToast } from "../feedback/ToastContext";
 import { TOP_NAV_LINKS } from "../navigation/config";
@@ -26,14 +27,6 @@ export default function Navbar() {
 
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
-
-  const [searchVal, setSearchVal] = useState(searchQuery);
-
-  // Sync internal search state with context searchQuery
-  useEffect(() => {
-    setSearchVal(searchQuery);
-  }, [searchQuery]);
-
   // Click outside menus to close
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -48,25 +41,9 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSearchQuery(searchVal);
-    setFilters((prev) => ({ ...prev, searchQuery: searchVal }));
-    // If not on a view that supports search, route to rankings
-    if (activeView !== "universities" && activeView !== "rankings" && activeView !== "countries") {
-      handleViewChange("rankings");
-    }
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchVal(e.target.value);
-    setSearchQuery(e.target.value);
-    setFilters((prev) => ({ ...prev, searchQuery: e.target.value }));
-  };
-
   return (
     <header
-      className="sticky top-0 z-40 w-full border-b border-[var(--aur-border)] bg-[var(--aur-surface)]/95 backdrop-blur-xl"
+      className="sticky top-0 z-40 w-full border-b border-[#1A365D] bg-[#1A365D]"
       style={{ willChange: "transform", transform: "translateZ(0)" }}
     >
       <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
@@ -75,23 +52,16 @@ export default function Navbar() {
           {/* ── Logo — crystal clear, merged flush into bar ── */}
           <div
             onClick={() => handleViewChange("home")}
-            className="flex items-center cursor-pointer shrink-0 select-none"
+            className="flex items-center cursor-pointer shrink-0 select-none w-[150px]"
             title="Asia University Rankings"
           >
-            <Image
-              src="/logo.png"
-              alt="Asia University Rankings"
-              width={320}
-              height={100}
-              priority
-              quality={100}
-              style={{ height: "63px", width: "auto" }}
-              className="object-contain"
-            />
+            <div className="scale-[0.55] transform-gpu origin-left">
+              <BrandLogo theme="dark" />
+            </div>
           </div>
 
           {/* ── Vertical divider ── */}
-          <div className="hidden md:block h-6 w-px bg-[var(--aur-border)] shrink-0 mx-2" />
+          <div className="hidden md:block h-6 w-px bg-white/20 shrink-0 mx-2" />
 
           {/* ── Navigation Links - Desktop ── */}
           <nav className="hidden lg:flex space-x-1 items-center">
@@ -103,7 +73,7 @@ export default function Navbar() {
                   <Link
                     key={link.label}
                     href="/news"
-                    className="relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors duration-200 rounded-none text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-hover)]"
+                    className="relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all duration-300 rounded-none text-white/80 hover:text-white after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-white after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:origin-left"
                   >
                     {link.label}
                   </Link>
@@ -114,10 +84,10 @@ export default function Navbar() {
                 <button
                   key={link.label}
                   onClick={() => handleViewChange(link.view)}
-                  className={`relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors duration-200 rounded-none ${
+                  className={`relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all duration-300 rounded-none after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-white after:transition-transform after:duration-300 after:origin-left ${
                     isActive
-                      ? "text-[var(--aur-text)] bg-[var(--aur-surface-hover)]"
-                      : "text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-hover)]"
+                      ? "text-white after:scale-x-100"
+                      : "text-white/80 hover:text-white after:scale-x-0 hover:after:scale-x-100"
                   }`}
                 >
                   {link.label}
@@ -129,19 +99,7 @@ export default function Navbar() {
           {/* ── Spacer ── */}
           <div className="flex-1 hidden lg:block" />
 
-          {/* ── Search bar ── */}
-          <form onSubmit={handleSearchSubmit} className="hidden md:block ml-4 lg:ml-8 transition-all">
-            <div className="relative group">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--aur-text-muted)] group-focus-within:text-[var(--aur-text)] transition-colors pointer-events-none" />
-              <input
-                type="text"
-                value={searchVal}
-                onChange={handleSearchChange}
-                placeholder="Search index..."
-                className="w-32 sm:w-40 md:w-48 lg:w-64 xl:w-72 focus:w-48 focus:md:w-64 focus:lg:w-[320px] focus:xl:w-[400px] border border-[var(--aur-border)] bg-[var(--aur-surface-2)] px-4 py-2 pl-9 rounded-none text-[13px] text-[var(--aur-text)] placeholder:text-[var(--aur-text-muted)] focus:outline-none focus:border-[var(--aur-border-strong)] focus:bg-[var(--aur-surface)] transition-all duration-500 ease-out"
-              />
-            </div>
-          </form>
+
 
           {/* ── Push icons to far right ── */}
           <div className="flex-1" />
@@ -155,7 +113,7 @@ export default function Navbar() {
                 type="button"
                 onClick={() => setShowNotifMenu(!showNotifMenu)}
                 aria-label="Open notifications"
-                className="p-2 rounded-none text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-hover)] transition-all duration-200 relative"
+                className="p-2 rounded-md text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 relative"
               >
                 <Bell className="h-4 w-4" />
                 <span className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5">
@@ -189,7 +147,7 @@ export default function Navbar() {
             </div>
 
             {/* Divider */}
-            <div className="h-6 w-px bg-[var(--aur-border)] mx-1 hidden sm:block" />
+            <div className="h-6 w-px bg-white/20 mx-1 hidden sm:block" />
 
             {/* Profile avatar */}
             <div className="relative" ref={profileRef}>
@@ -199,10 +157,10 @@ export default function Navbar() {
                 aria-label="Open profile menu"
                 className="flex items-center gap-1.5 focus:outline-none group"
               >
-                <div className="h-8 w-8 rounded-none bg-[var(--aur-text)] flex items-center justify-center text-[var(--background)] text-[11px] font-bold tracking-wide transition-transform duration-200 group-hover:scale-105">
+                <div className="h-8 w-8 rounded-none bg-white flex items-center justify-center text-[#1A365D] text-[11px] font-bold tracking-wide transition-transform duration-200 group-hover:scale-105">
                   US
                 </div>
-                <ChevronDown className="h-3 w-3 text-[var(--aur-text-muted)] group-hover:text-[var(--aur-text)] transition-colors hidden sm:block" />
+                <ChevronDown className="h-3 w-3 text-white/80 group-hover:text-white transition-colors hidden sm:block" />
               </button>
 
               {showProfileMenu && (
@@ -242,7 +200,7 @@ export default function Navbar() {
               type="button"
               onClick={() => setIsMobileOpen(!isMobileOpen)}
               aria-label={isMobileOpen ? "Close menu" : "Open menu"}
-              className="p-2 rounded-none text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-hover)] transition-all duration-200 md:hidden ml-1"
+              className="p-2 rounded-md text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 md:hidden ml-1"
             >
               {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>

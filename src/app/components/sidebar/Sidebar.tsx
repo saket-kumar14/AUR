@@ -12,7 +12,6 @@ export default function Sidebar() {
     setIsCollapsed,
     activeView,
     handleViewChange,
-    theme,
   } = useSidebar();
 
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);

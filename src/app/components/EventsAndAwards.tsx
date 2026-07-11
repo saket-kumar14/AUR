@@ -102,6 +102,13 @@ export default function EventsAndAwards() {
                 Discover upcoming events and prestigious awards.
               </p>
             </div>
+<button
+              type="button"
+              className="bg-[#1A365D] text-white hover:bg-[#11233F] rounded-xl shadow-md hover:shadow-lg mt-2 md:mt-0 inline-flex w-full sm:w-auto items-center justify-center px-5 py-2.5 text-[10px] font-bold uppercase tracking-wider transition-all aur-focus-ring"
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              Submit an Event
+            </button>
           </div>
 
           {loading && (

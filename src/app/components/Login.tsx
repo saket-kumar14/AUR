@@ -19,6 +19,7 @@ import {
   Activity,
   CheckCircle2,
 } from "lucide-react";
+import { BrandLogo } from "./BrandLogo";
 import { useSidebar } from "./navigation/SidebarContext";
 import { CanvasRevealEffect } from "./ui/canvas-reveal-effect";
 import LoginGlobe from "./LoginGlobe";
@@ -247,8 +248,8 @@ export default function Login() {
       {/* ── Left Showcase ── */}
       <div className="lp-left relative z-10"   >
         {/* Logo */}
-        <div className="lp-logo">
-          <img src="/aur-logo-transparent.png" alt="Asia University Rankings" />
+        <div className="lp-logo pt-8 pl-8 transform scale-125 origin-left">
+          <BrandLogo theme="dark" />
         </div>
 
         {/* Intelligence Graphic */}
@@ -286,8 +287,8 @@ export default function Login() {
         <div className="lp-glass-card">
           {/* Mobile brand */}
           <div className="lp-mobile-brand">
-            <div className="lp-logo">
-              <img src="/aur-logo-transparent.png" alt="Asia University Rankings" />
+            <div className="lp-logo mb-6 transform scale-[0.8] origin-left">
+              <BrandLogo theme="dark" />
             </div>
           </div>
 

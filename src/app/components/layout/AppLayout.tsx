@@ -18,7 +18,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const showSidebar = pathname !== "/";
 
   const {
-    theme,
     selectedUniIds,
     handleRemoveCompare,
     handleClearCompare,
@@ -31,9 +30,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div
-      className={`flex min-h-screen flex-col transition-colors duration-300 ${
-        theme === "bg-white text-slate-900"
-      }`}
+      className="flex min-h-screen flex-col transition-colors duration-300"
     >
       {/* Top Navigation Bar */}
       <Navbar />

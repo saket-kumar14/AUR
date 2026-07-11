@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Lora } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
@@ -10,7 +10,7 @@ const inter = Inter({
   preload: true,
 });
 
-const lora = Lora({
+const playfair = Playfair_Display({
   variable: "--font-serif",
   subsets: ["latin"],
   display: "swap",
@@ -65,9 +65,12 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${inter.variable} ${lora.variable} h-full antialiased`}
+      className={`${inter.variable} ${playfair.variable} h-full antialiased`}
       style={{ overscrollBehaviorY: "none" }}
     >
+      <head>
+        <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesque@800,500,700,400,300,900&display=swap" rel="stylesheet" />
+      </head>
       <body className="min-h-full flex flex-col font-sans bg-[var(--background)] text-[var(--foreground)]" style={{ overscrollBehavior: "none" }}>
         {process.env.NODE_ENV === "development" && (
           <Script

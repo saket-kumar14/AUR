@@ -13,7 +13,6 @@ export default function MobileMenu() {
   const {
     activeView,
     handleViewChange,
-    theme,
     isMobileOpen,
     setIsMobileOpen,
   } = useSidebar();
@@ -47,11 +46,7 @@ export default function MobileMenu() {
               
               
               
-              className={`relative w-80 max-w-[85vw] h-full flex flex-col shadow-2xl z-10 ${
-                theme === "dark"
-                  ? "bg-cyber-dark border-r border-cyber-border/40 text-slate-100"
-                  : "bg-white text-slate-900 border-r border-slate-200"
-              }`}
+              className="relative w-80 max-w-[85vw] h-full flex flex-col shadow-2xl z-10 bg-[var(--aur-surface)] text-[var(--aur-text)] border-r border-[var(--aur-border)]"
             >
               {/* Drawer Header */}
               <div className="p-4 border-b border-slate-200 dark:border-cyber-border/40 flex items-center justify-between">
@@ -146,11 +141,7 @@ export default function MobileMenu() {
 
       {/* 2. Bottom Mobile Quick Navigation Pinned Bar */}
       <nav
-        className={`md:hidden fixed bottom-0 left-0 right-0 h-16 border-t z-40 transition-colors duration-200 ${
-          theme === "dark"
-            ? "bg-cyber-dark/85 border-cyber-border/40 text-slate-400 cyber-glass"
-            : "bg-white/95 border-slate-200 text-slate-500"
-        } pb-safe-bottom`}
+        className="md:hidden fixed bottom-0 left-0 right-0 h-16 border-t z-40 transition-colors duration-200 bg-[var(--aur-surface)]/95 border-[var(--aur-border)] text-[var(--aur-text-muted)] pb-safe-bottom backdrop-blur-md"
       >
         <div className="h-full grid grid-cols-4 items-center max-w-lg mx-auto">
           {/* Item 1: Discovery Hub */}

@@ -10,7 +10,7 @@ import { useUniversityData } from "../data/UniversityDataProvider";
 const ALL_SUBJECTS = ["Medicine", "Engineering", "Sciences", "Business", "Humanities", "Law", "Social Sciences"];
 
 export default function FilterPanel() {
-  const { filters, setFilters, clearFilters, theme } = useSidebar();
+  const { filters, setFilters, clearFilters } = useSidebar();
   const { universities } = useUniversityData();
 
   const [openSections, setOpenSections] = React.useState({

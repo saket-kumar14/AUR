@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
+import { BrandLogo } from "./BrandLogo";
 import { useSidebar } from "./navigation/SidebarContext";
 
 import {
@@ -60,12 +62,8 @@ export default function Footer() {
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-4">
             <div className="space-y-5">
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 shadow-glow-yellow-sm overflow-hidden">
-                <img
-                  src="/logo.png"
-                  alt="Asia University Rankings logo"
-                  className="h-8 w-8 object-contain"
-                />
+              <div className="flex items-center mb-6 transform scale-[0.85] origin-left">
+                <BrandLogo theme="dark" />
               </div>
               <div>
                 <p className="text-lg font-semibold tracking-tight text-white">Asia University Rankings</p>

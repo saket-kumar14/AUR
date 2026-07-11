@@ -48,7 +48,7 @@ const fadeUpItem = {
 
 function RevealSection({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
-  
+
   return (
     <div
       ref={ref}
@@ -482,7 +482,7 @@ export default function Homepage({
     articles: [],
   });
 
-    // Newsletter
+  // Newsletter
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
@@ -491,6 +491,21 @@ export default function Homepage({
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
   const [articleTab, setArticleTab] = useState<"featured" | "reports" | "insights">("featured");
   const [createdArticles, setCreatedArticles] = useState<Article[]>([]);
+
+  const heroImages = useMemo(() => [
+    "/university_images/China/Tsinghua University image.jpg",
+    "/university_images/Singapore/National University of Singapore image.jpg",
+    "/university_images/Hong-kong/The University of Hong Kong image.jpg",
+    "/university_images/South-Korea/KAIST image.jpg"
+  ], []);
+  const [currentHeroBg, setCurrentHeroBg] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentHeroBg((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [heroImages]);
 
   const suggestionRef = useRef<HTMLDivElement>(null);
   const methodologyRef = useRef<HTMLDivElement>(null);
@@ -618,203 +633,216 @@ export default function Homepage({
   };
 
   const handleSubscribe = async (
-  event: React.FormEvent<HTMLFormElement>
-) => {
-  event.preventDefault();
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
 
-  const trimmedEmail = email.trim();
+    const trimmedEmail = email.trim();
 
-  if (!trimmedEmail) {
-    setStatus("Please enter a valid email address.");
-    return;
-  }
-
-  setLoading(true);
-  setStatus("");
-
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/newsletter/subscribe`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: trimmedEmail }),
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.detail || "Subscription failed.");
+    if (!trimmedEmail) {
+      setStatus("Please enter a valid email address.");
+      return;
     }
 
-    setStatus("Thank you for subscribing!");
-    setEmail("");
-  } catch (error) {
-    setStatus(
-      error instanceof Error
-        ? error.message
-        : "Unable to connect. Please try again later."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+    setStatus("");
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/newsletter/subscribe`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: trimmedEmail }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Subscription failed.");
+      }
+
+      setStatus("Thank you for subscribing!");
+      setEmail("");
+    } catch (error) {
+      setStatus(
+        error instanceof Error
+          ? error.message
+          : "Unable to connect. Please try again later."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="ref-home flex-grow w-full relative">
 
 
-      {/* ── Hero ── */}
-      <section className="ref-hero overflow-hidden">
-        <div className="ref-hero-grid">
-          <motion.div 
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex flex-col items-center text-center max-w-4xl mx-auto"
+      {/* ── Hero Image Slider ── */}
+      <section className="relative w-full h-[45vh] lg:h-[55vh] overflow-hidden">
+        {heroImages.map((src, idx) => (
+          <div
+            key={src}
+            className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${idx === currentHeroBg ? 'opacity-100' : 'opacity-0'}`}
           >
-            <span
-              className="ref-label"
-              
-              
-              
-            >Asia University Rankings</span>
-            <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold leading-tight mt-3 mb-4">
-              Asia&apos;s Most Trusted{" "}
-              <span className="ref-hero-title-accent">University Intelligence</span> Platform
-            </h1>
-            <p className="text-[var(--ref-muted)] text-sm leading-relaxed max-w-2xl mx-auto mb-8">
-              Filter institutional indicators, compare global rankings, and explore regional study models
-              including medical careers in Central Asia — powered by live audited data.
-            </p>
+            <Image
+              src={src}
+              alt="University"
+              fill
+              className="object-cover"
+              priority={idx === 0}
+            />
+          </div>
+        ))}
+        {/* Shorter, less intense gradient at the bottom for a subtle blend */}
+        <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-[var(--background)] to-transparent z-10 opacity-75" />
+      </section>
 
-            <div className="flex flex-wrap justify-center gap-3 mb-10">
-              <button type="button" className="ref-btn-primary" onClick={() => onViewChange("rankings")}>
-                Explore Rankings
-                <ArrowRight className="h-4 w-4" />
-              </button>
-              <button type="button" className="ref-btn-outline" onClick={() => onViewChange("methodology")}>
-                <BookOpen className="h-4 w-4" />
-                Our Methodology
-              </button>
-            </div>
+      {/* ── Hero Content (Below Image) ── */}
+      <section className="relative z-20 w-full bg-[var(--background)] py-12 px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="max-w-5xl mx-auto text-center flex flex-col items-center"
+        >
+          <span className="ref-label text-[10px] sm:text-xs">Asia University Rankings</span>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mt-4 mb-6 text-[var(--aur-text-secondary)]">
+            Asia&apos;s Most Trusted{" "}
+            <span className="text-[var(--aur-text)]">University Intelligence</span> Platform
+          </h1>
+          <p className="text-[var(--aur-text-muted)] text-sm sm:text-base leading-relaxed max-w-3xl mx-auto mb-10">
+            Filter institutional indicators, compare global rankings, and explore regional study models
+            including medical careers in Central Asia — powered by live audited data.
+          </p>
 
-            {/* Search */}
-            <div className="relative w-full max-w-2xl mx-auto mb-4" ref={suggestionRef}>
-              <form onSubmit={handleSearchSubmit} className="flex rounded-none overflow-hidden border border-[var(--ref-border)]">
-                <div className="relative flex-grow">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--ref-muted)]" />
-                  <input
-                    type="search"
-                    role="combobox"
-                    aria-expanded={showSuggestions && searchQuery.trim().length > 0}
-                    placeholder="Search universities, locations, subjects..."
-                    value={searchQuery}
-                    onChange={(e) => {
-                      setSearchQuery(e.target.value);
-                      setShowSuggestions(true);
-                    }}
-                    onFocus={() => setShowSuggestions(true)}
-                    onKeyDown={handleSearchKeyDown}
-                    className="w-full bg-white text-sm text-slate-900 pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--ref-blue)]"
-                  />
-                </div>
-                <button type="submit" className="ref-btn-primary rounded-none px-5 py-3 text-[11px]">
-                  Search
-                </button>
-              </form>
+          <div className="flex flex-wrap justify-center gap-4 mb-10">
+            <button type="button" className="bg-[#1A365D] hover:bg-slate-800 text-white font-bold rounded-lg px-8 py-3.5 text-sm transition-colors" onClick={() => onViewChange("rankings")}>
+              Explore Rankings
+              <ArrowRight className="h-4 w-4 ml-2 inline" />
+            </button>
+            <button type="button" className="bg-transparent border-2 border-[#1A365D] text-[#1A365D] hover:bg-slate-50 font-bold rounded-lg px-8 py-3.5 text-sm transition-colors" onClick={() => onViewChange("methodology")}>
+              <BookOpen className="h-4 w-4 mr-2 inline" />
+              Our Methodology
+            </button>
+          </div>
 
-              {showSuggestions && searchQuery.trim().length > 0 && (
-                <div className="absolute left-0 right-0 z-30 mt-1 ref-card max-h-80 overflow-y-auto">
-                  {(() => {
-                    let rowIndex = -1;
-                    return (
-                      <>
-                        <div className="p-3 border-b border-[var(--ref-border)]">
-                          <div className="ref-label text-[9px] mb-2 flex items-center gap-1">
-                            <GraduationCap className="h-3 w-3" /> Universities
-                          </div>
-                          {suggestions.universities.length > 0 ? (
-                            <ul className="space-y-1">
-                              {suggestions.universities.map((uni) => {
-                                rowIndex += 1;
-                                const active = activeSuggestionIndex === rowIndex;
-                                return (
-                                  <li key={uni.id}>
-                                    <button
-                                      type="button"
-                                      onClick={() => activateSuggestion({ kind: "uni", uni })}
-                                      className={`w-full text-left flex justify-between p-2 text-xs rounded-none ${active ? "bg-amber-50" : "hover:bg-slate-50"}`}
-                                    >
-                                      <span className="font-semibold truncate pr-2">{highlightMatch(uni.name, searchQuery)}</span>
-                                      <span className="text-[var(--ref-muted)] shrink-0">{uni.location}</span>
-                                    </button>
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          ) : (
-                            <p className="text-xs text-[var(--ref-muted)] italic p-2">No universities found</p>
-                          )}
-                        </div>
-                        <div className="p-3 border-b border-[var(--ref-border)]">
-                          <div className="ref-label text-[9px] mb-2 flex items-center gap-1">
-                            <BookOpen className="h-3 w-3" /> Articles
-                          </div>
-                          {suggestions.articles.map((art) => {
-                            rowIndex += 1;
-                            return (
-                              <button
-                                key={art.id}
-                                type="button"
-                                onClick={() => activateSuggestion({ kind: "article", article: art })}
-                                className="w-full text-left p-2 text-xs hover:bg-slate-50 rounded-none block"
-                              >
-                                {highlightMatch(art.title, searchQuery)}
-                              </button>
-                            );
-                          })}
-                        </div>
-                        <div className="p-2 text-center">
-                          <button
-                            type="button"
-                            onClick={() => activateSuggestion({ kind: "view-all" })}
-                            className="text-[11px] text-blue-600 font-semibold uppercase tracking-wider"
-                          >
-                            View all matching &quot;{searchQuery}&quot;
-                            <ChevronRight className="inline h-3 w-3" />
-                          </button>
-                        </div>
-                      </>
-                    );
-                  })()}
-                </div>
-              )}
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-2 items-center justify-center mb-10">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ref-muted)]">Trending:</span>
-              {["Uzbekistan", "Medicine", "National Univ Singapore", "English medium"].map((tag) => (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => {
-                    setSearchQuery(tag);
-                    onSearchSubmit(tag);
-                    onViewChange("rankings");
+          {/* Search */}
+          <div className="relative w-full max-w-2xl mx-auto mb-4" ref={suggestionRef}>
+            <form onSubmit={handleSearchSubmit} className="flex rounded-full overflow-hidden border border-slate-200 shadow-sm focus-within:ring-2 focus-within:ring-[#0514b5] focus-within:border-transparent transition-all">
+              <div className="relative flex-grow">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--ref-muted)]" />
+                <input
+                  type="search"
+                  role="combobox"
+                  aria-expanded={showSuggestions && searchQuery.trim().length > 0}
+                  placeholder="Search universities, locations, subjects..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSuggestions(true);
                   }}
-                  className="text-[10px] px-2.5 py-1 rounded-full border border-blue-200 bg-white text-slate-600 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-900 transition-colors"
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
+                  onFocus={() => setShowSuggestions(true)}
+                  onKeyDown={handleSearchKeyDown}
+                  className="w-full bg-white text-sm text-slate-900 pl-11 pr-4 py-3.5 focus:outline-none"
+                />
+              </div>
+              <button type="submit" className="bg-[#1A365D] hover:bg-slate-800 text-white font-semibold px-8 py-3.5 text-sm transition-colors whitespace-nowrap">
+                Search
+              </button>
+            </form>
 
-          </motion.div>
-        </div>
+            {showSuggestions && searchQuery.trim().length > 0 && (
+              <div className="absolute left-0 right-0 z-30 mt-1 ref-card max-h-80 overflow-y-auto">
+                {(() => {
+                  let rowIndex = -1;
+                  return (
+                    <>
+                      <div className="p-3 border-b border-[var(--ref-border)]">
+                        <div className="ref-label text-[9px] mb-2 flex items-center gap-1">
+                          <GraduationCap className="h-3 w-3" /> Universities
+                        </div>
+                        {suggestions.universities.length > 0 ? (
+                          <ul className="space-y-1">
+                            {suggestions.universities.map((uni) => {
+                              rowIndex += 1;
+                              const active = activeSuggestionIndex === rowIndex;
+                              return (
+                                <li key={uni.id}>
+                                  <button
+                                    type="button"
+                                    onClick={() => activateSuggestion({ kind: "uni", uni })}
+                                    className={`w-full text-left flex justify-between p-2 text-xs rounded-none ${active ? "bg-amber-50" : "hover:bg-slate-50"}`}
+                                  >
+                                    <span className="font-semibold truncate pr-2">{highlightMatch(uni.name, searchQuery)}</span>
+                                    <span className="text-[var(--ref-muted)] shrink-0">{uni.location}</span>
+                                  </button>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        ) : (
+                          <p className="text-xs text-[var(--ref-muted)] italic p-2">No universities found</p>
+                        )}
+                      </div>
+                      <div className="p-3 border-b border-[var(--ref-border)]">
+                        <div className="ref-label text-[9px] mb-2 flex items-center gap-1">
+                          <BookOpen className="h-3 w-3" /> Articles
+                        </div>
+                        {suggestions.articles.map((art) => {
+                          rowIndex += 1;
+                          return (
+                            <button
+                              key={art.id}
+                              type="button"
+                              onClick={() => activateSuggestion({ kind: "article", article: art })}
+                              className="w-full text-left p-2 text-xs hover:bg-slate-50 rounded-none block"
+                            >
+                              {highlightMatch(art.title, searchQuery)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div className="p-2 text-center">
+                        <button
+                          type="button"
+                          onClick={() => activateSuggestion({ kind: "view-all" })}
+                          className="text-[11px] text-blue-600 font-semibold uppercase tracking-wider"
+                        >
+                          View all matching &quot;{searchQuery}&quot;
+                          <ChevronRight className="inline h-3 w-3" />
+                        </button>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2 items-center justify-center mb-10">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ref-muted)]">Trending:</span>
+            {["Uzbekistan", "Medicine", "National Univ Singapore", "English medium"].map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => {
+                  setSearchQuery(tag);
+                  onSearchSubmit(tag);
+                  onViewChange("rankings");
+                }}
+                className="text-[10px] px-2.5 py-1 rounded-full border border-blue-200 bg-white text-slate-600 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-900 transition-colors"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+
+        </motion.div>
       </section>
 
       {/* ── Live Top 10 ── */}
@@ -830,60 +858,89 @@ export default function Homepage({
           </button>
         </div>
 
-        <div className="ref-card-light ref-table-wrap shadow-lg">
-          <table className="ref-table">
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>University</th>
-                <th>Country</th>
-                <th>Score</th>
-                <th>Trend</th>
-                <th className="hidden md:table-cell">Research</th>
-                <th className="hidden md:table-cell">Employability</th>
-                <th className="hidden lg:table-cell">International</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topTen.map((uni, idx) => {
-                const trend = rankTrend(uni);
-                return (
-                  <tr
-                    key={uni.id}
-                    className="cursor-pointer"
-                    onClick={() => onUniversitySelect(uni.id)}
-                  >
-                    <td>
-                      <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${idx < 3 ? "bg-orange-100 text-orange-700" : "bg-slate-100 text-slate-600"}`}>
+        <div className="relative z-0">
+          {/* Ambient Liquid Glass Orb */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] max-w-4xl h-full max-h-96 bg-gradient-to-r from-blue-500/5 via-blue-400/5 to-transparent rounded-full blur-[100px] pointer-events-none -z-10" />
+          
+          <div className="flex flex-col gap-3">
+            {/* Header Row */}
+            <div className="grid grid-cols-[3rem_minmax(120px,1fr)_120px_60px_60px] md:grid-cols-[3rem_minmax(140px,1.5fr)_120px_70px_80px_1fr_1fr] lg:grid-cols-[3rem_minmax(140px,2fr)_120px_70px_80px_1fr_1fr_1fr] gap-4 px-6 pb-2 text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">
+              <div className="text-center">Rank</div>
+              <div>University</div>
+              <div>Country</div>
+              <div>Score</div>
+              <div>Trend</div>
+              <div className="hidden md:block">Research</div>
+              <div className="hidden md:block">Employability</div>
+              <div className="hidden lg:block">International</div>
+            </div>
+
+            {/* List Items */}
+            {topTen.map((uni, idx) => {
+              const trend = rankTrend(uni);
+              return (
+                <motion.div
+                  key={uni.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.6, delay: idx * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  className="group relative overflow-hidden bg-white/40 backdrop-blur-xl border border-white/60 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-500 cursor-pointer"
+                  onClick={() => onUniversitySelect(uni.id)}
+                >
+                  {/* Hover Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-[#1A365D]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+                  {/* Content Grid */}
+                  <div className="relative z-10 grid grid-cols-[3rem_minmax(120px,1fr)_120px_60px_60px] md:grid-cols-[3rem_minmax(140px,1.5fr)_120px_70px_80px_1fr_1fr] lg:grid-cols-[3rem_minmax(140px,2fr)_120px_70px_80px_1fr_1fr_1fr] gap-4 items-center px-6 py-4 md:py-5">
+                    
+                    {/* Rank */}
+                    <div className="flex justify-center">
+                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold transition-all duration-300 shadow-sm ${idx < 3 ? "bg-orange-50 text-orange-600 group-hover:bg-orange-100 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(255,165,0,0.3)]" : "bg-slate-50/80 text-slate-500 group-hover:bg-slate-100 group-hover:scale-110"}`}>
                         {idx + 1}
                       </span>
-                    </td>
-                    <td className="font-semibold text-slate-900 max-w-[180px] truncate">{uni.name}</td>
-                    <td>
-                      <span className="mr-1">{COUNTRY_FLAGS[uni.location] ?? "🌏"}</span>
-                      {uni.location}
-                    </td>
-                    <td className="font-mono font-bold">{uni.overall.toFixed(1)}</td>
-                    <td>
-                      <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${trend.improved ? "ref-trend-up" : "ref-trend-down"}`}>
-                        {trend.improved ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
+                    </div>
+
+                    {/* Name */}
+                    <div className="font-semibold text-slate-800 truncate transition-colors duration-300 group-hover:text-[#1A365D]">
+                      {uni.name}
+                    </div>
+
+                    {/* Country */}
+                    <div className="text-slate-600 text-sm flex items-center">
+                      <span className="mr-2 text-base opacity-90 drop-shadow-sm">{COUNTRY_FLAGS[uni.location] ?? "🌏"}</span>
+                      <span className="truncate">{uni.location}</span>
+                    </div>
+
+                    {/* Score */}
+                    <div className="font-mono font-bold text-slate-700 text-sm">
+                      {uni.overall.toFixed(1)}
+                    </div>
+
+                    {/* Trend */}
+                    <div className="flex items-center">
+                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold bg-white/50 backdrop-blur-sm shadow-sm transition-transform duration-300 group-hover:scale-105 ${trend.improved ? "text-emerald-600" : "text-rose-500"}`}>
+                        {trend.improved ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                         {Math.abs(trend.delta).toFixed(1)}
                       </span>
-                    </td>
-                    <td className="hidden md:table-cell">
+                    </div>
+
+                    {/* Sparklines */}
+                    <div className="hidden md:block opacity-50 group-hover:opacity-100 transition-opacity duration-500">
                       <Sparkline values={scoreHistory(uni, "research")} color="#3b82f6" />
-                    </td>
-                    <td className="hidden md:table-cell">
+                    </div>
+                    <div className="hidden md:block opacity-50 group-hover:opacity-100 transition-opacity duration-500">
                       <Sparkline values={scoreHistory(uni, "employability")} color="#10b981" />
-                    </td>
-                    <td className="hidden lg:table-cell">
+                    </div>
+                    <div className="hidden lg:block opacity-50 group-hover:opacity-100 transition-opacity duration-500">
                       <Sparkline values={[uni.intlStudents - 8, uni.intlStudents - 4, uni.intlStudents - 2, uni.intlStudents - 1, uni.intlStudents]} color="#8b5cf6" />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    </div>
+
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
         <p className="text-[10px] text-[var(--ref-muted)] mt-3">* Filterable by location, program &amp; tuition in Rankings Engine.</p>
       </RevealSection>
@@ -896,7 +953,7 @@ export default function Homepage({
           {countryStats.map((c) => {
             const theme = getCountryTheme(c.country);
             return (
-              <button 
+              <button
                 key={c.country}
                 type="button"
                 className="ref-country-card ref-country-card--light text-left"
@@ -969,7 +1026,7 @@ export default function Homepage({
             <button
               key={article.id}
               type="button"
-              
+
               onClick={() => onArticleSelect(article)}
               className="ref-card text-left overflow-hidden group hover:border-blue-300 transition-colors"
             >
@@ -983,7 +1040,7 @@ export default function Homepage({
               </div>
               <div className="p-4">
                 <span className="ref-label text-[9px]">Insight</span>
-                <h3 className="font-bold text-sm mt-2 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                <h3 className="font-bold text-sm mt-2 mb-2 line-clamp-2 text-slate-800 group-hover:text-[#1A365D] transition-colors">
                   {article.title}
                 </h3>
                 <p className="text-xs text-[var(--ref-muted)] line-clamp-2 mb-3">{article.contentSummary}</p>
@@ -1025,17 +1082,17 @@ export default function Homepage({
       <RevealSection className="ref-section pt-0 pb-8">
         <div className="ref-cta-banner p-8 md:p-12">
           <div className="relative z-10 max-w-xl">
-            <h2 className="text-2xl md:text-3xl font-bold mb-3">
+            <h2 className="text-2xl md:text-3xl font-bold mb-3 text-white">
               Discover the Future of Higher Education Intelligence
             </h2>
-            <p className="text-sm text-[var(--ref-muted)] mb-6">
+            <p className="text-sm text-slate-300 mb-6">
               Access live rankings, institutional analytics, and regional insights trusted across Asia.
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
-              <button type="button" className="ref-btn-primary" onClick={() => onViewChange("rankings")}>
+              <button type="button" className="bg-white hover:bg-slate-100 text-[#1A365D] font-bold rounded-lg px-8 py-3.5 text-sm transition-colors" onClick={() => onViewChange("rankings")}>
                 Explore Rankings
               </button>
-              <button type="button" className="ref-btn-outline" onClick={() => onViewChange("settings")}>
+              <button type="button" className="bg-transparent border-2 border-white text-white hover:bg-white/10 font-bold rounded-lg px-8 py-3.5 text-sm transition-colors" onClick={() => onViewChange("settings")}>
                 Request Institutional Access
               </button>
             </div>
@@ -1044,101 +1101,111 @@ export default function Homepage({
       </RevealSection>
 
       {/* ── Footer block ── */}
-      <footer className="ref-section pt-0 border-t border-[var(--ref-border)]">
-        <div className="ref-footer-grid">
-          <div>
-  <div className="font-bold text-lg mb-2">
-    ASIA <span className="text-amber-600">UNIVERSITY</span> RANKINGS
-  </div>
+      {/* ── Footer block ── */}
+      <footer className="w-full bg-[#1A365D] text-white pt-16 pb-8 px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-16 mb-16">
+            <div className="col-span-1 md:col-span-1">
+              <div className="font-bold text-xl tracking-tight mb-4 flex items-center gap-2">
+                <span className="bg-white text-[#1A365D] px-2 py-1 rounded text-sm font-black">AUR</span>
+                <span>ASIA <span className="text-amber-400">UNIVERSITY</span> RANKINGS</span>
+              </div>
+              <p className="text-sm text-blue-100/70 leading-relaxed max-w-xs mb-8">
+                The definitive intelligence platform for higher education across Asia and Central Asia. Empowering students, educators, and institutions globally.
+              </p>
 
-  <p className="text-xs text-[var(--ref-muted)] leading-relaxed max-w-xs">
-    The definitive intelligence platform for higher education across Asia and Central Asia.
-  </p>
-
-  {/* Social Media */}
-  <div className="mt-5 flex flex-wrap items-center gap-3">
-    {socialLinks.map((social) => (
-      <a
-        key={social.label}
-        href={social.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={social.label}
-        className="group"
-      >
-        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--ref-border)] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:scale-110 hover:border-amber-400 hover:shadow-md">
-          <Image
-            src={social.imgSrc}
-            alt={social.label}
-            width={20}
-            height={20}
-            className="object-contain"
-          />
-        </div>
-      </a>
-    ))}
-  </div>
-</div>
-          {[
-            { title: "Platform", links: [["Rankings Engine", "rankings"], ["Discovery Hub", "home"], ["Analytics", "analytics"]] },
-            { title: "Resources", links: [["Methodology", "methodology"], ["Reports", "home"], ["Insights", "home"]] },
-            { title: "Company", links: [["About Us", "home"], ["Contact", "settings"], ["Privacy", "settings"]] },
-          ].map((col) => (
-            <div key={col.title}>
-              <h4 className="text-xs font-bold uppercase tracking-wider mb-3">{col.title}</h4>
-              <ul className="space-y-2">
-                {col.links.map(([label, view]) => (
-                  <li key={label}>
-                    <button
-                      type="button"
-                      onClick={() => onViewChange(view)}
-                      className="text-xs text-[var(--ref-muted)] hover:text-blue-600 transition-colors"
-                    >
-                      {label}
-                    </button>
-                  </li>
+              {/* Social Media */}
+              <div className="flex flex-wrap items-center gap-3">
+                {socialLinks.map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.label}
+                    className="group"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 hover:bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/20">
+                      <Image
+                        src={social.imgSrc}
+                        alt={social.label}
+                        width={18}
+                        height={18}
+                        className="object-contain filter brightness-0 invert group-hover:filter-none group-hover:brightness-100 transition-all duration-300"
+                      />
+                    </div>
+                  </a>
                 ))}
-              </ul>
+              </div>
             </div>
-          ))}
-        </div>
-        <div className="mt-8 pt-6 border-t border-[var(--ref-border)] flex flex-col sm:flex-row justify-between gap-4 items-center">
-          <span className="text-[10px] text-[var(--ref-muted)]">© 2026 Asia University Rankings. All rights reserved.</span>
-<form
-  onSubmit={handleSubscribe}
-  className="flex w-full flex-col items-stretch gap-2 sm:w-auto"
->
-  <div className="flex w-full flex-col items-stretch gap-2 sm:flex-row sm:items-center">
-    <Mail className="h-4 w-4 text-[var(--ref-muted)] hidden sm:block" />
 
-    <input
-      type="email"
-      value={email}
-      onChange={(e) => setEmail(e.target.value)}
-      placeholder="Newsletter email"
-      required
-      className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-900 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-amber-400"
-    />
+            {[
+              { title: "Platform", links: [["Rankings Engine", "rankings"], ["Discovery Hub", "home"], ["Analytics", "analytics"], ["Compare Institutions", "home"]] },
+              { title: "Resources", links: [["Methodology", "methodology"], ["Reports", "home"], ["Insights", "home"], ["News & Updates", "home"]] },
+              { title: "Company", links: [["About Us", "home"], ["Careers", "home"], ["Contact", "settings"], ["Privacy Policy", "settings"]] },
+            ].map((col) => (
+              <div key={col.title}>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-6">{col.title}</h4>
+                <ul className="space-y-3">
+                  {col.links.map(([label, view]) => (
+                    <li key={label}>
+                      <button
+                        type="button"
+                        onClick={() => onViewChange(view)}
+                        className="text-sm text-blue-100/70 hover:text-white hover:translate-x-1 transition-all flex items-center gap-2"
+                      >
+                        {label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
 
-    <button
-      type="submit"
-      disabled={loading}
-      className="ref-btn-primary text-[10px] px-3 py-2 justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      {loading ? "Subscribing..." : "Subscribe"}
-    </button>
-  </div>
+          {/* Bottom section */}
+          <div className="pt-8 border-t border-white/10 flex flex-col lg:flex-row justify-between items-center gap-6">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
+              <span className="text-xs text-blue-100/50">© 2026 Asia University Rankings. All rights reserved.</span>
+              <div className="flex gap-4 text-xs text-blue-100/50">
+                <button type="button" className="hover:text-white transition-colors">Terms of Service</button>
+                <button type="button" className="hover:text-white transition-colors">Cookie Policy</button>
+              </div>
+            </div>
 
-  {status && (
-    <p
-      className={`text-[11px] ${
-        status.includes("Thank") ? "text-green-600" : "text-red-500"
-      }`}
-    >
-      {status}
-    </p>
-  )}
-</form>
+            <div className="w-full lg:w-auto">
+              <form
+                onSubmit={handleSubscribe}
+                className="flex w-full lg:w-auto items-center gap-2 bg-white/5 p-1.5 rounded-full border border-white/10 focus-within:border-white/30 focus-within:bg-white/10 transition-all"
+              >
+                <div className="pl-4 hidden sm:block">
+                  <Mail className="h-4 w-4 text-blue-100/50" />
+                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Subscribe to our newsletter..."
+                  required
+                  className="bg-transparent border-none px-3 py-1.5 text-sm text-white placeholder:text-blue-100/40 w-full sm:w-64 focus:outline-none focus:ring-0"
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-amber-400 hover:bg-amber-300 text-[#1A365D] font-bold text-xs px-6 py-2.5 rounded-full transition-colors disabled:opacity-50 whitespace-nowrap"
+                >
+                  {loading ? "..." : "Subscribe"}
+                </button>
+              </form>
+              {status && (
+                <div className="text-right mt-2 text-xs pr-4">
+                  <span className={status.includes("Thank") ? "text-emerald-400" : "text-amber-400"}>
+                    {status}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </footer>
     </div>
