@@ -2,16 +2,15 @@
 
 import React, { useState, useMemo } from "react";
 import { Search, MapPin, GraduationCap, CheckCircle2, ChevronRight, X } from "lucide-react";
-import { MOCK_UNIVERSITIES, University } from "../data";
+import { University } from "../data";
 import { useSidebar } from "./navigation/SidebarContext";
+import { useUniversityData } from "./data/UniversityDataProvider";
 
 const COUNTRY_FLAGS: Record<string, string> = {
   China: "🇨🇳", Japan: "🇯🇵", "South Korea": "🇰🇷", Singapore: "🇸🇬",
   "Hong Kong": "🇭🇰", India: "🇮🇳", Taiwan: "🇹🇼", Malaysia: "🇲🇾",
   Thailand: "🇹🇭", Indonesia: "🇮🇩", Uzbekistan: "🇺🇿",
 };
-
-const ALL_COUNTRIES = ["All", ...Array.from(new Set(MOCK_UNIVERSITIES.map((u) => u.location))).sort()];
 
 interface Props { onUniversitySelect: (id: string) => void; }
 
@@ -84,6 +83,11 @@ function UniversityCard({ uni, rank, onClick }: { uni: University; rank: number;
 }
 
 export default function InstitutionDirectory({ onUniversitySelect }: Props) {
+  const { universities } = useUniversityData();
+  const ALL_COUNTRIES = useMemo(
+    () => ["All", ...Array.from(new Set(universities.map((u) => u.location))).sort()],
+    [universities]
+  );
   const { searchQuery: search, setSearchQuery: setSearch } = useSidebar();
   const [country, setCountry] = useState("All");
   const [medOnly, setMedOnly] = useState(false);
@@ -93,7 +97,7 @@ export default function InstitutionDirectory({ onUniversitySelect }: Props) {
   const [eligibilityResult, setEligibilityResult] = useState<null | { status: string, message: string }>(null);
 
   const filtered = useMemo(() =>
-    MOCK_UNIVERSITIES.filter((u) => {
+    universities.filter((u) => {
       const q = search.toLowerCase();
       return (
         (!search || u.name.toLowerCase().includes(q) || u.location.toLowerCase().includes(q)) &&
@@ -112,7 +116,7 @@ export default function InstitutionDirectory({ onUniversitySelect }: Props) {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
             <div>
               <h1 className="font-serif text-2xl font-bold text-slate-900">Institution Directory</h1>
-              <p className="text-[12px] text-slate-400 mt-0.5">{MOCK_UNIVERSITIES.length} universities across Asia</p>
+              <p className="text-[12px] text-slate-400 mt-0.5">{universities.length} universities across Asia</p>
             </div>
             <span className="text-[11px] text-slate-400 font-semibold bg-slate-50 border border-slate-200/60 px-3 py-1.5 rounded-lg self-start md:self-auto">
               {filtered.length} result{filtered.length !== 1 ? "s" : ""}

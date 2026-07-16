@@ -146,6 +146,7 @@
 /* Left panel hero copy */
 .lp-hero {
   padding-top: 1rem;
+  text-align: center;
 }
 .lp-hero-eyebrow {
   display: inline-flex;
@@ -163,6 +164,8 @@
   width: 32px;
   height: 2px;
   background: rgba(255,255,255,0.5);
+  margin: 0 auto 0.4rem;
+  display: block;
 }
 .lp-hero-title {
   font-family: var(--font-serif);
@@ -187,6 +190,7 @@
 .lp-trust-row {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 1rem;
   margin-top: 1.25rem;
   flex-wrap: wrap;

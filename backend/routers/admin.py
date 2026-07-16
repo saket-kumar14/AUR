@@ -21,6 +21,31 @@ import subprocess
 import sys
 import json
 
+from database.models import (
+    Event,
+    Application,
+    JudgeScore,
+)
+
+from schemas import (
+    EventCreate,
+    EventResponse,
+)
+
+from typing import List
+
+from typing import List
+from uuid import UUID
+
+from schemas import (
+    ApplicationResponse,
+)
+
+from schemas import (
+    JudgeScoreCreate,
+    FinalScoreResponse,
+)
+
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -208,4 +233,514 @@ async def data_quality(
         "research_score_nulls": research_null,
         "placement_score_nulls": placement_null,
         "faculty_score_nulls": faculty_null,
+    }
+
+#Events & Awards
+
+VALID_EVENT_TYPES = {"event", "award"}
+VALID_EVENT_STATUS = {"open", "closed", "archived"}
+
+
+async def get_event_or_404(
+    event_id,
+    db: AsyncSession,
+):
+    result = await db.execute(
+        select(Event).where(Event.id == event_id)
+    )
+
+    event = result.scalar_one_or_none()
+
+    if event is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Event not found",
+        )
+
+    return event
+# CREATE EVENT / AWARD
+
+@router.post(
+    "/events",
+    response_model=EventResponse,
+)
+async def create_event(
+    payload: EventCreate,
+    current_admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    if payload.type.lower() not in VALID_EVENT_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail="type must be either 'event' or 'award'",
+        )
+
+    event = Event(
+        title=payload.title,
+        description=payload.description,
+        type=payload.type.lower(),
+        eligibility_criteria=payload.eligibility_criteria,
+        deadline=payload.deadline,
+        status="open",
+    )
+
+    db.add(event)
+
+    await db.commit()
+
+    await db.refresh(event)
+
+    return event
+
+# LIST EVENTS
+
+@router.get(
+    "/events",
+    response_model=List[EventResponse],
+)
+async def list_events(
+    type: str | None = Query(None),
+    status: str | None = Query(None),
+    current_admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(Event)
+
+    if type:
+        query = query.where(Event.type == type.lower())
+
+    if status:
+        query = query.where(Event.status == status.lower())
+
+    query = query.order_by(Event.created_at.desc())
+
+    result = await db.execute(query)
+
+    return result.scalars().all()
+
+# UPDATE EVENT
+
+@router.patch(
+    "/events/{event_id}",
+    response_model=EventResponse,
+)
+async def update_event(
+    event_id,
+    payload: EventCreate,
+    current_admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    event = await get_event_or_404(
+        event_id,
+        db,
+    )
+
+    if payload.type.lower() not in VALID_EVENT_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid event type",
+        )
+
+    event.title = payload.title
+    event.description = payload.description
+    event.type = payload.type.lower()
+    event.eligibility_criteria = payload.eligibility_criteria
+    event.deadline = payload.deadline
+
+    await db.commit()
+
+    await db.refresh(event)
+
+    return event
+
+# DELETE EVENT
+
+@router.delete(
+    "/events/{event_id}",
+)
+async def delete_event(
+    event_id,
+    current_admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    event = await get_event_or_404(
+        event_id,
+        db,
+    )
+
+    await db.delete(event)
+
+    await db.commit()
+
+    return {
+        "status": "success",
+        "message": "Event deleted successfully",
+    }
+    
+# APPLICATION HELPERS
+
+VALID_APPLICATION_STATUS = {
+    "submitted",
+    "under_review",
+    "shortlisted",
+    "winner",
+    "rejected",
+}
+
+
+async def get_application_or_404(
+    application_id: UUID,
+    db: AsyncSession,
+):
+    result = await db.execute(
+        select(Application).where(
+            Application.id == application_id
+        )
+    )
+
+    application = result.scalar_one_or_none()
+
+    if application is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Application not found",
+        )
+
+    return application
+
+# LIST APPLICATIONS
+
+@router.get(
+    "/applications",
+    response_model=List[ApplicationResponse],
+)
+async def list_applications(
+    status: str | None = Query(None),
+    event_id: UUID | None = Query(None),
+    current_admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(Application)
+
+    if status:
+        query = query.where(
+            Application.status == status
+        )
+
+    if event_id:
+        query = query.where(
+            Application.event_id == event_id
+        )
+
+    query = query.order_by(
+        Application.submitted_at.desc()
+    )
+
+    result = await db.execute(query)
+
+    return result.scalars().all()
+
+
+# APPLICATION DETAILS
+
+@router.get(
+    "/applications/{application_id}",
+    response_model=ApplicationResponse,
+)
+async def get_application(
+    application_id: UUID,
+    current_admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_application_or_404(
+        application_id,
+        db,
+    )
+    
+# UPDATE APPLICATION STATUS
+
+@router.patch(
+    "/applications/{application_id}/status",
+    response_model=ApplicationResponse,
+)
+async def update_application_status(
+    application_id: UUID,
+    status: str = Body(...),
+    current_admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    application = await get_application_or_404(
+        application_id,
+        db,
+    )
+
+    status = status.lower()
+
+    if status not in VALID_APPLICATION_STATUS:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid application status",
+        )
+
+    application.status = status
+
+    await db.commit()
+
+    await db.refresh(application)
+
+    return application
+
+
+# FINAL SCORE CALCULATION
+
+async def calculate_application_score(
+    application_id: UUID,
+    db: AsyncSession,
+):
+    result = await db.execute(
+        select(JudgeScore).where(
+            JudgeScore.application_id == application_id
+        )
+    )
+
+    scores = result.scalars().all()
+
+    if not scores:
+        return None, 0
+
+    judge_totals = []
+
+    for score in scores:
+        average = (
+            score.academic_score +
+            score.research_score +
+            score.outcomes_score +
+            score.impact_score +
+            score.collaboration_score +
+            score.governance_score
+        ) / 6
+
+        judge_totals.append(average)
+
+    final_score = sum(judge_totals) / len(judge_totals)
+
+    return round(final_score, 2), len(judge_totals)
+
+
+# JUDGE SCORE SUBMISSION
+
+@router.post(
+    "/applications/{application_id}/judge-score",
+)
+async def submit_judge_score(
+    application_id: UUID,
+    payload: JudgeScoreCreate,
+    current_admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    application = await get_application_or_404(
+        application_id,
+        db,
+    )
+
+    existing = await db.execute(
+        select(JudgeScore).where(
+            JudgeScore.application_id == application.id,
+            JudgeScore.judge_id == payload.judge_id,
+        )
+    )
+
+    already = existing.scalar_one_or_none()
+
+    if already:
+        raise HTTPException(
+            status_code=400,
+            detail="Judge has already scored this application",
+        )
+
+    score = JudgeScore(
+        application_id=application.id,
+        judge_id=payload.judge_id,
+        academic_score=payload.academic_score,
+        research_score=payload.research_score,
+        outcomes_score=payload.outcomes_score,
+        impact_score=payload.impact_score,
+        collaboration_score=payload.collaboration_score,
+        governance_score=payload.governance_score,
+    )
+
+    db.add(score)
+
+    await db.commit()
+
+    await db.refresh(score)
+
+    return {
+        "status": "success",
+        "message": "Judge score submitted successfully",
+    }
+    
+# CALCULATE FINAL SCORE
+
+@router.post(
+    "/applications/{application_id}/calculate",
+    response_model=FinalScoreResponse,
+)
+async def calculate_final_score(
+    application_id: UUID,
+    current_admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    application = await get_application_or_404(
+        application_id,
+        db,
+    )
+
+    final_score, judges = await calculate_application_score(
+        application.id,
+        db,
+    )
+
+    if final_score is None:
+        raise HTTPException(
+            status_code=400,
+            detail="No judge scores submitted",
+        )
+
+    return {
+        "application_id": application.id,
+        "final_score": final_score,
+        "judges_count": judges,
+    }
+    
+# VIEW FINAL SCORE
+
+@router.get(
+    "/applications/{application_id}/final-score",
+    response_model=FinalScoreResponse,
+)
+async def view_final_score(
+    application_id: UUID,
+    current_admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    application = await get_application_or_404(
+        application_id,
+        db,
+    )
+
+    final_score, judges = await calculate_application_score(
+        application.id,
+        db,
+    )
+
+    if final_score is None:
+        raise HTTPException(
+            status_code=400,
+            detail="No judge scores available",
+        )
+
+    return {
+        "application_id": application.id,
+        "final_score": final_score,
+        "judges_count": judges,
+    }
+    
+    
+@router.patch(
+    "/applications/{application_id}/publish",
+)
+async def publish_application_result(
+    application_id: UUID,
+    current_admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    application = await get_application_or_404(
+        application_id,
+        db,
+    )
+
+    final_score, judges = await calculate_application_score(
+        application.id,
+        db,
+    )
+
+    if final_score is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot publish without judge scores.",
+        )
+
+    if application.status not in {"winner", "rejected"}:
+        raise HTTPException(
+            status_code=400,
+            detail="Application must be marked as winner or rejected before publishing.",
+        )
+
+    return {
+        "status": "published",
+        "application_id": application.id,
+        "final_score": final_score,
+        "judges_count": judges,
+        "published_at": datetime.utcnow().isoformat(),
+    }
+    
+@router.get("/events/dashboard")
+async def events_dashboard(
+    current_admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    total_events = await db.scalar(
+        select(func.count()).select_from(Event)
+    )
+
+    open_events = await db.scalar(
+        select(func.count())
+        .select_from(Event)
+        .where(Event.status == "open")
+    )
+
+    total_applications = await db.scalar(
+        select(func.count()).select_from(Application)
+    )
+
+    submitted = await db.scalar(
+        select(func.count())
+        .select_from(Application)
+        .where(Application.status == "submitted")
+    )
+
+    review = await db.scalar(
+        select(func.count())
+        .select_from(Application)
+        .where(Application.status == "under_review")
+    )
+
+    shortlisted = await db.scalar(
+        select(func.count())
+        .select_from(Application)
+        .where(Application.status == "shortlisted")
+    )
+
+    winners = await db.scalar(
+        select(func.count())
+        .select_from(Application)
+        .where(Application.status == "winner")
+    )
+
+    rejected = await db.scalar(
+        select(func.count())
+        .select_from(Application)
+        .where(Application.status == "rejected")
+    )
+
+    return {
+        "total_events": total_events,
+        "open_events": open_events,
+        "applications": total_applications,
+        "submitted": submitted,
+        "under_review": review,
+        "shortlisted": shortlisted,
+        "winners": winners,
+        "rejected": rejected,
     }

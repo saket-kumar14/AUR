@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from routers import membership
+
 
 from database.connections import close_db, close_redis
 from routers import universities, rankings, countries, search
@@ -12,6 +14,7 @@ from routers.admin import router as admin_router
 from routers import newsletter
 from routers import news
 from routers import methodology
+from routers import events
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -41,6 +44,8 @@ app.include_router(users_router)
 app.include_router(newsletter.router)
 app.include_router(news.router)
 app.include_router(methodology.router)
+app.include_router(events.router)
+app.include_router(membership.router)
 
 @app.get("/")
 def root():
@@ -57,3 +62,5 @@ async def health():
             "service": "AUR Backend"
         }
     )
+
+
