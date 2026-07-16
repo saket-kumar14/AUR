@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from routers import membership
+
 
 from database.connections import close_db, close_redis
 from routers import universities, rankings, countries, search
@@ -13,6 +15,7 @@ from routers.chat import router as chat_router
 from routers import newsletter
 from routers import news
 from routers import methodology
+from routers import events
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,12 +25,19 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="AUR - Asia University Ranking API", version="1.0.0", lifespan=lifespan)
 
+import os
+
+# Reads production URL(s) from environment variables, falls back to local dev
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+origins = [origin.strip() for origin in frontend_url.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 app.include_router(universities.router)
 app.include_router(rankings.router)
@@ -42,6 +52,8 @@ app.include_router(newsletter.router)
 app.include_router(news.router)
 app.include_router(methodology.router)
 app.include_router(chat_router) 
+app.include_router(events.router)
+app.include_router(membership.router)
 
 @app.get("/")
 def root():
@@ -58,3 +70,5 @@ async def health():
             "service": "AUR Backend"
         }
     )
+
+

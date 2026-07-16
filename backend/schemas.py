@@ -110,6 +110,14 @@ class CountryAverageScore(BaseModel):
     country: str
     average_score: float    
 
+class TopMover(BaseModel):
+    id: str
+    name: str
+    country: str
+    rank_2026: Optional[int] = None
+    rank_2025: Optional[int] = None
+    improvement: int
+
 
 class NewsletterSubscribeRequest(BaseModel):
     email: EmailStr
@@ -164,3 +172,76 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     reply: str
+      
+class EventCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    type: str                       # "event" or "award"
+    eligibility_criteria: Optional[str] = None
+    deadline: Optional[date] = None
+
+
+class EventResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    title: str
+    description: Optional[str] = None
+    type: str
+    eligibility_criteria: Optional[str] = None
+    deadline: Optional[date] = None
+    status: str
+    created_at: datetime
+
+
+class ApplicationCreate(BaseModel):
+    event_id: uuid.UUID
+    university_id: uuid.UUID
+    documents: List[str] = []
+
+
+class ApplicationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    event_id: uuid.UUID
+    university_id: uuid.UUID
+    documents: List[str] = []
+    status: str
+    submitted_at: datetime
+
+
+class JudgeScoreCreate(BaseModel):
+    judge_id: str
+    academic_score: float
+    research_score: float
+    outcomes_score: float
+    impact_score: float
+    collaboration_score: float
+    governance_score: float
+
+
+class FinalScoreResponse(BaseModel):
+    application_id: uuid.UUID
+    final_score: float
+    judges_count: int
+
+
+class MembershipTierResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    name: str
+    price: float
+    duration_months: int
+    benefits: List[str]
+
+
+class MembershipSubscribeRequest(BaseModel):
+    tier_id: uuid.UUID
+
+
+class UserMembershipResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    tier: MembershipTierResponse
+    start_date: datetime
+    end_date: datetime
+    status: str

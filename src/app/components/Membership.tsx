@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Crown, GraduationCap, BarChart3, Search, MessageCircle, Info, Check, X, ChevronDown, User, Mail, CreditCard, CalendarDays, Lock, BookOpen } from "lucide-react";
+import { Crown, GraduationCap, BarChart3, Search, MessageCircle, Info, Check, X, ChevronDown, User, Mail, CreditCard, CalendarDays, Lock, BookOpen, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_BASE_URL } from "../lib/universities";
 
 // --- Application Modal Component ---
 function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, onClose: () => void, selectedTier: string }) {
@@ -242,12 +243,12 @@ function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, 
                             type="text"
                             maxLength={19}
                             value={formData.cardNumber}
-                            onChange={(e) => { 
-                              let val = e.target.value.replace(/\D/g, "");
-                              val = val.replace(/(.{4})/g, "$1 ").trim();
-                              setFormData({ ...formData, cardNumber: val }); 
-                              setErrors({ ...errors, cardNumber: "" }); 
-                            }}
+                            onChange={(e) => {
+                               let val = e.target.value.replace(/\D/g, "").slice(0, 16);
+                               val = val.replace(/(.{4})/g, "$1 ").trim();
+                               setFormData({ ...formData, cardNumber: val });
+                               setErrors({ ...errors, cardNumber: "" });
+                               }}
                             className={`w-full bg-[var(--aur-surface-2)] border ${errors.cardNumber ? "border-red-500 focus:border-red-500" : "border-[var(--aur-border)] focus:border-[var(--aur-text)]"} rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--aur-text)] focus:outline-none transition-colors`}
                             placeholder="0000 0000 0000 0000"
                           />
@@ -266,12 +267,22 @@ function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, 
                               type="text"
                               maxLength={5}
                               value={formData.expiry}
-                              onChange={(e) => { 
-                                let val = e.target.value.replace(/\D/g, "");
-                                if (val.length >= 2) val = val.slice(0, 2) + "/" + val.slice(2, 4);
-                                setFormData({ ...formData, expiry: val }); 
-                                setErrors({ ...errors, expiry: "" }); 
-                              }}
+                              onChange={(e) => {
+  let digits = e.target.value.replace(/\D/g, "").slice(0, 4);
+  if (digits.length >= 1) {
+    let month = digits.slice(0, 2);
+    if (digits.length >= 2) {
+      const monthNum = parseInt(month, 10);
+      if (monthNum < 1) month = "01";
+      if (monthNum > 12) month = "12";
+    }
+    const year = digits.slice(2, 4);
+    setFormData({ ...formData, expiry: digits.length > 2 ? `${month}/${year}` : month });
+  } else {
+    setFormData({ ...formData, expiry: "" });
+  }
+  setErrors({ ...errors, expiry: "" });
+}}
                               className={`w-full bg-[var(--aur-surface-2)] border ${errors.expiry ? "border-red-500 focus:border-red-500" : "border-[var(--aur-border)] focus:border-[var(--aur-text)]"} rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--aur-text)] focus:outline-none transition-colors`}
                               placeholder="MM/YY"
                             />
@@ -470,7 +481,33 @@ function FAQSection() {
 // --- Main Membership Component ---
 export default function Membership() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTier, setSelectedTier] = useState("Basic Student");
+const [selectedTier, setSelectedTier] = useState("Basic Student");
+  interface MembershipTierData {
+    id: string;
+    name: string;
+    price: number;
+    duration_months: number;
+    benefits: string[];
+  }
+
+  const [tiers, setTiers] = useState<MembershipTierData[]>([]);
+  const [tiersLoading, setTiersLoading] = useState(true);
+  const [tiersError, setTiersError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    const controller = new AbortController();
+    fetch(`${API_BASE_URL}/api/membership/tiers`, { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load membership tiers");
+        return res.json();
+      })
+      .then((data: MembershipTierData[]) => setTiers(data))
+      .catch((err) => {
+        if (err.name !== "AbortError") setTiersError(err.message);
+      })
+      .finally(() => setTiersLoading(false));
+    return () => controller.abort();
+  }, []);
 
   const openApplication = (tier: string) => {
     setSelectedTier(tier);
@@ -527,18 +564,16 @@ export default function Membership() {
               <p className="text-[var(--aur-text-muted)] text-sm mt-2">Essential access to explore global rankings.</p>
             </div>
             <div className="text-3xl font-bold font-mono text-[var(--aur-text)] mb-8">
-              Free<span className="text-sm text-[var(--aur-text-muted)] font-sans"> / forever</span>
+{tiersLoading ? "..." : `$${tiers.find(t => t.name === "Basic")?.price.toLocaleString() ?? "999"}`}<span className="text-sm text-[var(--aur-text-muted)] font-sans"> / year</span>
             </div>
-            
+
             <ul className="space-y-5 mb-8 flex-1">
-              <li className="flex items-start gap-4">
-                <Search className="w-5 h-5 text-[var(--aur-text-muted)] shrink-0 mt-0.5" />
-                <span className="text-sm font-medium text-[var(--aur-text-secondary)]">Access to Official Rankings</span>
-              </li>
-              <li className="flex items-start gap-4">
-                <BookOpen className="w-5 h-5 text-[var(--aur-text-muted)] shrink-0 mt-0.5" />
-                <span className="text-sm font-medium text-[var(--aur-text-secondary)]">Save Universities to Shortlist</span>
-              </li>
+{(tiers.find(t => t.name === "Basic")?.benefits ?? ["Profile Verification Badge", "Institutional Data Update Submissions"]).map((benefit) => (
+                <li key={benefit} className="flex items-start gap-4">
+                 <ShieldCheck className="w-5 h-5 text-[var(--aur-text-muted)] shrink-0 mt-0.5" />
+                  <span className="text-sm font-medium text-[var(--aur-text-secondary)]">{benefit}</span>
+                </li>
+              ))}
             </ul>
 
             <button 
@@ -549,7 +584,7 @@ export default function Membership() {
             </button>
           </motion.div>
 
-          {/* Tier 2: Pro Student */}
+{/* Tier 2: Premium / Pro Student */}
           <motion.div 
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -569,7 +604,7 @@ export default function Membership() {
               <p className="text-[var(--background)]/70 text-sm mt-2">AI predictions and premium tools to secure your future.</p>
             </div>
             <div className="text-3xl font-bold font-mono text-[var(--background)] mb-8">
-              $49<span className="text-sm text-[var(--background)]/70 font-sans"> / year</span>
+{tiersLoading ? "..." : `$${tiers.find(t => t.name === "Premium")?.price.toLocaleString() ?? "2,999"}`}<span className="text-sm text-[var(--background)]/70 font-sans"> / year</span>
             </div>
             
             <ul className="space-y-5 mb-8 flex-1">

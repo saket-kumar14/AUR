@@ -18,3 +18,4 @@ pytest-asyncio
 httpx
 
 google-genai
+aiosqlite
