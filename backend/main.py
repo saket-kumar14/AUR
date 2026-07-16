@@ -24,13 +24,19 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="AUR - Asia University Ranking API", version="1.0.0", lifespan=lifespan)
 
+import os
+
+# Reads production URL(s) from environment variables, falls back to local dev
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+origins = [origin.strip() for origin in frontend_url.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://aur-frontend.vercel.app", "https://aur-frontend-git-main-aur-frontend.vercel.app"],
-    allow_credentials=True,
+    allow_origins=origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 app.include_router(universities.router)
 app.include_router(rankings.router)

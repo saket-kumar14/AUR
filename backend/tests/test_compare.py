@@ -64,7 +64,7 @@ def test_compare_single_id():
         "/api/compare/?ids=peking-university"
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 422
 
 
 def test_compare_more_than_five():
@@ -147,8 +147,9 @@ def test_compare_exactly_five():
 def test_compare_error_message_single():
     response = client.get("/api/compare/?ids=peking-university")
 
-    assert response.status_code == 400
+    assert response.status_code == 422
     assert response.json()["detail"] == "Please provide at least 2 university IDs"
+
 
 def test_compare_error_message_max():
     response = client.get("/api/compare/?ids=a,b,c,d,e,f")

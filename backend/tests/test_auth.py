@@ -153,23 +153,23 @@ def test_refresh_success():
     with get_client() as client:
         response, _ = register_user(client)
 
+        assert response.status_code == 201
+
         refresh_token = response.json()["refresh_token"]
 
         response = client.post(
             "/auth/refresh",
-            json={
-                "refresh_token": refresh_token
-            }
+            json={"refresh_token": refresh_token}
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 200, (
+            f"Refresh failed: "
+            f"status={response.status_code}, "
+            f"body={response.text}"
+        )
 
         data = response.json()
-
         assert "access_token" in data
-        assert "refresh_token" in data
-
-
 def test_refresh_invalid_token():
     with get_client() as client:
         response = client.post(

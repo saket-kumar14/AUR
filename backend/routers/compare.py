@@ -18,7 +18,7 @@ def compare_universities(
     id_list = [i.strip() for i in ids.split(",")]
     
     if len(id_list) < 2:
-        raise HTTPException(status_code=400, detail="Please provide at least 2 university IDs")
+        raise HTTPException(status_code=422, detail="Please provide at least 2 university IDs")
     
     if len(id_list) > 5:
         raise HTTPException(status_code=400, detail="Maximum 5 universities can be compared at once")

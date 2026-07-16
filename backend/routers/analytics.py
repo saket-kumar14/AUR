@@ -9,7 +9,8 @@ from schemas import (
     CountryCount,
     TopUniversity,
     SubregionCount,
-    CountryAverageScore
+    CountryAverageScore,
+    TopMover
 )
 
 router = APIRouter(prefix="/api/insights", tags=["Insights"])
@@ -175,3 +176,29 @@ def country_average_score():
         key=lambda x: x["average_score"],
         reverse=True
     )
+
+@router.get("/top-movers", response_model=list[TopMover])
+def top_movers(limit: int = 10):
+    data = get_data()
+    movers = []
+    
+    for uni in data:
+        rank_2026 = uni.get("rank")
+        rank_2025 = uni.get("rank_2025")
+        
+        if rank_2026 is not None and rank_2025 is not None:
+            # Rank improvement is calculated as previous rank minus current rank
+            # e.g., rank 10 in 2025 to rank 7 in 2026 is an improvement of +3.
+            improvement = rank_2025 - rank_2026
+            movers.append({
+                "id": uni.get("id"),
+                "name": uni.get("name"),
+                "country": uni.get("location"),
+                "rank_2026": rank_2026,
+                "rank_2025": rank_2025,
+                "improvement": improvement
+            })
+            
+    # Sort descending so top movers (largest positive rank improvements) are first
+    movers.sort(key=lambda x: x["improvement"], reverse=True)
+    return movers[:limit]

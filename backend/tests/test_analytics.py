@@ -187,3 +187,23 @@ def test_country_average_positive():
 
     for item in data:
         assert item["average_score"] >= 0
+
+def test_top_movers_endpoint():
+    response = client.get("/api/insights/top-movers")
+    assert response.status_code == 200
+    
+    data = response.json()
+    assert isinstance(data, list)
+    
+    if len(data) > 0:
+        mover = data[0]
+        assert "id" in mover
+        assert "name" in mover
+        assert "improvement" in mover
+        
+        # Verify rank improvement math formula
+        assert mover["improvement"] == mover["rank_2025"] - mover["rank_2026"]
+        
+        # Verify sorted descending by improvement
+        improvements = [x["improvement"] for x in data]
+        assert improvements == sorted(improvements, reverse=True)

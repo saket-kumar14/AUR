@@ -110,6 +110,14 @@ class CountryAverageScore(BaseModel):
     country: str
     average_score: float    
 
+class TopMover(BaseModel):
+    id: str
+    name: str
+    country: str
+    rank_2026: Optional[int] = None
+    rank_2025: Optional[int] = None
+    improvement: int
+
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 import uuid
