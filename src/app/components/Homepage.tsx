@@ -26,7 +26,9 @@ import {
   Plus,
 } from "lucide-react";
 import { FEATURED_ARTICLES, University, Article } from "../data";
-import { BLOG_CATEGORY_TABS, getPublishedStoredBlogs, storedBlogToArticle } from "../lib/blog-storage";
+import { INSIGHTS } from "../data/insights";
+import { getPublishedStoredBlogs, storedBlogToArticle } from "../lib/blog-storage";
+import InsightCard from "./insights/InsightCard";
 import { useUniversityData } from "./data/UniversityDataProvider";
 import { useSidebar } from "./navigation/SidebarContext";
 import "./home/ref-home.css";
@@ -489,7 +491,6 @@ export default function Homepage({
 
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
-  const [articleTab, setArticleTab] = useState<"featured" | "reports" | "insights">("featured");
   const [createdArticles, setCreatedArticles] = useState<Article[]>([]);
 
   const heroImages = useMemo(() => [
@@ -525,15 +526,6 @@ export default function Homepage({
     () => [...createdArticles, ...FEATURED_ARTICLES],
     [createdArticles]
   );
-
-  const displayedArticles = useMemo(() => {
-    const localArticlesForTab = createdArticles.filter((article) => {
-      const category = article.category as keyof typeof BLOG_CATEGORY_TABS | undefined;
-      return category ? BLOG_CATEGORY_TABS[category] === articleTab : false;
-    });
-
-    return articleTab === "featured" ? [...localArticlesForTab, ...FEATURED_ARTICLES] : localArticlesForTab;
-  }, [articleTab, createdArticles]);
 
   useEffect(() => {
     if (searchQuery.trim().length === 0) {
@@ -1003,51 +995,16 @@ export default function Homepage({
             Create Blog
           </Link>
         </div>
-        <div className="ref-article-tabs flex gap-6 border-b border-[var(--ref-border)] mb-6">
-          {(
-            [
-              { id: "featured" as const, label: "Featured Insights" },
-              { id: "reports" as const, label: "Latest Reports" },
-              { id: "insights" as const, label: "Regional Briefings" },
-            ] as const
-          ).map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setArticleTab(tab.id)}
-              className={`pb-3 text-xs font-bold uppercase tracking-wider transition-colors ${articleTab === tab.id ? "active" : "text-[var(--ref-muted)]"}`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="mb-4 border-b border-[var(--ref-border)] pb-3">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#1A365D]">Featured Insights</h3>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"    >
-          {displayedArticles.map((article) => (
-            <button
-              key={article.id}
-              type="button"
-
-              onClick={() => onArticleSelect(article)}
-              className="ref-card text-left overflow-hidden group hover:border-blue-300 transition-colors"
-            >
-              <div className="aspect-video overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={article.image}
-                  alt=""
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-              <div className="p-4">
-                <span className="ref-label text-[9px]">Insight</span>
-                <h3 className="font-bold text-sm mt-2 mb-2 line-clamp-2 text-slate-800 group-hover:text-[#1A365D] transition-colors">
-                  {article.title}
-                </h3>
-                <p className="text-xs text-[var(--ref-muted)] line-clamp-2 mb-3">{article.contentSummary}</p>
-                <span className="text-[10px] text-[var(--ref-muted)]">{article.date} · {article.readTime}</span>
-              </div>
-            </button>
-          ))}
+        <div className="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {INSIGHTS.slice(0, 3).map((insight) => <InsightCard key={insight.id} insight={insight} />)}
+        </div>
+        <div className="mt-7 flex justify-center">
+          <Link href="/insights" className="ref-btn-outline px-6 text-[11px] uppercase tracking-wider">
+            More Insights <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
         </div>
       </RevealSection>
 

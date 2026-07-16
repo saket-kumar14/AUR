@@ -20,7 +20,6 @@ def safe_float(val):
 
 def load_universities():
     df = pd.read_excel(DATA_PATH, header=2, skiprows=[3])
-    df = df.iloc[1:].reset_index(drop=True)
 
     df.columns = [
         "index", "rank_2026", "rank_2025", "institution", "country", "subregion",
