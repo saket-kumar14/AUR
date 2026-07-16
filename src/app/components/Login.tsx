@@ -2,6 +2,7 @@
 
 import "./Login.css";
 import React, { useState } from "react";
+import { API_BASE_URL } from "../lib/universities";
 
 import {
   ArrowRight,
@@ -158,49 +159,17 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // 2. Prepare API payload and secure headers
-      // BACKEND TEAM: Update this endpoint to your actual authentication service.
-      const endpoint = isLogin ? "/api/v1/auth/login" : "/api/v1/auth/register";
-      const payload = isLogin 
+      // Split full name into first/last for backend, which expects both separately
+      const [firstName, ...rest] = name.trim().split(" ");
+      const lastName = rest.join(" ") || firstName;
+
+      const endpoint = isLogin ? `${API_BASE_URL}/auth/login` : `${API_BASE_URL}/auth/register`;
+      const payload = isLogin
         ? { email: email.trim(), password }
-        : { email: email.trim(), password, name: name.trim() };
+        : { first_name: firstName, last_name: lastName, email: email.trim(), password };
 
-      // Set a strict timeout to prevent hanging requests
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-
-      // ----------------------------------------------------------------------
-      // MOCK DEMO LOGIC - Remove in Production
-      // ----------------------------------------------------------------------
-      const isMockDemo = true; 
-      
-      if (isMockDemo) {
-        await new Promise(r => setTimeout(r, 1000));
-        clearTimeout(timeoutId);
-
-        if (isLogin) {
-          if (email === "admin" && password === "admin") {
-            localStorage.setItem("aur_logged_in", "true");
-            handleViewChange("admin");
-            return;
-          } else if (email === "user@aur.edu" && password === "user123") {
-            localStorage.setItem("aur_logged_in", "true");
-            handleViewChange("home");
-            return;
-          } else if (password.length >= 6 && email.includes("@")) {
-            localStorage.setItem("aur_logged_in", "true");
-            handleViewChange("home");
-            return;
-          } else {
-            throw new Error("Invalid credentials. Use a valid account.");
-          }
-        } else {
-          localStorage.setItem("aur_logged_in", "true");
-          handleViewChange("home");
-          return;
-        }
-      }
-      // ----------------------------------------------------------------------
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       // --- REAL API INTEGRATION START ---
       const response = await fetch(endpoint, {
@@ -226,20 +195,13 @@ export default function Login() {
       }
 
       const data = await response.json();
-      
-      // 3. Handle Secure Token Storage
-      // BACKEND TEAM: HttpOnly cookies are strongly recommended over localStorage for JWTs to prevent XSS.
-      // If you must use local storage, it goes here:
-      if (data.token) {
-        // sessionStorage.setItem("aur_session", data.token);
-      }
 
-      // 4. Redirect on success
-      if (data.role === "admin") {
-        handleViewChange("admin");
-      } else {
-        handleViewChange("home");
-      }
+      // Store tokens (sessionStorage used here; swap to HttpOnly cookies server-side later for better security)
+      sessionStorage.setItem("aur_access_token", data.access_token);
+      sessionStorage.setItem("aur_refresh_token", data.refresh_token);
+      localStorage.setItem("aur_logged_in", "true");
+
+      handleViewChange("home");
       // --- REAL API INTEGRATION END ---
 
     } catch (err: any) {
