@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from routers import membership
+from routers import faculty_student_awards
 
 
 from database.connections import close_db, close_redis
@@ -15,6 +16,7 @@ from routers import newsletter
 from routers import news
 from routers import methodology
 from routers import events
+from routers import notifications
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -51,7 +53,9 @@ app.include_router(newsletter.router)
 app.include_router(news.router)
 app.include_router(methodology.router)
 app.include_router(events.router)
+app.include_router(notifications.router)
 app.include_router(membership.router)
+app.include_router(faculty_student_awards.router)
 
 @app.get("/")
 def root():
