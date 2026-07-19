@@ -164,7 +164,12 @@ class RankingScore(Base):
     ifr_score      = Column(Float)   
     isr_score      = Column(Float)   
     inbound_score  = Column(Float)   
-    outbound_score = Column(Float)   
+    outbound_score = Column(Float)
+    research_output_score = Column(Float)
+    research_impact_score = Column(Float)
+    graduate_employability_score = Column(Float)
+    industry_income_score = Column(Float)
+    the_rank = Column(String(50))   
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 

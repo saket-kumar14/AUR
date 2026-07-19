@@ -18,7 +18,7 @@ from routers import news
 from routers import methodology
 from routers import events
 from routers import notifications
-from routers import blogs
+# from routers import blogs  # TEMP: disabled, broken relative import in blogs.py, rn by urvi- resume when needed
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -59,7 +59,7 @@ app.include_router(events.router)
 app.include_router(notifications.router)
 app.include_router(membership.router)
 app.include_router(faculty_student_awards.router)
-app.include_router(blogs.router)
+# app.include_router(blogs.router)  # TEMP: disabled, see line 21
 
 @app.get("/")
 def root():
