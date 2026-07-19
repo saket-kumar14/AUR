@@ -49,11 +49,14 @@ class User(Base):
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
     email = Column(String(100), unique=True, nullable=False, index=True)
-    password_hash = Column(Text, nullable=False)
+    password_hash = Column(Text, nullable=True)
     role = Column(String(50), nullable=False, default="user")  # "user" or "admin"
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     preferences = Column(JSONB, nullable=True, default=dict)
+    oauth_provider = Column(String(20), nullable=True)   # "google" or "github"
+    oauth_id = Column(String(255), nullable=True, index=True)
+
     # relationships
     saved_universities = relationship("SavedUniversity", back_populates="user", 
                                       cascade="all, delete-orphan", lazy="selectin")
