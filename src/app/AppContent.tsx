@@ -219,6 +219,28 @@ useEffect(() => {
     router.push(`?view=login&mode=${mode}`);
   };
 
+  const handleSignOut = async () => {
+    const refreshToken = sessionStorage.getItem("aur_refresh_token");
+
+    try {
+      if (refreshToken) {
+        await fetch(`${API_BASE_URL}/auth/logout`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refresh_token: refreshToken }),
+        });
+      }
+    } catch {
+      // Local session cleanup must still complete if the API is unavailable.
+    } finally {
+      sessionStorage.removeItem("aur_access_token");
+      sessionStorage.removeItem("aur_refresh_token");
+      localStorage.removeItem("aur_logged_in");
+      window.dispatchEvent(new Event("aur-auth-change"));
+      router.push("?view=login&mode=login");
+    }
+  };
+
   const showSidebar = view !== "home" && view !== "login" && view !== "admin";
 
   return (
@@ -229,6 +251,7 @@ useEffect(() => {
           isAuthenticated={isAuthenticated}
           onLogIn={() => openAuth("login")}
           onSignUp={() => openAuth("signup")}
+          onSignOut={handleSignOut}
         />
       )}
 
@@ -351,7 +374,7 @@ useEffect(() => {
                   window.location.reload();
                 }
               }}
-              onSignOut={() => handleViewChange("login")}
+              onSignOut={handleSignOut}
             />
           )}
 

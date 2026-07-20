@@ -31,12 +31,14 @@ interface NavbarProps {
   isAuthenticated?: boolean;
   onLogIn?: () => void;
   onSignUp?: () => void;
+  onSignOut?: () => void;
 }
 
 export default function Navbar({
   isAuthenticated = true,
   onLogIn,
   onSignUp,
+  onSignOut,
 }: NavbarProps) {
   const { showToast } = useToast();
   const {
@@ -156,16 +158,6 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
   const initials = currentUser
     ? `${currentUser.first_name[0] ?? ""}${currentUser.last_name !== "-" ? currentUser.last_name[0] ?? "" : ""}`.toUpperCase()
     : "...";
-
-  function signOut() {
-    sessionStorage.removeItem("aur_access_token");
-    sessionStorage.removeItem("aur_refresh_token");
-    localStorage.removeItem("aur_logged_in");
-    setCurrentUser(null);
-    window.dispatchEvent(new Event("aur-auth-change"));
-    handleViewChange("login");
-    setShowProfileMenu(false);
-  }
 
   return (
     <header
@@ -346,7 +338,11 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                   ))}
                   <div className="border-t border-[var(--aur-border)] my-1" />
                   <button
-                    onClick={signOut}
+                    onClick={() => {
+                      setCurrentUser(null);
+                      setShowProfileMenu(false);
+                      onSignOut?.();
+                    }}
                     className="w-full text-left px-4 py-2.5 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center gap-2.5 transition-colors"
                   >
                     <LogOut className="h-3.5 w-3.5" />
