@@ -87,6 +87,7 @@ async def fetch_external_news(query: str = "higher education Asia university", l
         "lang": "en",
         "max": fetch_count,
         "apikey": GNEWS_API_KEY,
+        "in": "title,description",
     }
 
     try:
