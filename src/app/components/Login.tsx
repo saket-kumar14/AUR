@@ -105,10 +105,10 @@ function GithubIcon() {
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-export default function Login() {
+export default function Login({ initialMode = "login" }: { initialMode?: "login" | "signup" }) {
   const { handleViewChange} = useSidebar();
 
-  const [isLogin, setIsLogin]             = useState(true);
+  const [isLogin, setIsLogin]             = useState(initialMode === "login");
   const [dir, setDir]                     = useState(1);
   const [email, setEmail]                 = useState("");
   const [password, setPassword]           = useState("");
@@ -159,14 +159,10 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // Split full name into first/last for backend, which expects both separately
-      const [firstName, ...rest] = name.trim().split(" ");
-      const lastName = rest.join(" ") || firstName;
-
       const endpoint = isLogin ? `${API_BASE_URL}/auth/login` : `${API_BASE_URL}/auth/register`;
       const payload = isLogin
         ? { email: email.trim(), password }
-        : { first_name: firstName, last_name: lastName, email: email.trim(), password };
+        : { full_name: name.trim(), email: email.trim(), password };
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -191,7 +187,7 @@ export default function Login() {
         if (response.status === 401) throw new Error("Invalid credentials. Please try again.");
         if (response.status === 403) throw new Error("Account locked or access denied.");
         if (response.status === 429) throw new Error("Too many attempts. Please try again later.");
-        throw new Error(errorData.message || "An error occurred during authentication.");
+        throw new Error(errorData.detail || errorData.message || "An error occurred during authentication.");
       }
 
       const data = await response.json();
@@ -199,6 +195,7 @@ export default function Login() {
       // Store tokens (sessionStorage used here; swap to HttpOnly cookies server-side later for better security)
       sessionStorage.setItem("aur_access_token", data.access_token);
       sessionStorage.setItem("aur_refresh_token", data.refresh_token);
+      window.dispatchEvent(new Event("aur-auth-change"));
       localStorage.setItem("aur_logged_in", "true");
 
       handleViewChange("home");
@@ -463,7 +460,11 @@ export default function Login() {
 
                 {/* Social buttons */}
                 <div className="lp-social-row">
-                  <button type="button" className="lp-social-btn">
+                  <button
+                    type="button"
+                    className="lp-social-btn"
+                    onClick={() => { window.location.href = `${API_BASE_URL}/auth/google/login`; }}
+                  >
                     <GoogleIcon/> Google
                   </button>
                   <button type="button" className="lp-social-btn">
@@ -492,5 +493,3 @@ export default function Login() {
     </div>
   );
 }
-
-

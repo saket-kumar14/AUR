@@ -1,24 +1,27 @@
 # Pending / Parked Work
 
-## OAuth (Google/GitHub Login) — PARKED
-Status: Not started. Confirmed on 2026-07-11 — zero OAuth code exists anywhere
-in the backend (`Select-String` across all .py files returned nothing).
+## OAuth (Google Login) — ✅ DONE (2026-07-20)
 
-Buttons exist in `Login.tsx` (`lp-social-btn` for Google/GitHub) but have
-no `onClick` — fully decorative right now.
+### What was built
+- **Backend** (`auth/oauth.py`): `/auth/google/login` + `/auth/google/callback` routes
+  using `authlib`. Callback runs `find_or_create_oauth_user()` and issues JWT tokens,
+  then redirects to `FRONTEND_REDIRECT_URL`.
+- **Frontend** (`Login.tsx`): Google button wired with `onClick` → `window.location.href = API_BASE_URL + /auth/google/login`
+- **Frontend** (`src/app/oauth/success/page.tsx`): Catches the backend redirect,
+  reads `?access_token=&refresh_token=` from URL, stores to sessionStorage/localStorage,
+  redirects to `/?view=home`.
 
-To actually build this later, needed:
-1. Register app on Google Cloud Console → get OAuth client ID + secret
-2. Register app on GitHub Developer Settings → get client ID + secret
-3. Add backend routes: `/auth/google/login`, `/auth/google/callback`,
-   `/auth/github/login`, `/auth/github/callback` (in `auth.py`)
-4. Store client secrets in `.env`, never commit them
-5. Wire frontend buttons to redirect to those backend routes
-6. Handle the callback → issue JWT same way normal login does
+### Env vars required (all set in Render + Vercel)
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` → Render backend
+- `SESSION_SECRET_KEY` → Render backend
+- `FRONTEND_REDIRECT_URL=https://aur-tau.vercel.app/oauth/success` → Render backend
+- `NEXT_PUBLIC_AUR_API_BASE_URL=https://aur-38ce.onrender.com` → Vercel frontend
 
-Blocked on: you creating the two developer console apps yourself
-(requires your own Google/GitHub account access — I can't do this part).
-```
+### Google Cloud Console must have
+- Authorized redirect URI: `https://aur-38ce.onrender.com/auth/google/callback`
+- Authorized JS origin: `https://aur-tau.vercel.app`
+
+GitHub OAuth: still decorative (button has no onClick). Needs GitHub app credentials.
 
 
 
