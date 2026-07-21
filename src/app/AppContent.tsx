@@ -26,7 +26,6 @@ import { useSidebar } from "./components/navigation/SidebarContext";
 import { useUniversityData } from "./components/data/UniversityDataProvider";
 import { Article, MOCK_UNIVERSITIES } from "./data";
 import { Bookmark, ShieldAlert } from "lucide-react";
-import Sidebar from "./components/sidebar/Sidebar";
 import { API_BASE_URL } from "./lib/universities";
 import DiscoveryJoinModal from "./components/DiscoveryJoinModal";
 
@@ -46,7 +45,6 @@ export default function AppContent() {
     handleToggleCompare,
     handleRemoveCompare,
     handleClearCompare,
-    isCollapsed,
     searchQuery,
     setSearchQuery,
   } = useSidebar();
@@ -199,8 +197,6 @@ useEffect(() => {
   // Get selected universities for Saved view
   const savedUniversities = universities.filter((u) => savedUniIds.includes(u.id));
 
-  // Show sidebar for non-home views
-  const showSidebar = view !== "home" && view !== "login" && view !== "admin";
   useEffect(() => {
     const syncAuth = () => {
       setIsAuthenticated(Boolean(sessionStorage.getItem("aur_access_token")));
@@ -259,15 +255,7 @@ useEffect(() => {
       )}
 
       {/* Main Core Layout */}
-      <div className="flex-grow flex w-full">
-        
-        {/* Collapsible Left Sidebar — shown on non-home views */}
-        {showSidebar && (
-          <Sidebar
-            isAuthenticated={isAuthenticated}
-          />
-        )}
-
+      <div className="flex w-full grow">
         {/* Main Content Area — Full Width */}
         <main
           className={`flex-1 flex flex-col min-w-0 pb-20 md:pb-0 ${
