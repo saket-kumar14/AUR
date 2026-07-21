@@ -86,7 +86,11 @@ export default function Navbar({
     }
 
     fetchCurrentUser();
-    return () => controller.abort();
+    window.addEventListener("aur-profile-change", fetchCurrentUser);
+    return () => {
+      controller.abort();
+      window.removeEventListener("aur-profile-change", fetchCurrentUser);
+    };
   }, [isAuthenticated]);
 
   // Click outside menus to close
@@ -323,7 +327,7 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                     <span className="block text-[10px] text-[var(--aur-text-muted)] mt-0.5 break-all">{currentUser?.email ?? "Fetching account details"}</span>
                   </div>
                   {[
-                    { label: "My Profile", icon: User, action: () => handleViewChange("settings") },
+                    { label: "My Profile", icon: User, action: () => handleViewChange("profile") },
                     ...(currentUser?.role === "admin" ? [{ label: "Admin Console", icon: Shield, action: () => handleViewChange("admin") }] : []),
                     { label: "Settings", icon: Shield, action: () => handleViewChange("settings") },
                   ].map((item) => (

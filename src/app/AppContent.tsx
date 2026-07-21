@@ -30,6 +30,7 @@ import { Bookmark, ShieldAlert } from "lucide-react";
 import Sidebar from "./components/sidebar/Sidebar";
 import { API_BASE_URL } from "./lib/universities";
 import DiscoveryJoinModal from "./components/DiscoveryJoinModal";
+import ProfileSection from "./components/ProfileSection";
 
 export default function AppContent() {
   const router = useRouter();
@@ -352,6 +353,8 @@ useEffect(() => {
           {view === "login" && (
             <Login initialMode={searchParams.get("mode") === "signup" ? "signup" : "login"} />
           )}
+
+          {view === "profile" && <ProfileSection />}
 
           {/* User Dashboard (Combines Saved & Settings) */}
           {view === "settings" && (
