@@ -1,3 +1,5 @@
+from starlette.middleware.sessions import SessionMiddleware
+from auth.oauth import router as oauth_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -39,7 +41,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+app.add_middleware(SessionMiddleware, secret_key=os.getenv("SESSION_SECRET_KEY"))
 
 
 app.include_router(universities.router)
@@ -58,7 +60,8 @@ app.include_router(chat_router)
 app.include_router(events.router)
 app.include_router(notifications.router)
 app.include_router(faculty_student_awards.router)
-# app.include_router(blogs.router)  # TEMP: disabled, see line 21
+app.include_router(oauth_router)
+# app.include_router(blogs.router)  # TEMP: disabled, broken relative import in blogs.py
 
 @app.get("/")
 def root():

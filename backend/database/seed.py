@@ -1,4 +1,3 @@
-
 import os
 import asyncio
 import sys
@@ -12,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from database.connections import AsyncSessionLocal, redis_client
-from database.models import RankingScore, University, MembershipTier
+from database.models import RankingScore, University
 
 # need to change after the original data is added
 DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "qs_asia_2026.xlsx")
@@ -164,46 +163,9 @@ async def seed(session: AsyncSession) -> None:
     print(f"  Rows skipped (empty)  : {skipped}")
 
 
-async def seed_membership_tiers(session: AsyncSession) -> None:
-    tiers_data = [
-        {
-            "name": "Basic",
-            "price": 999,
-            "duration_months": 12,
-            "benefits": ["Profile verification", "Participation in events and awards"],
-        },
-        {
-            "name": "Premium",
-            "price": 2999,
-            "duration_months": 12,
-            "benefits": [
-                "Profile verification",
-                "Advanced analytics",
-                "Institutional data submissions",
-                "Participation in events and awards",
-            ],
-        },
-    ]
-
-    inserted_tiers = 0
-    for tier_data in tiers_data:
-        result = await session.execute(
-            select(MembershipTier).where(MembershipTier.name == tier_data["name"])
-        )
-        tier = result.scalar_one_or_none()
-
-        if tier is None:
-            tier = MembershipTier(**tier_data)
-            session.add(tier)
-            inserted_tiers += 1
-
-    await session.commit()
-    print(f"Membership tiers inserted: {inserted_tiers}")
-
 async def main() -> None:
     async with AsyncSessionLocal() as session:
         await seed(session)
-        await seed_membership_tiers(session)
 
 
 if __name__ == "__main__":
