@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 # ensure backend/ is on sys.path when run as a module
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from database.connections import AsyncSessionLocal
+from database.connections import AsyncSessionLocal, redis_client
 from database.models import RankingScore, University, MembershipTier
 
 # need to change after the original data is added
@@ -148,7 +148,16 @@ async def seed(session: AsyncSession) -> None:
                 inserted_scores += 1
 
     await session.commit()
-
+    # Clear Redis cache after importing a new dataset
+    try:
+        await redis_client.delete(
+            "countries:list",
+            "analytics:summary",
+        )
+        print("Redis cache invalidated.")
+    except Exception as e:
+        print(f"Redis cache invalidation failed: {e}")
+    
     print(f"Seed Complete:")
     print(f"  Universities inserted : {inserted_universities}")
     print(f"  Ranking scores inserted: {inserted_scores}")
