@@ -175,11 +175,14 @@ async def publish_dataset(
     }
 
     PUBLISH_FILE.write_text(json.dumps(info, indent=4))
+
+    # Clear Redis cache after publishing a new dataset
     try:
         await redis.delete("countries:list")
         await redis.delete("analytics:summary")
     except Exception:
         pass
+
     return info
 
 

@@ -1,5 +1,3 @@
-#  python -m backend.database.seed
-
 import os
 import asyncio
 import sys
@@ -12,8 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 # ensure backend/ is on sys.path when run as a module
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from database.connections import AsyncSessionLocal
-from database.models import RankingScore, University, MembershipTier
+from database.connections import AsyncSessionLocal, redis_client
+from database.models import RankingScore, University
 
 # need to change after the original data is added
 DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "qs_asia_2026.xlsx")
@@ -149,53 +147,25 @@ async def seed(session: AsyncSession) -> None:
                 inserted_scores += 1
 
     await session.commit()
-
+    # Clear Redis cache after importing a new dataset
+    try:
+        await redis_client.delete(
+            "countries:list",
+            "analytics:summary",
+        )
+        print("Redis cache invalidated.")
+    except Exception as e:
+        print(f"Redis cache invalidation failed: {e}")
+    
     print(f"Seed Complete:")
     print(f"  Universities inserted : {inserted_universities}")
     print(f"  Ranking scores inserted: {inserted_scores}")
     print(f"  Rows skipped (empty)  : {skipped}")
 
 
-async def seed_membership_tiers(session: AsyncSession) -> None:
-    tiers_data = [
-        {
-            "name": "Basic",
-            "price": 999,
-            "duration_months": 12,
-            "benefits": ["Profile verification", "Participation in events and awards"],
-        },
-        {
-            "name": "Premium",
-            "price": 2999,
-            "duration_months": 12,
-            "benefits": [
-                "Profile verification",
-                "Advanced analytics",
-                "Institutional data submissions",
-                "Participation in events and awards",
-            ],
-        },
-    ]
-
-    inserted_tiers = 0
-    for tier_data in tiers_data:
-        result = await session.execute(
-            select(MembershipTier).where(MembershipTier.name == tier_data["name"])
-        )
-        tier = result.scalar_one_or_none()
-
-        if tier is None:
-            tier = MembershipTier(**tier_data)
-            session.add(tier)
-            inserted_tiers += 1
-
-    await session.commit()
-    print(f"Membership tiers inserted: {inserted_tiers}")
-
 async def main() -> None:
     async with AsyncSessionLocal() as session:
         await seed(session)
-        await seed_membership_tiers(session)
 
 
 if __name__ == "__main__":

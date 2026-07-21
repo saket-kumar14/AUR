@@ -93,9 +93,11 @@ const updatePreference = async (key: string, value: boolean) => {
   }
 };
 
-const getAuthHeaders = () => ({
-  Authorization: `Bearer ${sessionStorage.getItem("aur_access_token")}`,
-});
+function getAuthHeaders() {
+  return {
+    Authorization: `Bearer ${sessionStorage.getItem("aur_access_token")}`,
+  };
+}
 
 // Load university directory (slug name -> real UUID) once
 useEffect(() => {
@@ -315,8 +317,7 @@ useEffect(() => {
             />
           )}
 
-          {activeView === "membership" && <Membership />}
-      
+
           {activeView === "create-blog" && <BlogForm />}
       
           {activeView === "university-profile" && selectedUniId && (

@@ -460,7 +460,11 @@ export default function Login({ initialMode = "login" }: { initialMode?: "login"
 
                 {/* Social buttons */}
                 <div className="lp-social-row">
-                  <button type="button" className="lp-social-btn">
+                  <button
+                    type="button"
+                    className="lp-social-btn"
+                    onClick={() => { window.location.href = `${API_BASE_URL}/auth/google/login`; }}
+                  >
                     <GoogleIcon/> Google
                   </button>
                   <button type="button" className="lp-social-btn">
