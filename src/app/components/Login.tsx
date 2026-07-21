@@ -96,19 +96,11 @@ function GoogleIcon() {
   );
 }
 
-function GithubIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844a9.59 9.59 0 012.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-    </svg>
-  );
-}
-
 // ─── Main ─────────────────────────────────────────────────────────────────────
-export default function Login() {
+export default function Login({ initialMode = "login" }: { initialMode?: "login" | "signup" }) {
   const { handleViewChange} = useSidebar();
 
-  const [isLogin, setIsLogin]             = useState(true);
+  const [isLogin, setIsLogin]             = useState(initialMode === "login");
   const [dir, setDir]                     = useState(1);
   const [email, setEmail]                 = useState("");
   const [password, setPassword]           = useState("");
@@ -159,14 +151,10 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // Split full name into first/last for backend, which expects both separately
-      const [firstName, ...rest] = name.trim().split(" ");
-      const lastName = rest.join(" ") || firstName;
-
       const endpoint = isLogin ? `${API_BASE_URL}/auth/login` : `${API_BASE_URL}/auth/register`;
       const payload = isLogin
         ? { email: email.trim(), password }
-        : { first_name: firstName, last_name: lastName, email: email.trim(), password };
+        : { full_name: name.trim(), email: email.trim(), password };
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -191,7 +179,7 @@ export default function Login() {
         if (response.status === 401) throw new Error("Invalid credentials. Please try again.");
         if (response.status === 403) throw new Error("Account locked or access denied.");
         if (response.status === 429) throw new Error("Too many attempts. Please try again later.");
-        throw new Error(errorData.message || "An error occurred during authentication.");
+        throw new Error(errorData.detail || errorData.message || "An error occurred during authentication.");
       }
 
       const data = await response.json();
@@ -199,6 +187,7 @@ export default function Login() {
       // Store tokens (sessionStorage used here; swap to HttpOnly cookies server-side later for better security)
       sessionStorage.setItem("aur_access_token", data.access_token);
       sessionStorage.setItem("aur_refresh_token", data.refresh_token);
+      window.dispatchEvent(new Event("aur-auth-change"));
       localStorage.setItem("aur_logged_in", "true");
 
       handleViewChange("home");
@@ -227,7 +216,7 @@ export default function Login() {
         <div className="absolute inset-0 z-0 overflow-hidden">
           <CanvasRevealEffect
             animationSpeed={3}
-            containerClassName="bg-black"
+            containerClassName="bg-cyber-black"
             colors={[
               [255, 255, 255],
               [255, 255, 255],
@@ -237,11 +226,11 @@ export default function Login() {
             showGradient={false}
           />
           {/* Radial vignette so center stays dark and readable */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(0,0,0,0.85)_0%,_transparent_70%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(127, 86, 217, 0.85)_0%,_transparent_70%)]" />
           {/* Top fade */}
-          <div className="absolute top-0 left-0 right-0 h-1/4 bg-gradient-to-b from-black to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-1/4 bg-gradient-to-b from-cyber-black to-transparent" />
           {/* Bottom fade */}
-          <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-black to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-cyber-black to-transparent" />
         </div>
       <div className="lp-bg-grid relative z-10"/>
 
@@ -463,11 +452,12 @@ export default function Login() {
 
                 {/* Social buttons */}
                 <div className="lp-social-row">
-                  <button type="button" className="lp-social-btn">
+                  <button
+                    type="button"
+                    className="lp-social-btn"
+                    onClick={() => { window.location.href = `${API_BASE_URL}/auth/google/login`; }}
+                  >
                     <GoogleIcon/> Google
-                  </button>
-                  <button type="button" className="lp-social-btn">
-                    <GithubIcon/> GitHub
                   </button>
                 </div>
 

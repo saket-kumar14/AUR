@@ -18,8 +18,8 @@ Tables
 
 import uuid
 
-from sqlalchemy import (Boolean, Column, Integer, Numeric, String, Float, Text, 
-                        Date, DateTime, ForeignKey, UniqueConstraint, text)
+from sqlalchemy import (Boolean, Column, Integer, Numeric, String, Float, Text,
+                        Date, DateTime, ForeignKey, UniqueConstraint, text, JSON)
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
@@ -29,6 +29,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 
 Base = declarative_base()
+PortableJSON = JSON().with_variant(JSONB(), "postgresql")
 
 
 # Users
@@ -49,11 +50,15 @@ class User(Base):
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
     email = Column(String(100), unique=True, nullable=False, index=True)
-    password_hash = Column(Text, nullable=False)
+    password_hash = Column(Text, nullable=True)
     role = Column(String(50), nullable=False, default="user")  # "user" or "admin"
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    preferences = Column(PortableJSON, nullable=True, default=dict)
     preferences = Column(JSONB, nullable=True, default=dict)
+    oauth_provider = Column(String(20), nullable=True)   # "google" or "github"
+    oauth_id = Column(String(255), nullable=True, index=True)
+
     # relationships
     saved_universities = relationship("SavedUniversity", back_populates="user", 
                                       cascade="all, delete-orphan", lazy="selectin")
@@ -72,7 +77,7 @@ class FacultyStudentNomination(Base):
     department = Column(String, nullable=False)
     university_id = Column(UUID(as_uuid=True), ForeignKey("universities.id"), nullable=False)
     justification = Column(Text, nullable=False)
-    documents = Column(JSONB, nullable=True, default=list)
+    documents = Column(PortableJSON, nullable=True, default=list)
     status = Column(String, default="pending_review")
     submitted_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
@@ -351,7 +356,7 @@ class Application(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
     event_id = Column(UUID(as_uuid=True), ForeignKey("events.id", ondelete="CASCADE"), nullable=False, index=True)
     university_id = Column(UUID(as_uuid=True), ForeignKey("universities.id", ondelete="CASCADE"), nullable=False, index=True)
-    documents = Column(JSONB, nullable=True, default=list)   # list of uploaded file paths
+    documents = Column(PortableJSON, nullable=True, default=list)   # list of uploaded file paths
     status = Column(String(20), default="submitted")         # submitted / under_review / shortlisted / winner / rejected
 
     submitted_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
@@ -396,7 +401,7 @@ class MembershipTier(Base):
     name = Column(String(50), nullable=False)          # "Basic" / "Premium"
     price = Column(Numeric(10, 2), nullable=False)
     duration_months = Column(Integer, nullable=False)
-    benefits = Column(JSONB, nullable=False, default=list)  # list of benefit strings
+    benefits = Column(PortableJSON, nullable=False, default=list)  # list of benefit strings
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
