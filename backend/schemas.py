@@ -136,25 +136,6 @@ class NewsletterSubscriberResponse(BaseModel):
     class Config:
         from_attributes = True  
 
-class NewsItemResponse(BaseModel):
-    id: str
-    university_id: str
-    headline: str
-    category: str
-    published_date: datetime
-    rank_change: Optional[str] = None
-
-    model_config = ConfigDict(from_attributes = True)    
-
-class NewsFlashResponse(BaseModel):
-    data: List[NewsItemResponse]
-
-class NewsListResponse(BaseModel):
-    page: int
-    limit: int
-    total: int
-    data: List[NewsItemResponse]    
-
 class ExternalNewsItem(BaseModel):
     """
     Shape for a single article pulled live from GNews.
