@@ -62,6 +62,7 @@ export default function Navbar({
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
+  // Fetch the real logged-in user's profile
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -109,29 +110,29 @@ export default function Navbar({
 
   // Fetch real notifications from backend
   useEffect(() => {
-  async function fetchNotifications() {
-    const token = sessionStorage.getItem("aur_access_token");
-    if (!token) {
-      setNotifications([]);
-      setNotifLoading(false);
-      return;
-    }
+    async function fetchNotifications() {
+      const token = sessionStorage.getItem("aur_access_token");
+      if (!token) {
+        setNotifications([]);
+        setNotifLoading(false);
+        return;
+      }
 
-    try {
-const res = await fetch(`${API_BASE_URL}/api/notifications`, {
-  headers: { Authorization: `Bearer ${token}` },
-});
-      if (!res.ok) throw new Error("Failed to fetch notifications");
-      const data = await res.json();
-      setNotifications(data);
-    } catch {
-      setNotifications([]);
-    } finally {
-      setNotifLoading(false);
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/notifications`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to fetch notifications");
+        const data = await res.json();
+        setNotifications(data);
+      } catch {
+        setNotifications([]);
+      } finally {
+        setNotifLoading(false);
+      }
     }
-  }
-  fetchNotifications();
-}, [showNotifMenu]);
+    fetchNotifications();
+  }, [showNotifMenu]);
 
   function timeAgo(dateString: string) {
     const diffMs = Date.now() - new Date(dateString).getTime();
@@ -156,9 +157,11 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
   }
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
+
   const displayName = currentUser
     ? [currentUser.first_name, currentUser.last_name === "-" ? "" : currentUser.last_name].filter(Boolean).join(" ")
     : "Loading profile...";
+
   const initials = currentUser
     ? `${currentUser.first_name[0] ?? ""}${currentUser.last_name !== "-" ? currentUser.last_name[0] ?? "" : ""}`.toUpperCase()
     : "...";
@@ -187,7 +190,7 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
 
           {/* ── Navigation Links - Desktop ── */}
           <nav className="hidden lg:flex space-x-1 items-center">
-            {TOP_NAV_LINKS.map((link) => {
+            {TOP_NAV_LINKS.filter(link => isAuthenticated || link.view === "home").map((link) => {
               const isActive = activeView === link.view;
 
               if (link.view === "news") {
@@ -343,6 +346,9 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                   <div className="border-t border-[var(--aur-border)] my-1" />
                   <button
                     onClick={() => {
+                      sessionStorage.removeItem("aur_access_token");
+                      sessionStorage.removeItem("aur_refresh_token");
+                      localStorage.removeItem("aur_logged_in");
                       setCurrentUser(null);
                       setShowProfileMenu(false);
                       onSignOut?.();
