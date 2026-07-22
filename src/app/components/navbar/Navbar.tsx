@@ -19,6 +19,14 @@ type NotificationItem = {
   created_at: string;
 };
 
+type CurrentUser = {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: string;
+};
+
 export default function Navbar() {
   const { showToast } = useToast();
   const {
@@ -38,6 +46,9 @@ export default function Navbar() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [notifLoading, setNotifLoading] = useState(true);
 
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const [userLoading, setUserLoading] = useState(true);
+
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
@@ -53,6 +64,30 @@ export default function Navbar() {
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Fetch the real logged-in user's profile
+  useEffect(() => {
+    async function fetchCurrentUser() {
+      try {
+        const token = sessionStorage.getItem("aur_access_token");
+        if (!token) {
+          setUserLoading(false);
+          return;
+        }
+        const res = await fetch(`${API_BASE_URL}/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to fetch current user");
+        const data = await res.json();
+        setCurrentUser(data);
+      } catch (err) {
+        console.error("Error fetching current user:", err);
+      } finally {
+        setUserLoading(false);
+      }
+    }
+    fetchCurrentUser();
   }, []);
 
   // Fetch real notifications from backend
@@ -98,6 +133,18 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
   }
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
+
+  const displayName = currentUser
+    ? `${currentUser.first_name} ${currentUser.last_name}`.trim()
+    : userLoading
+    ? "Loading..."
+    : "Guest";
+
+  const displayEmail = currentUser ? currentUser.email : "";
+
+  const avatarInitials = currentUser
+    ? `${currentUser.first_name?.[0] ?? ""}${currentUser.last_name?.[0] ?? ""}`.toUpperCase() || "U"
+    : "U";
 
   return (
     <header
@@ -232,7 +279,7 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                 className="flex items-center gap-1.5 focus:outline-none group"
               >
                 <div className="h-8 w-8 rounded-none bg-white flex items-center justify-center text-[#1A365D] text-[11px] font-bold tracking-wide transition-transform duration-200 group-hover:scale-105">
-                  US
+                  {avatarInitials}
                 </div>
                 <ChevronDown className="h-3 w-3 text-white/80 group-hover:text-white transition-colors hidden sm:block" />
               </button>
@@ -240,8 +287,8 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
               {showProfileMenu && (
                 <div className="absolute right-0 top-full mt-2 w-52 rounded-none border border-[var(--aur-border)] bg-[var(--aur-surface)] shadow-xl py-1.5 z-50">
                   <div className="px-4 py-3 border-b border-[var(--aur-border)]">
-                    <span className="block font-bold text-[var(--aur-text)] text-sm">Dr. John Doe</span>
-                    <span className="block text-[10px] text-[var(--aur-text-muted)] mt-0.5">j.doe@university.edu</span>
+                    <span className="block font-bold text-[var(--aur-text)] text-sm">{displayName}</span>
+                    <span className="block text-[10px] text-[var(--aur-text-muted)] mt-0.5">{displayEmail}</span>
                   </div>
                   {[
                     { label: "My Profile", icon: User, action: () => {} },
@@ -259,7 +306,13 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                   ))}
                   <div className="border-t border-[var(--aur-border)] my-1" />
                   <button
-                    onClick={() => { handleViewChange("login"); setShowProfileMenu(false); }}
+                    onClick={() => {
+                      sessionStorage.removeItem("aur_access_token");
+                      sessionStorage.removeItem("aur_refresh_token");
+                      localStorage.removeItem("aur_logged_in");
+                      handleViewChange("login");
+                      setShowProfileMenu(false);
+                    }}
                     className="w-full text-left px-4 py-2.5 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center gap-2.5 transition-colors"
                   >
                     <LogOut className="h-3.5 w-3.5" />
