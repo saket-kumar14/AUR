@@ -14,19 +14,18 @@ import UniversityProfile from "./components/UniversityProfile";
 import Footer from "./components/Footer";
 import FloatingChatAssistant from "./components/FloatingChatAssistant";
 import AnalyticsDashboard from "./components/AnalyticsDashboard";
-import AdminConsole from "./components/AdminConsole";
 import Login from "./components/Login";
 import UserDashboard from "./components/UserDashboard";
 import UniversitiesList from "./components/UniversitiesList";
+// import Methodology from "./components/Methodology";
 import Methodology from "./components/Methodology";
 import EventsAndAwards from "./components/EventsAndAwards";
 import FacultyStudentAwards from "./components/FacultyStudentAwards";
-import Membership from "./components/Membership";
+import BlogForm from "./components/blog/BlogForm";
 import { useSidebar } from "./components/navigation/SidebarContext";
 import { useUniversityData } from "./components/data/UniversityDataProvider";
 import { Article, MOCK_UNIVERSITIES } from "./data";
 import { Bookmark, ShieldAlert } from "lucide-react";
-import Sidebar from "./components/sidebar/Sidebar";
 import { API_BASE_URL } from "./lib/universities";
 import DiscoveryJoinModal from "./components/DiscoveryJoinModal";
 import ProfileSection from "./components/ProfileSection";
@@ -47,7 +46,6 @@ export default function AppContent() {
     handleToggleCompare,
     handleRemoveCompare,
     handleClearCompare,
-    isCollapsed,
     searchQuery,
     setSearchQuery,
   } = useSidebar();
@@ -137,7 +135,7 @@ useEffect(() => {
 }, [uniDirectory, universities]);
   // Derived state from URL (synced with context)
   const view = !isAuthenticated && activeView !== "home" && activeView !== "login"
-    ? "home"
+    ? "login"
     : activeView;
   const id = selectedUniId;
 
@@ -187,6 +185,7 @@ useEffect(() => {
 
   const handleUniversitySelect = (uniId: string) => {
     setSelectedUniId(uniId);
+    handleViewChange("university-profile");
   };
 
   const handleBackToRankings = () => {
@@ -213,7 +212,7 @@ useEffect(() => {
 
   useEffect(() => {
     if (authReady && !isAuthenticated && activeView !== "home" && activeView !== "login") {
-      router.replace("?view=home");
+      router.replace("?view=login&mode=login");
     }
   }, [activeView, authReady, isAuthenticated, router]);
 
@@ -243,7 +242,6 @@ useEffect(() => {
     }
   };
 
-  const showSidebar = view !== "home" && view !== "login" && view !== "admin";
 
   return (
     <div className={`${view === "home" ? "bg-gradient-to-b from-amber-50/50 via-white to-blue-50 dark:bg-none dark:bg-cyber-black" : "aur-page"} flex min-h-screen flex-col transition-colors duration-300`}>
@@ -258,19 +256,11 @@ useEffect(() => {
       )}
 
       {/* Main Core Layout */}
-      <div className="flex-grow flex w-full">
-        
-        {/* Collapsible Left Sidebar — shown on non-home views */}
-        {showSidebar && (
-          <Sidebar
-            isAuthenticated={isAuthenticated}
-          />
-        )}
-
+      <div className="flex w-full grow">
         {/* Main Content Area — Full Width */}
         <main
           className={`flex-1 flex flex-col min-w-0 pb-20 md:pb-0 ${
-            view === "home" || view === "login" || view === "admin" ? "p-0" : "px-4 pt-4 lg:px-8 lg:pt-8"
+            view === "home" || view === "login" ? "p-0" : "px-4 pt-4 lg:px-8 lg:pt-8"
           }`}
           style={{ isolation: "isolate" }}
         >
@@ -289,15 +279,7 @@ useEffect(() => {
               onUniversitySelect={handleUniversitySelect}
               onArticleSelect={handleArticleSelect}
               onViewChange={handleViewChange}
-            />
-          )}
-
-          {view === "universities" && (
-            <UniversitiesList
-              onUniversitySelect={handleUniversitySelect}
-              onViewChange={handleViewChange}
-              savedUniIds={savedUniIds}
-              onToggleSave={handleToggleSave}
+              isAuthenticated={isAuthenticated}
             />
           )}
 
@@ -332,19 +314,13 @@ useEffect(() => {
           {view === "analytics" && <AnalyticsDashboard />}
 
           {/* Methodology */}
-          {view === "methodology" && <Methodology />}
-
-          {/* Membership */}
-          {view === "membership" && <Membership />}
+          {/* {view === "methodology" && <Methodology />} */}
 
           {/* Events & Awards */}
           {view === "events" && <EventsAndAwards />}
 
           {/* Faculty & Student Awards */}
           {view === "faculty-awards" && <FacultyStudentAwards />}
-
-          {/* Admin Console */}
-          {view === "admin" && <AdminConsole />}
 
           {/* Login View */}
           {view === "login" && (
@@ -388,6 +364,7 @@ useEffect(() => {
       </div>
 
       {/* Mobile Responsive Navigation Drawer & Bottom Bar */}
+      {view !== "login" && <MobileMenu />}
       {view !== "login" && view !== "admin" && (
         <MobileMenu
           isAuthenticated={isAuthenticated}
@@ -396,7 +373,7 @@ useEffect(() => {
         />
       )}
 
-      {view !== "login" && view !== "admin" && (
+      {view !== "login" && (
         <ComparisonDock
           selectedIds={selectedUniIds}
           onRemove={handleRemoveCompare}
@@ -405,7 +382,7 @@ useEffect(() => {
         />
       )}
 
-      {view !== "login" && view !== "admin" && <FloatingChatAssistant />}
+      {view !== "login" && <FloatingChatAssistant />}
 
       {authReady && !isAuthenticated && view === "home" && (
         <DiscoveryJoinModal

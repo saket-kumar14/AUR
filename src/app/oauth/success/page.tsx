@@ -15,6 +15,7 @@ import { useRouter, useSearchParams } from "next/navigation";
  *  2. Persists them exactly the same way the email/password Login does
  *  3. Redirects to the home view
  */
+
 function OAuthSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -137,7 +138,7 @@ function OAuthSuccessContent() {
             fontSize: "1.5rem",
           }}
         >
-          ✕
+          &times;
         </div>
         <h2 style={{ color: "#f9fafb", fontSize: "1.1rem", margin: "0 0 0.5rem" }}>
           Authentication Failed
@@ -168,7 +169,7 @@ function OAuthSuccessContent() {
 
 export default function OAuthSuccess() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<div>Loading...</div>}>
       <OAuthSuccessContent />
     </Suspense>
   );

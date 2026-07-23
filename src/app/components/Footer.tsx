@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { BrandLogo } from "./BrandLogo";
+import Image from "next/image";
 import { useSidebar } from "./navigation/SidebarContext";
 import { API_BASE_URL } from "../lib/universities";
 
@@ -80,23 +80,29 @@ const handleSubscribe = async (event: React.FormEvent<HTMLFormElement>) => {
 };
 
   return (
-    <footer className="mt-12 bg-slate-950 text-slate-100">
+    <footer className="mt-12 bg-white text-slate-900">
       <div
         
         
         
         
-        className="border-t border-slate-800 bg-slate-950 px-4 sm:px-6 lg:px-8 py-12"
+        className="border-t border-slate-200 bg-white px-4 sm:px-6 lg:px-8 py-12"
       >
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-4">
             <div className="space-y-5">
-              <div className="flex items-center mb-6 transform scale-[0.85] origin-left">
-                <BrandLogo theme="dark" />
+              <div className="flex items-center mb-4">
+                <Image
+                  src="/logo.png"
+                  alt="Asia University Rankings Logo"
+                  width={160}
+                  height={136}
+                  style={{ objectFit: "contain" }}
+                  priority
+                />
               </div>
               <div>
-                <p className="text-lg font-semibold tracking-tight text-white">Asia University Rankings</p>
-                <p className="mt-3 text-sm leading-6 text-slate-300">
+                <p className="mt-3 text-sm leading-6 text-slate-600">
                   The trusted portal for ranking, comparing, and discovering top institutions across Asia.
                 </p>
               </div>
@@ -109,7 +115,7 @@ const handleSubscribe = async (event: React.FormEvent<HTMLFormElement>) => {
                         target="_blank"
                         rel="noreferrer"
                         aria-label={social.label}
-                        className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-slate-300  duration-200 hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-600  duration-200 hover:bg-slate-200 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
                       >
                         <img
                           src={social.imgSrc}
@@ -124,24 +130,24 @@ const handleSubscribe = async (event: React.FormEvent<HTMLFormElement>) => {
             </div>
 
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-slate-500">
+              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-slate-600">
                 Explore
               </p>
-              <ul className="mt-6 space-y-3 text-sm text-slate-300">
+              <ul className="mt-6 space-y-3 text-sm text-slate-600">
                 {exploreLinks.map((item) => (
                   <li key={item.label}>
                     {item.view ? (
                       <button
                         type="button"
                         onClick={() => handleViewChange(item.view!)}
-                        className="flex w-full items-center justify-start gap-3 transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                        className="flex w-full items-center justify-start gap-3 transition-colors duration-200 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
                       >
                         <ArrowRight className="h-3.5 w-3.5 text-amber-500" aria-hidden="true" />
                         {item.label}
                       </button>
                     ) : (
-                      <span className="flex w-full items-center justify-start gap-3 text-slate-500 italic">
-                        <ArrowRight className="h-3.5 w-3.5 text-slate-500" aria-hidden="true" />
+                      <span className="flex w-full items-center justify-start gap-3 text-slate-600 italic">
+                        <ArrowRight className="h-3.5 w-3.5 text-slate-600" aria-hidden="true" />
                         {item.label}
                       </span>
                     )}
@@ -151,14 +157,14 @@ const handleSubscribe = async (event: React.FormEvent<HTMLFormElement>) => {
             </div>
 
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-slate-500">
+              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-slate-600">
                 Resources
               </p>
-              <ul className="mt-6 space-y-3 text-sm text-slate-300">
+              <ul className="mt-6 space-y-3 text-sm text-slate-600">
                 {resourcesLinks.map((item) => (
                   <li key={item.label}>
-                    <span className="inline-flex items-center gap-3 text-slate-500 italic">
-                      <ArrowRight className="h-3.5 w-3.5 text-slate-500" aria-hidden="true" />
+                    <span className="inline-flex items-center gap-3 text-slate-600 italic">
+                      <ArrowRight className="h-3.5 w-3.5 text-slate-600" aria-hidden="true" />
                       {item.label}
                     </span>
                   </li>
@@ -168,10 +174,10 @@ const handleSubscribe = async (event: React.FormEvent<HTMLFormElement>) => {
 
             <div className="space-y-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.35em] text-slate-500">
+                <p className="text-sm font-semibold uppercase tracking-[0.35em] text-slate-600">
                   Newsletter
                 </p>
-                <p className="mt-3 text-sm leading-6 text-slate-300">
+                <p className="mt-3 text-sm leading-6 text-slate-600">
                   Stay updated with the latest ranking insights, scholarship news, and institution highlights.
                 </p>
               </div>
@@ -187,19 +193,19 @@ const handleSubscribe = async (event: React.FormEvent<HTMLFormElement>) => {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="Enter your email"
-                  className="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none  duration-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+                  className="w-full rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-600 outline-none  duration-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-white"
                   aria-label="Email address"
                 />
                 <button
   type="submit"
   disabled={loading}
-  className="inline-flex w-full items-center justify-center rounded-2xl bg-amber-500 px-5 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-slate-950  duration-200 hover:bg-amber-400 hover:shadow-[0_0_30px_rgba(234,179,8,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+  className="inline-flex w-full items-center justify-center rounded-2xl bg-amber-500 px-5 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-slate-950  duration-200 hover:bg-amber-400 hover:shadow-[0_0_30px_rgba(234,179,8,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-60"
 >
   {loading ? "..." : "Subscribe"}
 </button>
               </form>
               {status ? (
-                <p className="text-sm text-slate-400" aria-live="polite">
+                <p className="text-sm text-slate-500" aria-live="polite">
                   {status}
                 </p>
               ) : null}

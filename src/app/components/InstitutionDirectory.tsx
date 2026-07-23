@@ -7,9 +7,9 @@ import { useSidebar } from "./navigation/SidebarContext";
 import { useUniversityData } from "./data/UniversityDataProvider";
 
 const COUNTRY_FLAGS: Record<string, string> = {
-  China: "🇨🇳", Japan: "🇯🇵", "South Korea": "🇰🇷", Singapore: "🇸🇬",
-  "Hong Kong": "🇭🇰", India: "🇮🇳", Taiwan: "🇹🇼", Malaysia: "🇲🇾",
-  Thailand: "🇹🇭", Indonesia: "🇮🇩", Uzbekistan: "🇺🇿",
+  China: "", Japan: "", "South Korea": "", Singapore: "",
+  "Hong Kong": "", India: "", Taiwan: "", Malaysia: "",
+  Thailand: "", Indonesia: "", Uzbekistan: "",
 };
 
 interface Props { onUniversitySelect: (id: string) => void; }
@@ -62,7 +62,7 @@ function UniversityCard({ uni, rank, onClick }: { uni: University; rank: number;
             {uni.name}
           </h3>
           <div className="flex items-center gap-1.5 mt-2 text-[13px] text-slate-500">
-            <span>{COUNTRY_FLAGS[uni.location] ?? "🌏"}</span>
+            <span>{COUNTRY_FLAGS[uni.location] ?? ""}</span>
             <span className="font-medium">{uni.location}</span>
           </div>
         </div>
@@ -145,7 +145,7 @@ export default function InstitutionDirectory({ onUniversitySelect }: Props) {
             >
               {ALL_COUNTRIES.map((c) => (
                 <option key={c} value={c}>
-                  {c === "All" ? "All Countries" : `${COUNTRY_FLAGS[c] ?? "🌏"} ${c}`}
+                  {c === "All" ? "All Countries" : `${c}`}
                 </option>
               ))}
             </select>
@@ -159,7 +159,7 @@ export default function InstitutionDirectory({ onUniversitySelect }: Props) {
                   : "bg-slate-50 text-slate-500 border-slate-200 hover:border-rose-300 hover:text-rose-500"
               }`}
             >
-              🏥 Medicine Only
+              Medicine Only
             </button>
 
             {/* Eligibility toggle */}

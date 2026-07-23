@@ -95,7 +95,8 @@ async def fetch_external_news(query: str = "higher education Asia university", l
             response = await client.get(GNEWS_BASE_URL, params=params)
             response.raise_for_status()
             payload = response.json()
-    except Exception:
+    except Exception as e:
+        print(f"GNEWS ERROR: {type(e).__name__}: {e}")
         return []
 
     raw_articles = payload.get("articles", [])

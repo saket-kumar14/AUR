@@ -62,6 +62,7 @@ export default function Navbar({
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
+  // Fetch the real logged-in user's profile
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -109,29 +110,29 @@ export default function Navbar({
 
   // Fetch real notifications from backend
   useEffect(() => {
-  async function fetchNotifications() {
-    const token = sessionStorage.getItem("aur_access_token");
-    if (!token) {
-      setNotifications([]);
-      setNotifLoading(false);
-      return;
-    }
+    async function fetchNotifications() {
+      const token = sessionStorage.getItem("aur_access_token");
+      if (!token) {
+        setNotifications([]);
+        setNotifLoading(false);
+        return;
+      }
 
-    try {
-const res = await fetch(`${API_BASE_URL}/api/notifications`, {
-  headers: { Authorization: `Bearer ${token}` },
-});
-      if (!res.ok) throw new Error("Failed to fetch notifications");
-      const data = await res.json();
-      setNotifications(data);
-    } catch {
-      setNotifications([]);
-    } finally {
-      setNotifLoading(false);
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/notifications`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to fetch notifications");
+        const data = await res.json();
+        setNotifications(data);
+      } catch {
+        setNotifications([]);
+      } finally {
+        setNotifLoading(false);
+      }
     }
-  }
-  fetchNotifications();
-}, [showNotifMenu]);
+    fetchNotifications();
+  }, [showNotifMenu]);
 
   function timeAgo(dateString: string) {
     const diffMs = Date.now() - new Date(dateString).getTime();
@@ -156,16 +157,18 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
   }
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
+
   const displayName = currentUser
     ? [currentUser.first_name, currentUser.last_name === "-" ? "" : currentUser.last_name].filter(Boolean).join(" ")
     : "Loading profile...";
+
   const initials = currentUser
     ? `${currentUser.first_name[0] ?? ""}${currentUser.last_name !== "-" ? currentUser.last_name[0] ?? "" : ""}`.toUpperCase()
     : "...";
 
   return (
     <header
-      className="sticky top-0 z-40 w-full border-b border-[#1A365D] bg-[#1A365D]"
+      className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white"
       style={{ willChange: "transform", transform: "translateZ(0)" }}
     >
       <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
@@ -174,20 +177,18 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
           {/* ── Logo — crystal clear, merged flush into bar ── */}
           <div
             onClick={() => handleViewChange("home")}
-            className="flex items-center cursor-pointer shrink-0 select-none w-[150px]"
+            className="flex items-center cursor-pointer shrink-0 select-none h-16"
             title="Asia University Rankings"
           >
-            <div className="scale-[0.55] transform-gpu origin-left">
-              <BrandLogo theme="dark" />
-            </div>
+            <BrandLogo theme="dark" />
           </div>
 
           {/* ── Vertical divider ── */}
-          <div className="hidden md:block h-6 w-px bg-white/20 shrink-0 mx-2" />
+          <div className="hidden md:block h-6 w-px bg-slate-200 shrink-0 mx-2" />
 
           {/* ── Navigation Links - Desktop ── */}
           <nav className="hidden lg:flex space-x-1 items-center">
-            {TOP_NAV_LINKS.map((link) => {
+            {TOP_NAV_LINKS.filter(link => isAuthenticated || link.view === "home").map((link) => {
               const isActive = activeView === link.view;
 
               if (link.view === "news") {
@@ -195,7 +196,7 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                   <Link
                     key={link.label}
                     href="/news"
-                    className="relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all duration-300 rounded-none text-white/80 hover:text-white after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-white after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:origin-left"
+                    className="relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all duration-300 rounded-none text-[#1A365D] hover:text-[#1A365D]/80 after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#1A365D] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:origin-left"
                   >
                     {link.label}
                   </Link>
@@ -206,10 +207,10 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                 <button
                   key={link.label}
                   onClick={() => handleViewChange(link.view)}
-                  className={`relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all duration-300 rounded-none after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-white after:transition-transform after:duration-300 after:origin-left ${
+                  className={`relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all duration-300 rounded-none after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#1A365D] after:transition-transform after:duration-300 after:origin-left ${
                     isActive
-                      ? "text-white after:scale-x-100"
-                      : "text-white/80 hover:text-white after:scale-x-0 hover:after:scale-x-100"
+                      ? "text-[#1A365D] after:scale-x-100"
+                      : "text-[#1A365D]/80 hover:text-[#1A365D] after:scale-x-0 hover:after:scale-x-100"
                   }`}
                 >
                   {link.label}
@@ -232,14 +233,14 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                 <button
                   type="button"
                   onClick={onLogIn}
-                  className="relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white/80 transition-all duration-300 hover:text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
+                   className="relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[#1A365D] transition-all duration-300 hover:text-[#1A365D]/80 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-[#1A365D] after:transition-transform after:duration-300 hover:after:scale-x-100"
                 >
                   Log In
                 </button>
                 <button
                   type="button"
                   onClick={onSignUp}
-                  className="relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white/80 transition-all duration-300 hover:text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
+                   className="relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[#1A365D] transition-all duration-300 hover:text-[#1A365D]/80 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-[#1A365D] after:transition-transform after:duration-300 hover:after:scale-x-100"
                 >
                   Sign Up
                 </button>
@@ -252,7 +253,7 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                 type="button"
                 onClick={() => setShowNotifMenu(!showNotifMenu)}
                 aria-label="Open notifications"
-                className="p-2 rounded-md text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 relative"
+                className="p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200 relative"
               >
                 <Bell className="h-4 w-4" />
                 {unreadCount > 0 && (
@@ -304,7 +305,7 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
             </div>}
 
             {/* Divider */}
-            {isAuthenticated && <div className="h-6 w-px bg-white/20 mx-1 hidden sm:block" />}
+            {isAuthenticated && <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block" />}
 
             {/* Profile avatar */}
             {isAuthenticated && <div className="relative" ref={profileRef}>
@@ -314,10 +315,10 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                 aria-label="Open profile menu"
                 className="flex items-center gap-1.5 focus:outline-none group"
               >
-                <div className="h-8 w-8 rounded-none bg-white flex items-center justify-center text-[#1A365D] text-[11px] font-bold tracking-wide transition-transform duration-200 group-hover:scale-105">
+                <div className="h-8 w-8 rounded-full bg-[#1A365D] flex items-center justify-center text-white text-[11px] font-bold tracking-wide transition-transform duration-200 group-hover:scale-105">
                   {initials}
                 </div>
-                <ChevronDown className="h-3 w-3 text-white/80 group-hover:text-white transition-colors hidden sm:block" />
+                <ChevronDown className="h-3 w-3 text-slate-600 group-hover:text-slate-900 transition-colors hidden sm:block" />
               </button>
 
               {showProfileMenu && (
@@ -343,6 +344,9 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                   <div className="border-t border-[var(--aur-border)] my-1" />
                   <button
                     onClick={() => {
+                      sessionStorage.removeItem("aur_access_token");
+                      sessionStorage.removeItem("aur_refresh_token");
+                      localStorage.removeItem("aur_logged_in");
                       setCurrentUser(null);
                       setShowProfileMenu(false);
                       onSignOut?.();
@@ -361,7 +365,7 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
               type="button"
               onClick={() => setIsMobileOpen(!isMobileOpen)}
               aria-label={isMobileOpen ? "Close menu" : "Open menu"}
-              className="p-2 rounded-md text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 md:hidden ml-1"
+              className="p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200 md:hidden ml-1"
             >
               {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>

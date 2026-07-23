@@ -10,10 +10,10 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({ className = "", theme = "d
   return (
     <div className={`flex items-center justify-center ${className}`}>
       <Image 
-        src="/logo_white.png" 
+        src="/logo.png" 
         alt="Asia University Rankings Logo" 
-        width={350} 
-        height={100} 
+        width={120} 
+        height={90} 
         style={{ objectFit: "contain" }}
         priority
       />

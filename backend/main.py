@@ -36,13 +36,13 @@ import os
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 origins = [origin.strip() for origin in frontend_url.split(",")]
 
+app.add_middleware(SessionMiddleware, secret_key=os.getenv("SESSION_SECRET_KEY", "aur-default-session-secret-key-2026"))
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_middleware(SessionMiddleware, secret_key=os.getenv("SESSION_SECRET_KEY"))
 
 
 app.include_router(universities.router)

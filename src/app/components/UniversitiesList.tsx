@@ -154,7 +154,7 @@ export default function UniversitiesList({
         <h3 className="font-serif text-xl font-bold text-[var(--aur-text)] mb-4">
           Browse by Region
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           {REGION_STATS.map((region) => {
             const isSelected = selectedRegion === region.region;
             return (
@@ -416,7 +416,7 @@ export default function UniversitiesList({
                     alt={uni.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#000000]/80 via-[#000000]/20 to-transparent pointer-events-none" />
 
                   {/* University identity overlay */}
                   <div className="absolute bottom-0 left-0 right-0 p-4 flex items-center gap-3 pointer-events-none">
@@ -612,3 +612,4 @@ export default function UniversitiesList({
     </div>
   );
 }
+

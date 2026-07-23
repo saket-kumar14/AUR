@@ -136,25 +136,6 @@ class NewsletterSubscriberResponse(BaseModel):
     class Config:
         from_attributes = True  
 
-class NewsItemResponse(BaseModel):
-    id: str
-    university_id: str
-    headline: str
-    category: str
-    published_date: datetime
-    rank_change: Optional[str] = None
-
-    model_config = ConfigDict(from_attributes = True)    
-
-class NewsFlashResponse(BaseModel):
-    data: List[NewsItemResponse]
-
-class NewsListResponse(BaseModel):
-    page: int
-    limit: int
-    total: int
-    data: List[NewsItemResponse]    
-
 class ExternalNewsItem(BaseModel):
     """
     Shape for a single article pulled live from GNews.
@@ -247,6 +228,35 @@ class FinalScoreResponse(BaseModel):
     judges_count: int
 
 
+class MembershipTierResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    name: str
+    price: float
+    duration_months: int
+    benefits: List[str]
+
+
+class MembershipSubscribeRequest(BaseModel):
+    tier_id: uuid.UUID
+    university_name: str
+    country: str
+    website_url: str
+    contact_name: str
+    job_title: str
+    contact_email: str
+    card_number: str
+    expiry: str
+    cvv: str
+
+
+class UserMembershipResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    tier: MembershipTierResponse
+    start_date: datetime
+    end_date: datetime
+    status: str
 
 class NominationCreate(BaseModel):
     nominee_name: str
