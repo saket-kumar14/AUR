@@ -25,6 +25,7 @@ export default function RegisterUniversity() {
     name: "",
     description: "",
     registrationNumber: "",
+    rankingScore: "",
   });
   const [demographics, setDemographics] = useState({
     students: "",
@@ -74,7 +75,7 @@ export default function RegisterUniversity() {
 
   // Validation
   const isFormValid = () => {
-    if (!basicInfo.name || !basicInfo.description || !basicInfo.registrationNumber) return false;
+    if (!basicInfo.name || !basicInfo.description || !basicInfo.registrationNumber || !basicInfo.rankingScore) return false;
     if (!demographics.students || !demographics.staff) return false;
     if (colleges.some(c => !c.trim())) return false;
     if (courses.some(c => !c.name.trim() || !c.college.trim() || !c.fee.trim())) return false;
@@ -91,6 +92,10 @@ export default function RegisterUniversity() {
       setSubmitting(false);
       setSuccess(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Redirect to dashboard after 2 seconds
+      setTimeout(() => {
+        router.push("/admin/dashboard");
+      }, 2000);
     }, 1500);
   };
 
@@ -100,21 +105,21 @@ export default function RegisterUniversity() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
+    return <div className="min-h-screen flex items-center justify-center text-[#1A365D] bg-slate-50">Loading...</div>;
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-10 px-6 w-full">
+    <div className="max-w-5xl mx-auto py-10 px-6 w-full bg-slate-50 min-h-screen text-slate-900">
       
       {/* Header */}
-      <div className="flex justify-between items-center mb-10 border-b border-neutral-800 pb-6">
+      <div className="flex justify-between items-center mb-10 border-b border-slate-200 pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">University Registration</h1>
-          <p className="text-neutral-400">Add a new university profile to the platform.</p>
+          <h1 className="text-3xl font-bold text-[#1A365D] mb-2 tracking-tight">University Registration</h1>
+          <p className="text-slate-500 font-medium">Add a new university profile to the platform.</p>
         </div>
         <button 
           onClick={handleLogout}
-          className="flex items-center space-x-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded-lg transition-colors text-sm font-medium border border-neutral-700"
+          className="flex items-center space-x-2 px-4 py-2 bg-white hover:bg-slate-100 text-slate-600 rounded-lg transition-colors text-sm font-semibold border border-slate-200 shadow-sm"
         >
           <LogOut className="w-4 h-4" />
           <span>Logout</span>
@@ -125,59 +130,81 @@ export default function RegisterUniversity() {
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-6 rounded-2xl mb-8 flex items-center space-x-4"
+          className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-6 rounded-2xl mb-8 flex items-center justify-between shadow-sm"
         >
-          <CheckCircle2 className="w-8 h-8 text-emerald-400" />
-          <div>
-            <h3 className="text-lg font-semibold text-emerald-300">Registration Successful</h3>
-            <p className="text-emerald-500/80 text-sm mt-1">The university profile has been added to the system.</p>
+          <div className="flex items-center space-x-4">
+            <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+            <div>
+              <h3 className="text-lg font-bold text-emerald-800">Registration Successful</h3>
+              <p className="text-emerald-700 text-sm mt-1 font-medium">The university profile has been added to the system. Redirecting...</p>
+            </div>
           </div>
+          <button 
+            onClick={() => router.push("/admin/dashboard")}
+            className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-colors shadow-sm"
+          >
+            Go to Dashboard
+          </button>
         </motion.div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-8">
         
         {/* Section 1: Basic Info */}
-        <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl overflow-hidden shadow-xl">
-          <div className="bg-neutral-900/80 p-4 border-b border-neutral-800 flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-              <Building2 className="w-4 h-4 text-blue-400" />
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <div className="bg-[#1A365D] p-4 flex items-center space-x-3">
+            <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+              <Building2 className="w-4 h-4 text-white" />
             </div>
-            <h2 className="text-lg font-semibold text-white">1. Basic Information</h2>
+            <h2 className="text-lg font-bold text-white">1. Basic Information</h2>
           </div>
           <div className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-neutral-300">University Name <span className="text-red-400">*</span></label>
+                <label className="text-sm font-bold text-slate-700">University Name <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   required
                   value={basicInfo.name}
                   onChange={(e) => setBasicInfo({...basicInfo, name: e.target.value})}
-                  className="w-full bg-neutral-950 border border-neutral-800 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  className="w-full bg-white border border-slate-300 text-slate-900 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1A365D]/50 focus:border-[#1A365D] shadow-sm"
                   placeholder="e.g. Stanford University"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-neutral-300">Registration / Affiliation Code <span className="text-red-400">*</span></label>
+                <label className="text-sm font-bold text-slate-700">Registration Code <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   required
                   value={basicInfo.registrationNumber}
                   onChange={(e) => setBasicInfo({...basicInfo, registrationNumber: e.target.value})}
-                  className="w-full bg-neutral-950 border border-neutral-800 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  className="w-full bg-white border border-slate-300 text-slate-900 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1A365D]/50 focus:border-[#1A365D] shadow-sm"
                   placeholder="e.g. REG-2023-XYZ"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">Ranking Score <span className="text-red-500">*</span></label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                  required
+                  value={basicInfo.rankingScore}
+                  onChange={(e) => setBasicInfo({...basicInfo, rankingScore: e.target.value})}
+                  className="w-full bg-white border border-slate-300 text-slate-900 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1A365D]/50 focus:border-[#1A365D] shadow-sm"
+                  placeholder="e.g. 85.5"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-300">Description <span className="text-red-400">*</span></label>
+              <label className="text-sm font-bold text-slate-700">Description <span className="text-red-500">*</span></label>
               <textarea
                 required
                 rows={4}
                 value={basicInfo.description}
                 onChange={(e) => setBasicInfo({...basicInfo, description: e.target.value})}
-                className="w-full bg-neutral-950 border border-neutral-800 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-y"
+                className="w-full bg-white border border-slate-300 text-slate-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1A365D]/50 focus:border-[#1A365D] resize-y shadow-sm"
                 placeholder="Detailed description of the university..."
               />
             </div>
@@ -185,33 +212,33 @@ export default function RegisterUniversity() {
         </div>
 
         {/* Section 2: Media Uploads */}
-        <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl overflow-hidden shadow-xl">
-          <div className="bg-neutral-900/80 p-4 border-b border-neutral-800 flex items-center space-x-3">
-            <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-              <ImageIcon className="w-4 h-4 text-purple-400" />
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <div className="bg-[#1A365D] p-4 flex items-center space-x-3">
+            <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+              <ImageIcon className="w-4 h-4 text-white" />
             </div>
-            <h2 className="text-lg font-semibold text-white">2. Media Uploads</h2>
+            <h2 className="text-lg font-bold text-white">2. Media Uploads</h2>
           </div>
           <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-3">
-              <label className="text-sm font-medium text-neutral-300">University Logo</label>
-              <div className="border-2 border-dashed border-neutral-700 rounded-xl p-8 flex flex-col items-center justify-center bg-neutral-950/50 hover:bg-neutral-900 transition-colors group cursor-pointer relative">
+              <label className="text-sm font-bold text-slate-700">University Logo</label>
+              <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 transition-colors group cursor-pointer relative">
                 <input 
                   type="file" 
                   accept="image/*"
                   onChange={(e) => setLogoFile(e.target.files?.[0]?.name || null)}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
-                <ImageIcon className="w-8 h-8 text-neutral-500 group-hover:text-purple-400 transition-colors mb-3" />
-                <p className="text-sm text-neutral-400 text-center">
-                  {logoFile ? <span className="text-purple-400 font-medium">{logoFile}</span> : "Click or drag logo image here"}
+                <ImageIcon className="w-8 h-8 text-slate-400 group-hover:text-[#1A365D] transition-colors mb-3" />
+                <p className="text-sm text-slate-600 text-center font-medium">
+                  {logoFile ? <span className="text-[#1A365D] font-bold">{logoFile}</span> : "Click or drag logo image here"}
                 </p>
-                <p className="text-xs text-neutral-600 mt-1">PNG, JPG up to 2MB</p>
+                <p className="text-xs text-slate-500 mt-1">PNG, JPG up to 2MB</p>
               </div>
             </div>
             <div className="space-y-3">
-              <label className="text-sm font-medium text-neutral-300">Images / Gallery</label>
-              <div className="border-2 border-dashed border-neutral-700 rounded-xl p-8 flex flex-col items-center justify-center bg-neutral-950/50 hover:bg-neutral-900 transition-colors group cursor-pointer relative">
+              <label className="text-sm font-bold text-slate-700">Images / Gallery</label>
+              <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 transition-colors group cursor-pointer relative">
                 <input 
                   type="file" 
                   multiple
@@ -220,48 +247,48 @@ export default function RegisterUniversity() {
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
                 <div className="flex space-x-[-10px] mb-3">
-                  <ImageIcon className="w-8 h-8 text-neutral-500 group-hover:text-purple-400 transition-colors" />
-                  <ImageIcon className="w-8 h-8 text-neutral-600 group-hover:text-purple-500 transition-colors" />
+                  <ImageIcon className="w-8 h-8 text-slate-400 group-hover:text-[#1A365D] transition-colors" />
+                  <ImageIcon className="w-8 h-8 text-slate-300 group-hover:text-[#1A365D]/80 transition-colors" />
                 </div>
-                <p className="text-sm text-neutral-400 text-center">
-                  {galleryCount > 0 ? <span className="text-purple-400 font-medium">{galleryCount} files selected</span> : "Click or drag multiple images"}
+                <p className="text-sm text-slate-600 text-center font-medium">
+                  {galleryCount > 0 ? <span className="text-[#1A365D] font-bold">{galleryCount} files selected</span> : "Click or drag multiple images"}
                 </p>
-                <p className="text-xs text-neutral-600 mt-1">Select multiple files</p>
+                <p className="text-xs text-slate-500 mt-1">Select multiple files</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Section 3: Demographics */}
-        <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl overflow-hidden shadow-xl">
-          <div className="bg-neutral-900/80 p-4 border-b border-neutral-800 flex items-center space-x-3">
-            <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
-              <Users className="w-4 h-4 text-emerald-400" />
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <div className="bg-[#1A365D] p-4 flex items-center space-x-3">
+            <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+              <Users className="w-4 h-4 text-white" />
             </div>
-            <h2 className="text-lg font-semibold text-white">3. Demographics</h2>
+            <h2 className="text-lg font-bold text-white">3. Demographics</h2>
           </div>
           <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-300">Total Number of Students <span className="text-red-400">*</span></label>
+              <label className="text-sm font-bold text-slate-700">Total Number of Students <span className="text-red-500">*</span></label>
               <input
                 type="number"
                 required
                 min="0"
                 value={demographics.students}
                 onChange={(e) => setDemographics({...demographics, students: e.target.value})}
-                className="w-full bg-neutral-950 border border-neutral-800 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                className="w-full bg-white border border-slate-300 text-slate-900 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1A365D]/50 focus:border-[#1A365D] shadow-sm"
                 placeholder="e.g. 15000"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-300">Total Staff / Faculty <span className="text-red-400">*</span></label>
+              <label className="text-sm font-bold text-slate-700">Total Staff / Faculty <span className="text-red-500">*</span></label>
               <input
                 type="number"
                 required
                 min="0"
                 value={demographics.staff}
                 onChange={(e) => setDemographics({...demographics, staff: e.target.value})}
-                className="w-full bg-neutral-950 border border-neutral-800 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                className="w-full bg-white border border-slate-300 text-slate-900 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1A365D]/50 focus:border-[#1A365D] shadow-sm"
                 placeholder="e.g. 2000"
               />
             </div>
@@ -272,18 +299,18 @@ export default function RegisterUniversity() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
           {/* Affiliated Colleges */}
-          <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl overflow-hidden shadow-xl flex flex-col">
-            <div className="bg-neutral-900/80 p-4 border-b border-neutral-800 flex items-center justify-between">
+          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+            <div className="bg-[#1A365D] p-4 flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-amber-500/20 rounded-lg flex items-center justify-center">
-                  <Building2 className="w-4 h-4 text-amber-400" />
+                <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+                  <Building2 className="w-4 h-4 text-white" />
                 </div>
-                <h2 className="text-lg font-semibold text-white">Affiliated Colleges</h2>
+                <h2 className="text-lg font-bold text-white">Affiliated Colleges</h2>
               </div>
               <button 
                 type="button" 
                 onClick={addCollege}
-                className="text-amber-400 hover:text-amber-300 text-sm font-medium flex items-center"
+                className="text-white hover:text-slate-200 text-sm font-bold flex items-center bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors"
               >
                 <Plus className="w-4 h-4 mr-1" /> Add
               </button>
@@ -297,7 +324,7 @@ export default function RegisterUniversity() {
                       required
                       value={college}
                       onChange={(e) => updateCollege(index, e.target.value)}
-                      className="w-full bg-neutral-950 border border-neutral-800 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                      className="w-full bg-white border border-slate-300 text-slate-900 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1A365D]/50 focus:border-[#1A365D] shadow-sm"
                       placeholder={`College Name ${index + 1}`}
                     />
                   </div>
@@ -305,7 +332,7 @@ export default function RegisterUniversity() {
                     <button 
                       type="button" 
                       onClick={() => removeCollege(index)}
-                      className="mt-1 p-2 text-neutral-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                      className="mt-1 p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>
@@ -316,66 +343,66 @@ export default function RegisterUniversity() {
           </div>
 
           {/* Courses & Fees */}
-          <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl overflow-hidden shadow-xl flex flex-col">
-            <div className="bg-neutral-900/80 p-4 border-b border-neutral-800 flex items-center justify-between">
+          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+            <div className="bg-[#1A365D] p-4 flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-rose-500/20 rounded-lg flex items-center justify-center">
-                  <BookOpen className="w-4 h-4 text-rose-400" />
+                <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+                  <BookOpen className="w-4 h-4 text-white" />
                 </div>
-                <h2 className="text-lg font-semibold text-white">Courses & Fees</h2>
+                <h2 className="text-lg font-bold text-white">Courses & Fees</h2>
               </div>
               <button 
                 type="button" 
                 onClick={addCourse}
-                className="text-rose-400 hover:text-rose-300 text-sm font-medium flex items-center"
+                className="text-white hover:text-slate-200 text-sm font-bold flex items-center bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors"
               >
                 <Plus className="w-4 h-4 mr-1" /> Add
               </button>
             </div>
             <div className="p-6 space-y-6 flex-1">
               {courses.map((course, index) => (
-                <div key={index} className="relative bg-neutral-950/50 p-4 rounded-xl border border-neutral-800">
+                <div key={index} className="relative bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm">
                   {courses.length > 1 && (
                     <button 
                       type="button" 
                       onClick={() => removeCourse(index)}
-                      className="absolute top-2 right-2 p-1.5 text-neutral-500 hover:text-red-400 bg-neutral-900 rounded-lg transition-colors"
+                      className="absolute top-2 right-2 p-1.5 text-slate-400 hover:text-red-600 bg-white border border-slate-200 rounded-lg transition-colors shadow-sm"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   )}
-                  <div className="space-y-4 pt-2">
+                  <div className="space-y-4 pt-1">
                     <div className="space-y-1">
-                      <label className="text-xs text-neutral-400 ml-1">Course Name</label>
+                      <label className="text-xs font-bold text-slate-600 ml-1">Course Name</label>
                       <input
                         type="text"
                         required
                         value={course.name}
                         onChange={(e) => updateCourse(index, 'name', e.target.value)}
-                        className="w-full bg-neutral-950 border border-neutral-800 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-rose-500"
+                        className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1A365D] focus:border-[#1A365D]"
                         placeholder="e.g. B.Tech Computer Science"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <label className="text-xs text-neutral-400 ml-1">College</label>
+                        <label className="text-xs font-bold text-slate-600 ml-1">College</label>
                         <input
                           type="text"
                           required
                           value={course.college}
                           onChange={(e) => updateCourse(index, 'college', e.target.value)}
-                          className="w-full bg-neutral-950 border border-neutral-800 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-rose-500"
+                          className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1A365D] focus:border-[#1A365D]"
                           placeholder="College offering it"
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs text-neutral-400 ml-1">Fee (per year)</label>
+                        <label className="text-xs font-bold text-slate-600 ml-1">Fee (per year)</label>
                         <input
                           type="text"
                           required
                           value={course.fee}
                           onChange={(e) => updateCourse(index, 'fee', e.target.value)}
-                          className="w-full bg-neutral-950 border border-neutral-800 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-rose-500"
+                          className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1A365D] focus:border-[#1A365D]"
                           placeholder="e.g. $15,000"
                         />
                       </div>
@@ -388,11 +415,11 @@ export default function RegisterUniversity() {
         </div>
 
         {/* Submit Actions */}
-        <div className="pt-6 flex items-center justify-end border-t border-neutral-800">
+        <div className="pt-6 flex items-center justify-end border-t border-slate-200">
           <button
             type="submit"
             disabled={!isFormValid() || submitting}
-            className="bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 px-8 rounded-xl transition-all duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/20"
+            className="bg-[#1A365D] hover:bg-[#122540] text-white font-bold py-3 px-8 rounded-xl transition-all duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-[#1A365D]/20"
           >
             <Save className="w-5 h-5" />
             <span>{submitting ? "Saving Profile..." : "Complete Registration"}</span>

@@ -37,9 +37,9 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+    <div className="flex-1 flex flex-col items-center justify-center p-6 relative overflow-hidden bg-slate-50">
       {/* Background decoration */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#1A365D]/5 rounded-full blur-[120px] pointer-events-none" />
       
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -47,14 +47,14 @@ export default function AdminLogin() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md relative z-10"
       >
-        <div className="bg-neutral-900/80 backdrop-blur-xl border border-neutral-800 p-8 rounded-2xl shadow-2xl">
+        <div className="bg-white/80 backdrop-blur-xl border border-slate-200 p-8 rounded-2xl shadow-xl">
           
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center mb-4 border border-blue-500/30">
-              <ShieldCheck className="w-8 h-8 text-blue-400" />
+            <div className="w-16 h-16 bg-[#1A365D]/10 rounded-2xl flex items-center justify-center mb-4 border border-[#1A365D]/20">
+              <ShieldCheck className="w-8 h-8 text-[#1A365D]" />
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Admin Console</h1>
-            <p className="text-neutral-400 text-sm mt-1 text-center">
+            <h1 className="text-2xl font-bold text-[#1A365D] tracking-tight">Admin Console</h1>
+            <p className="text-slate-500 text-sm mt-1 text-center">
               Sign in to manage universities and platform data
             </p>
           </div>
@@ -64,39 +64,39 @@ export default function AdminLogin() {
               <motion.div 
                 initial={{ opacity: 0, height: 0 }} 
                 animate={{ opacity: 1, height: 'auto' }} 
-                className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-xl text-center"
+                className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-xl text-center"
               >
                 {error}
               </motion.div>
             )}
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-neutral-300 ml-1">Email Address</label>
+              <label className="text-sm font-semibold text-slate-700 ml-1">Email Address</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-neutral-500" />
+                  <Mail className="h-5 w-5 text-slate-400" />
                 </div>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-neutral-950 border border-neutral-800 text-white rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-neutral-600"
+                  className="w-full bg-white border border-slate-200 text-slate-900 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1A365D]/50 focus:border-[#1A365D] transition-all placeholder:text-slate-400 shadow-sm"
                   placeholder="admin@university.edu"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-neutral-300 ml-1">Password</label>
+              <label className="text-sm font-semibold text-slate-700 ml-1">Password</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-neutral-500" />
+                  <Lock className="h-5 w-5 text-slate-400" />
                 </div>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-neutral-950 border border-neutral-800 text-white rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-neutral-600"
+                  className="w-full bg-white border border-slate-200 text-slate-900 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1A365D]/50 focus:border-[#1A365D] transition-all placeholder:text-slate-400 shadow-sm"
                   placeholder="••••••••"
                 />
               </div>
@@ -105,7 +105,7 @@ export default function AdminLogin() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-70 disabled:cursor-not-allowed group mt-2 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40"
+              className="w-full bg-[#1A365D] hover:bg-[#122540] text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-70 disabled:cursor-not-allowed group mt-2 shadow-md shadow-[#1A365D]/20 hover:shadow-[#1A365D]/40"
             >
               <span>{loading ? "Authenticating..." : "Sign In"}</span>
               {!loading && (
@@ -116,7 +116,7 @@ export default function AdminLogin() {
 
         </div>
         
-        <p className="text-center text-neutral-500 text-xs mt-6">
+        <p className="text-center text-slate-500 text-xs mt-6 font-medium">
           Protected by AES-256 Encryption • Advanced University Ranking
         </p>
       </motion.div>

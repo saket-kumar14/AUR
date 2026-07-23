@@ -296,6 +296,7 @@ const ShaderMaterial = ({
       blendSrc: THREE.SrcAlphaFactor,
       blendDst: THREE.OneFactor,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [size.width, size.height, source]);
 
   return (

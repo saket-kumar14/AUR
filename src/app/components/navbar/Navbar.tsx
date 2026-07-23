@@ -232,6 +232,12 @@ export default function Navbar({
 
             {!isAuthenticated && (
               <div className="hidden items-center gap-1 sm:flex">
+                <a
+                  href="/admin/login"
+                  className="relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-400/90 transition-all duration-300 hover:text-amber-400 mr-2 border border-amber-400/30 rounded hover:bg-amber-400/10"
+                >
+                  Admin Console
+                </a>
                 <button
                   type="button"
                   onClick={onLogIn}
@@ -250,9 +256,17 @@ export default function Navbar({
             )}
 
             {/* Notification bell */}
-            {isAuthenticated && <div className="relative" ref={notifRef}>
-              <button
-                type="button"
+            {isAuthenticated && (
+              <div className="flex items-center gap-2">
+                <a
+                  href="/admin/login"
+                  className="hidden sm:inline-flex relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-400/90 transition-all duration-300 hover:text-amber-400 border border-amber-400/30 rounded hover:bg-amber-400/10"
+                >
+                  Admin Console
+                </a>
+                <div className="relative" ref={notifRef}>
+                  <button
+                    type="button"
                 onClick={() => setShowNotifMenu(!showNotifMenu)}
                 aria-label="Open notifications"
                 className="p-2 rounded-md text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 relative"
@@ -304,7 +318,9 @@ export default function Navbar({
                   </div>
                 </div>
               )}
-            </div>}
+            </div>
+            </div>
+            )}
 
             {/* Divider */}
             {isAuthenticated && <div className="h-6 w-px bg-white/20 mx-1 hidden sm:block" />}
